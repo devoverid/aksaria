@@ -29,7 +29,7 @@ export async function registerCommands(client: Client) {
         }
         catch (err: any) {
             const msg = err instanceof CommandError ? err.message : '❌ Something went wrong when importing the command'
-            log.error(`Failed to register a command: ${msg}`)
+            log.error(`Failed to register a command: ${msg}: ${err.message}`)
         }
     }
 }
