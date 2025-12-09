@@ -2,14 +2,14 @@ version: "3"
 services:
   app:
     build: .
-    image: zuramai/devoffer:latest
+    image: zuramai/aksaria:latest
     ports:
       - 3000:3000
     env_file:
       - .env
     environment:
       # for prisma schema
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASS:-postgres}@db:5432/${DB_NAME:-devoffer}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASS:-postgres}@db:5432/${DB_NAME:-aksaria}
       - NODE_ENV=production
     volumes:
       - ./db:/app/db
@@ -24,7 +24,7 @@ services:
     environment:
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASS:-postgres}
-      - POSTGRES_DB=${DB_NAME:-devoffer}
+      - POSTGRES_DB=${DB_NAME:-aksaria}
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:

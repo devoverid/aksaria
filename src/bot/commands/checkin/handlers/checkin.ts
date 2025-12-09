@@ -48,7 +48,7 @@ export default {
                 .addLabelComponents(
                     new LabelBuilder()
                         .setLabel('Description')
-                        .setDescription('Kindly tell us what you have done ≽ > ⩊ < ≼ ')
+                        .setDescription('Mohon sampaikan catatan pencapaian kecil Tuan/Nona hari ini, walaupun sederhana')
                         .setTextInputComponent(
                             new TextInputBuilder()
                                 .setCustomId('todo')

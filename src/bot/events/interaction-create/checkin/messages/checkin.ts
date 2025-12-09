@@ -20,7 +20,7 @@ export class CheckinMessage extends DiscordAssert {
     static override readonly MSG = {
         ...DiscordAssert.MSG,
         CheckinSuccess: (member: GuildMember, streakCount: number, todo: string, lastCheckin?: Checkin) => `
-# ✅ New Check-In Detected!
+# ✅ Check-In Baru Terdeteksi!
 *お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★
 
 ✨─────✨/✨━━━━✨
@@ -28,36 +28,36 @@ export class CheckinMessage extends DiscordAssert {
 🕓 **Date:** ${getNow()}
 🔥 **Current Streak:** ${streakCount} day(s)
 🗓 **Last Check-In:** ${lastCheckin ? lastCheckin.created_at.toLocaleString('id-ID') : '-'}
-✰⋆｡:ﾟ･*☽:ﾟ･⋆｡✰⋆｡:ﾟ
+⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆
 ${todo}
 
 > ${DUMMY.FOOTER}`,
 
         CheckinSuccessToMember: (checkin: Checkin) => `
-A new [check-in](${checkin.link}) has been submitted and is now waiting for verification.
+Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menunggu pemeriksaan dari Flamewarden. 
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🗓 **Submitted At**: ${checkin.created_at.toLocaleString('id-ID')}
 
-> 🔎 Pending review from Flamewarden; kindly wait`,
+> 🔎 Sedang menunggu peninjauan Flamewarden; mohon Tuan/Nona bersabar`,
 
         CheckinApproved: (flamewarden: GuildMember, checkin: Checkin) => `
-Your [flame](${checkin.link}) burns brighter today.
+[Nyala api](${checkin.link}) Tuan/Nona berkobar lebih terang pada hari ini.
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Approved At**: ${checkin.updated_at!.toLocaleString('id-ID')}
 👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
-> 🔥 Consistency fuels the fire; keep going`,
+> 🔥 Konsistensi ialah bahan bakar nyala api; teruskan langkah Tuan/Nona`,
 
         CheckinRejected: (flamewarden: GuildMember, checkin: Checkin) => `
-This [check-in](${checkin.link}) didn’t meet the requirements and has been rejected.
+[Check-in ini](${checkin.link}) tidak memenuhi syarat dan dengan demikian telah ditolak.
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Reviewed At**: ${checkin.updated_at!.toLocaleString('id-ID')}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
-> 🧯 Your flame flickered, but it hasn’t gone out yet; try again`,
+> 🧯 Nyala api Tuan/Nona meredup, namun belum padam; silakan mencuba kembali`,
     }
 }
