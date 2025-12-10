@@ -30,6 +30,7 @@ export default {
         try {
             const flamewarden = await guild.members.fetch(user.id)
             const emoji = Checkin.assertEmojis(reaction.emoji.name)
+            Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
             await Checkin.assertAllowedChannel(guild, message.channel.id, CHECKIN_CHANNEL)
 
