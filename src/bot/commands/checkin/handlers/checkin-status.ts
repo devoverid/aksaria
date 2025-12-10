@@ -35,7 +35,7 @@ export default {
 
             const { content, embed } = await CheckinStatus.getEmbedStatusContent(
                 interaction.guild,
-                member,
+                user.discord_id,
                 user?.checkins?.[0],
             )
 

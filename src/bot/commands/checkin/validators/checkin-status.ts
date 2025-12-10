@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@generatedDB/client'
 import type { Checkin as CheckinType } from '@type/checkin'
 import type { User } from '@type/user'
-import type { EmbedBuilder, Guild, GuildMember } from 'discord.js'
+import type { EmbedBuilder, Guild } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { Checkin } from '@events/interaction-create/checkin/validators/checkin'
 import { createEmbed } from '@utils/component'
@@ -16,7 +16,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
-    static async getEmbedStatusContent(guild: Guild, member: GuildMember, checkin: CheckinType | undefined) {
+    static async getEmbedStatusContent(guild: Guild, discordUserId: string, checkin: CheckinType | undefined) {
         let content = ''
         let embed: EmbedBuilder
         const checkinStreak = checkin?.checkin_streak
@@ -29,8 +29,8 @@ export class CheckinStatus extends CheckinStatusMessage {
                 case 'WAITING':
                     content = `<@&${FLAMEWARDEN_ROLE}>`
                     embed = createEmbed(
-                        '🧭 Daily Check-In Status',
-                        CheckinStatus.MSG.WaitingCheckin(member, checkin),
+                        `🧭 Check-In #${checkin.public_id}`,
+                        CheckinStatus.MSG.WaitingCheckin(discordUserId, checkin),
                         DUMMY.COLOR,
                         { text: DUMMY.FOOTER },
                     )
@@ -38,8 +38,8 @@ export class CheckinStatus extends CheckinStatusMessage {
 
                 case 'APPROVED':
                     embed = createEmbed(
-                        '🔥 Daily Check-In Status',
-                        CheckinStatus.MSG.ApprovedCheckin(flamewarden, checkin),
+                        `🔥 Check-In #${checkin.public_id}`,
+                        CheckinStatus.MSG.ApprovedCheckin(discordUserId, flamewarden, checkin),
                         DUMMY.COLOR,
                         { text: DUMMY.FOOTER },
                     )
@@ -47,8 +47,8 @@ export class CheckinStatus extends CheckinStatusMessage {
 
                 default:
                     embed = createEmbed(
-                        '❌ Daily Check-In Status',
-                        CheckinStatus.MSG.RejectedCheckin(member, flamewarden, checkin),
+                        `❌ Check-In #${checkin.public_id}`,
+                        CheckinStatus.MSG.RejectedCheckin(discordUserId, flamewarden, checkin),
                         DUMMY.COLOR,
                         { text: DUMMY.FOOTER },
                     )
@@ -57,8 +57,8 @@ export class CheckinStatus extends CheckinStatusMessage {
         }
         else {
             embed = createEmbed(
-                '🧐 Daily Check-In Status',
-                CheckinStatus.MSG.NoCheckin(member, checkinStreak),
+                `🧐 Check-In`,
+                CheckinStatus.MSG.NoCheckin(discordUserId, checkinStreak),
                 DUMMY.COLOR,
                 { text: DUMMY.FOOTER },
             )
