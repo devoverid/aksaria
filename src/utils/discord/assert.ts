@@ -1,4 +1,4 @@
-import type { ChatInputCommandInteraction, Guild, GuildMember, Interaction, Role, TextChannel } from 'discord.js'
+import type { ClientUser, Guild, GuildMember, Role, TextChannel } from 'discord.js'
 import { getTempToken, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
 import { getBotPerms, getChannel, getMissPerms } from '.'
@@ -89,8 +89,8 @@ export class DiscordAssert extends DiscordMessage {
         return channel
     }
 
-    static assertMissPerms(interaction: Interaction | ChatInputCommandInteraction, channel: TextChannel) {
-        const channelPerms = getBotPerms(interaction, channel)
+    static assertMissPerms(user: ClientUser | GuildMember, channel: TextChannel) {
+        const channelPerms = getBotPerms(user, channel)
         const missedPerms = getMissPerms(channelPerms, this.BASE_PERMS)
 
         if (missedPerms.length) {

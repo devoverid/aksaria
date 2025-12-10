@@ -23,7 +23,7 @@ export default {
                 throw new PingError(Ping.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Ping.assertMissPerms(interaction, channel)
+            Ping.assertMissPerms(interaction.client.user, channel)
 
             await sendReply(interaction, 'Pong!')
         }

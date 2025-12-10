@@ -1,4 +1,4 @@
-import type { Attachment, ChatInputCommandInteraction, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel } from 'discord.js'
+import type { Attachment, ChatInputCommandInteraction, ClientUser, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel } from 'discord.js'
 import { MessageFlags, messageLink } from 'discord.js'
 
 export async function getChannel(guild: Guild, id: string): Promise<TextChannel> {
@@ -15,7 +15,7 @@ export async function getBot(guild: Guild): Promise<GuildMember> {
     return guild!.members.me as GuildMember ?? await guild!.members.fetchMe()
 }
 
-export const getBotPerms = (interaction: Interaction, channel: TextChannel): Readonly<PermissionsBitField> => channel.permissionsFor(interaction.client.user!)!
+export const getBotPerms = (user: ClientUser | GuildMember, channel: TextChannel): Readonly<PermissionsBitField> => channel.permissionsFor(user!)!
 
 export function getAttachments(interaction: ChatInputCommandInteraction, fileCount: number): Attachment[] {
     const files: Attachment[] = []

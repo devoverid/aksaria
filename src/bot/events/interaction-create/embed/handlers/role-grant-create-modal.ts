@@ -35,7 +35,7 @@ export default {
             const { channelId, roleId, buttonName } = RoleGrantCreate.getModalId(interaction, interaction.customId)
             const channel = await getChannel(interaction.guild, channelId)
             RoleGrantCreate.assertChannel(channel)
-            RoleGrantCreate.assertMissPerms(interaction, channel)
+            RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
             const role = await getRole(interaction.guild, roleId)
             RoleGrantCreate.assertRole(role)
 
