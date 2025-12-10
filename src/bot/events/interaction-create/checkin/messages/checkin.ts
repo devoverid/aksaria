@@ -12,7 +12,7 @@ export class CheckinMessage extends DiscordAssert {
         SubmittedCheckinNotToday: (checkinMsgLink: string) => `❌ This [submitted check-in](${checkinMsgLink})'s date should equals as today. You can't review this anymore`,
         CheckinIdMissing: '❌ Check-in ID is missing or invalid',
         CheckinIdInvalid: '❌ The provided check-in ID is invalid',
-        UnknownCheckinStatus: '❌ The status for this check-in is unknown or unexpected.',
+        UnknownCheckinStatus: '❌ The status for this check-in is unknown or unexpected',
         UnexpectedSubmittedCheckinMessage: '❌ Something went wrong while submitting your check-in',
         UnexpectedCheckin: '❌ Something went wrong during check-in',
     }
@@ -21,7 +21,7 @@ export class CheckinMessage extends DiscordAssert {
         ...DiscordAssert.MSG,
         CheckinSuccess: (member: GuildMember, streakCount: number, todo: string, lastCheckin?: Checkin) => `
 # ✅ Check-In Baru Terdeteksi!
-*お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★
+*お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★*
 
 ✨─────✨/✨━━━━✨
 👤 **Grinder:** <@${member.id}>
