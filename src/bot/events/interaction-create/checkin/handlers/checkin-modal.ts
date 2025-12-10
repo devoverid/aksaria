@@ -1,5 +1,6 @@
 import type { Event } from '@events/event'
 import type { Attachment, Client, GuildMember, Interaction } from 'discord.js'
+import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { generateCustomId, tempStore } from '@utils/component'
 import { sendReply } from '@utils/discord'
@@ -64,7 +65,7 @@ export default {
                 {
                     files: attachments.length ? attachments : undefined,
                     components: [buttons],
-                    allowedMentions: { users: [member.id], roles: [] },
+                    allowedMentions: { users: [member.id], roles: [FLAMEWARDEN_ROLE] },
                 },
                 true,
             )

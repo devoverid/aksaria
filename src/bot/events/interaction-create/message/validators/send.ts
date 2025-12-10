@@ -9,6 +9,7 @@ export class Send extends SendMessage {
     static override BASE_PERMS = [
         ...DiscordAssert.BASE_PERMS,
         PermissionsBitField.Flags.AttachFiles,
+        PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
     static override ATTACHMENT_COUNT: number = 5

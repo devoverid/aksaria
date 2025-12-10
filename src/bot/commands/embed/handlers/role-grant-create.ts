@@ -30,7 +30,7 @@ export default {
                 throw new EmbedRoleGrantError(RoleGrantCreate.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            RoleGrantCreate.assertMissPerms(interaction, channel)
+            RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
 
             const buttonName = interaction.options.getString('button-name', true)
             const role = interaction.options.getRole('role', true)
@@ -98,7 +98,7 @@ export default {
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
-                sendReply(interaction, err.message)
+                await sendReply(interaction, err.message)
             else log.error(`Failed to handle ${EMBED_ROLE_GRANT_CREATE_MODAL_ID}: ${RoleGrantCreate.ERR.UnexpectedRoleGrantCreate}: ${err}`)
         }
     },

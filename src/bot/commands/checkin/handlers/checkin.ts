@@ -32,7 +32,7 @@ export default {
                 throw new CheckinError(Checkin.ERR.NotGuild)
 
             const channel = await Checkin.assertAllowedChannel(interaction.guild, interaction.channelId, CHECKIN_CHANNEL)
-            Checkin.assertMissPerms(interaction, channel)
+            Checkin.assertMissPerms(interaction.client.user, channel)
 
             const attachments = getAttachments(interaction, Checkin.ATTACHMENT_COUNT)
             const tempToken = Checkin.setTempItem(attachments)

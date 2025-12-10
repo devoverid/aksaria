@@ -33,7 +33,7 @@ export default {
                 throw new EmbedRoleGrantButtonError(RoleGrantCreate.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            RoleGrantCreate.assertMissPerms(interaction, channel)
+            RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
 
             const { roleId } = RoleGrantCreate.getButtonId(interaction, interaction.customId)
             const member = interaction.member as GuildMember

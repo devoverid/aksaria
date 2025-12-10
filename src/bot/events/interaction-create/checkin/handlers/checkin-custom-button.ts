@@ -34,7 +34,7 @@ export default {
                 throw new CheckinCustomButtonError(Checkin.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Checkin.assertMissPerms(interaction, channel)
+            Checkin.assertMissPerms(interaction.client.user, channel)
             const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)

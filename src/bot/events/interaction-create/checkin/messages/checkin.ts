@@ -1,7 +1,7 @@
 import type { Checkin } from '@type/checkin'
 import type { GuildMember } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
-import { getNow } from '@utils/date'
+import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
 
@@ -12,7 +12,7 @@ export class CheckinMessage extends DiscordAssert {
         SubmittedCheckinNotToday: (checkinMsgLink: string) => `❌ This [submitted check-in](${checkinMsgLink})'s date should equals as today. You can't review this anymore`,
         CheckinIdMissing: '❌ Check-in ID is missing or invalid',
         CheckinIdInvalid: '❌ The provided check-in ID is invalid',
-        UnknownCheckinStatus: '❌ The status for this check-in is unknown or unexpected.',
+        UnknownCheckinStatus: '❌ The status for this check-in is unknown or unexpected',
         UnexpectedSubmittedCheckinMessage: '❌ Something went wrong while submitting your check-in',
         UnexpectedCheckin: '❌ Something went wrong during check-in',
     }
@@ -21,13 +21,13 @@ export class CheckinMessage extends DiscordAssert {
         ...DiscordAssert.MSG,
         CheckinSuccess: (member: GuildMember, streakCount: number, todo: string, lastCheckin?: Checkin) => `
 # ✅ Check-In Baru Terdeteksi!
-*お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★
+*お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★*
 
 ✨─────✨/✨━━━━✨
 👤 **Grinder:** <@${member.id}>
-🕓 **Date:** ${getNow()}
+🕓 **Date:** ${getParsedNow()}
 🔥 **Current Streak:** ${streakCount} day(s)
-🗓 **Last Check-In:** ${lastCheckin ? lastCheckin.created_at.toLocaleString('id-ID') : '-'}
+🗓 **Last Check-In:** ${lastCheckin ? getParsedNow(getNow(lastCheckin.created_at)) : '-'}
 ⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆
 ${todo}
 
@@ -36,7 +36,7 @@ ${todo}
         CheckinSuccessToMember: (checkin: Checkin) => `
 Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menunggu pemeriksaan dari Flamewarden. 
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
-🗓 **Submitted At**: ${checkin.created_at.toLocaleString('id-ID')}
+🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 
 > 🔎 Sedang menunggu peninjauan Flamewarden; mohon Tuan/Nona bersabar`,
 
@@ -44,7 +44,7 @@ Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menung
 [Nyala api](${checkin.link}) Tuan/Nona berkobar lebih terang pada hari ini.
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
-🗓 **Approved At**: ${checkin.updated_at!.toLocaleString('id-ID')}
+🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
@@ -54,7 +54,7 @@ Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menung
 [Check-in ini](${checkin.link}) tidak memenuhi syarat dan dengan demikian telah ditolak.
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
-🗓 **Reviewed At**: ${checkin.updated_at!.toLocaleString('id-ID')}
+🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
