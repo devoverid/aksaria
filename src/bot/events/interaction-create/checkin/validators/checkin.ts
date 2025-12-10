@@ -13,7 +13,7 @@ import { isDateToday, isDateYesterday } from '@utils/date'
 import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { attachNewGrindRole, getGrindRoleByStreakCount } from '@utils/discord/roles'
 import { DUMMY } from '@utils/placeholder'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } from 'discord.js'
 import { CHECKIN_APPROVE_BUTTON_ID } from '../handlers/checkin-approve-button'
 import { CHECKIN_CUSTOM_BUTTON_ID } from '../handlers/checkin-custom-button'
 import { CheckinCustomButtonModalError } from '../handlers/checkin-custom-button-modal'
@@ -24,6 +24,7 @@ import { CheckinMessage } from '../messages/checkin'
 export class Checkin extends CheckinMessage {
     static override BASE_PERMS = [
         ...DiscordAssert.BASE_PERMS,
+        PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
     static override ATTACHMENT_COUNT: number = 1

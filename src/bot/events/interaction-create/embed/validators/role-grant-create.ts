@@ -1,6 +1,7 @@
 import type { Interaction } from 'discord.js'
 import { decodeSnowflakes } from '@utils/component'
 import { DiscordAssert } from '@utils/discord'
+import { PermissionsBitField } from 'discord.js'
 import { EmbedRoleGrantButtonError } from '../handlers/role-grant-create-button'
 import { EmbedRoleGrantModalError } from '../handlers/role-grant-create-modal'
 import { RoleGrantCreateMessage } from '../messages/role-grant-create'
@@ -8,6 +9,7 @@ import { RoleGrantCreateMessage } from '../messages/role-grant-create'
 export class RoleGrantCreate extends RoleGrantCreateMessage {
     static override BASE_PERMS = [
         ...DiscordAssert.BASE_PERMS,
+        PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
     static getModalId(interaction: Interaction, customId: string) {
