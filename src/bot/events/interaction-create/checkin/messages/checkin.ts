@@ -1,7 +1,7 @@
 import type { Checkin } from '@type/checkin'
 import type { GuildMember } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
-import { getNow } from '@utils/date'
+import { getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
 
@@ -25,7 +25,7 @@ export class CheckinMessage extends DiscordAssert {
 
 ✨─────✨/✨━━━━✨
 👤 **Grinder:** <@${member.id}>
-🕓 **Date:** ${getNow()}
+🕓 **Date:** ${getParsedNow()}
 🔥 **Current Streak:** ${streakCount} day(s)
 🗓 **Last Check-In:** ${lastCheckin ? lastCheckin.created_at.toLocaleString('id-ID') : '-'}
 ⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆
