@@ -2,7 +2,7 @@ import type { Checkin } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { GuildMember } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
-import { getParsedNow } from '@utils/date'
+import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 
 export class CheckinStatusMessage extends DiscordAssert {
@@ -23,7 +23,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
         `,
         WaitingCheckin: (member: GuildMember, checkin: Checkin) => `
 🆔 **Check-In ID**: [${checkin.public_id}](${checkin.link})
-🗓 **Submitted At**: ${getParsedNow(checkin.created_at)}
+🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Menunggu peninjauan <@&${FLAMEWARDEN_ROLE}>
 > *“Percikan telah Tuan/Nona <@${member.id}> titipkan. Mohon menanti sesaat, <@&${FLAMEWARDEN_ROLE}> tengah menakar apakah nyala tersebut layak menjadi bagian dari perjalanan Tuan/Nona.”*
@@ -32,7 +32,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 🆔 **Check-In ID**: [${checkin.public_id}](${checkin.link})
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
-🗓 **Approved At**: ${getParsedNow(checkin.updated_at!)}
+🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *“Nyala hari ini diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari.”*
@@ -41,7 +41,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 🆔 **Check-In ID**: [${checkin.public_id}](${checkin.link})
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
-🗓 **Reviewed At**: ${getParsedNow(checkin.updated_at!)}
+🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"Api Tuan/Nona <@${member.id}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
