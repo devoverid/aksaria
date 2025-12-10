@@ -27,7 +27,7 @@ export class CheckinMessage extends DiscordAssert {
 👤 **Grinder:** <@${member.id}>
 🕓 **Date:** ${getParsedNow()}
 🔥 **Current Streak:** ${streakCount} day(s)
-🗓 **Last Check-In:** ${lastCheckin ? lastCheckin.created_at.toLocaleString('id-ID') : '-'}
+🗓 **Last Check-In:** ${lastCheckin ? getParsedNow(lastCheckin.created_at) : '-'}
 ⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆
 ${todo}
 
@@ -36,7 +36,7 @@ ${todo}
         CheckinSuccessToMember: (checkin: Checkin) => `
 Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menunggu pemeriksaan dari Flamewarden. 
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
-🗓 **Submitted At**: ${checkin.created_at.toLocaleString('id-ID')}
+🗓 **Submitted At**: ${getParsedNow(checkin.created_at)}
 
 > 🔎 Sedang menunggu peninjauan Flamewarden; mohon Tuan/Nona bersabar`,
 
@@ -44,7 +44,7 @@ Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menung
 [Nyala api](${checkin.link}) Tuan/Nona berkobar lebih terang pada hari ini.
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
-🗓 **Approved At**: ${checkin.updated_at!.toLocaleString('id-ID')}
+🗓 **Approved At**: ${getParsedNow(checkin.updated_at!)}
 👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
@@ -54,7 +54,7 @@ Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menung
 [Check-in ini](${checkin.link}) tidak memenuhi syarat dan dengan demikian telah ditolak.
 🆔 **Check-In ID**: **\`${checkin.public_id}\`**
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
-🗓 **Reviewed At**: ${checkin.updated_at!.toLocaleString('id-ID')}
+🗓 **Reviewed At**: ${getParsedNow(checkin.updated_at!)}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 

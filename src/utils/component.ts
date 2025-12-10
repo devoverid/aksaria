@@ -3,7 +3,6 @@ import type { EmbedFooterOptions } from 'discord.js'
 import { ALPHABETS, CUSTOM_ID_SEPARATOR, SNOWFLAKE_MARKER } from '@constants'
 import { EmbedBuilder } from 'discord.js'
 import { parseHexColor } from './color'
-import { getNow } from './date'
 import { getModuleName } from './io'
 
 const isOnlyDigitSnowflake = (id: string): boolean => /^\d+$/.test(id)
@@ -77,7 +76,7 @@ export function createEmbed(
     if (parsedColor)
         embed.setColor(parsedColor)
     if (date)
-        embed.setTimestamp(getNow())
+        embed.setTimestamp(new Date())
     if (footer)
         embed.setFooter(footer)
 

@@ -2,8 +2,7 @@ export function getNow(date: Date = new Date()) {
     return new Date(date.getTime() + 7 * 60 * 60 * 1000)
 }
 
-export function getParsedNow() {
-    const now = getNow()
+export function getParsedNow(now: Date = getNow()) {
     const day = String(now.getUTCDate()).padStart(2, '0')
     const month = String(now.getUTCMonth() + 1).padStart(2, '0')
     const year = now.getUTCFullYear()
