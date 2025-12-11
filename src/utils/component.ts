@@ -94,31 +94,38 @@ export function createEmbed(
     return embed
 }
 
-export function createCheckinReviewModal(customId: string) {
-    return new ModalBuilder()
-        .setCustomId(customId)
-        .setTitle('Review Check-in')
-        .addLabelComponents(
-            new LabelBuilder()
-                .setLabel('Review Status')
-                .setDescription('Approve or Reject this check-in')
-                .setStringSelectMenuComponent(
-                    new StringSelectMenuBuilder()
-                        .setCustomId('status')
-                        .addOptions(
-                            new StringSelectMenuOptionBuilder().setLabel('❌ Reject').setValue('REJECTED').setDefault(true),
-                            new StringSelectMenuOptionBuilder().setLabel('🔥 Approve').setValue('APPROVED'),
-                        ),
-                ),
-
-            new LabelBuilder()
-                .setLabel('Review Note')
-                .setDescription('Elaborate your thoughts')
-                .setTextInputComponent(
-                    new TextInputBuilder()
-                        .setCustomId('comment')
-                        .setStyle(TextInputStyle.Paragraph)
-                        .setRequired(true),
+export function createCheckinReviewModal(customId: string, setStatusLabel: boolean = true) {
+    const statusLabel = new LabelBuilder()
+        .setLabel('Review Status')
+        .setDescription('Approve or Reject this check-in')
+        .setStringSelectMenuComponent(
+            new StringSelectMenuBuilder()
+                .setCustomId('status')
+                .addOptions(
+                    new StringSelectMenuOptionBuilder().setLabel('❌ Reject').setValue('REJECTED').setDefault(true),
+                    new StringSelectMenuOptionBuilder().setLabel('🔥 Approve').setValue('APPROVED'),
                 ),
         )
+
+    const noteLabel = new LabelBuilder()
+        .setLabel('Review Note')
+        .setDescription('Elaborate your thoughts')
+        .setTextInputComponent(
+            new TextInputBuilder()
+                .setCustomId('comment')
+                .setStyle(TextInputStyle.Paragraph)
+                .setRequired(true),
+        )
+
+    const modal = new ModalBuilder()
+        .setCustomId(customId)
+        .setTitle('Review Check-in')
+
+    if (setStatusLabel) {
+        modal.addLabelComponents(statusLabel)
+    }
+
+    modal.addLabelComponents(noteLabel)
+
+    return modal
 }
