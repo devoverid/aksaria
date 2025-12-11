@@ -1,7 +1,7 @@
 import type { DiscordCustomIdMetadata } from '@type/discord-component'
 import type { EmbedFooterOptions } from 'discord.js'
 import { ALPHABETS, CUSTOM_ID_SEPARATOR, SNOWFLAKE_MARKER } from '@constants'
-import { EmbedBuilder } from 'discord.js'
+import { EmbedBuilder, LabelBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { parseHexColor } from './color'
 import { getModuleName } from './io'
 
@@ -54,6 +54,17 @@ export function decodeSnowflake(data: string): string {
     return result.toString()
 }
 
+export function parseMessageLink(link: string) {
+    const regex = /discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/
+    const match = link.match(regex)
+
+    if (!match)
+        return null
+
+    const [, guildId, channelId, messageId] = match
+    return { guildId, channelId, messageId }
+}
+
 export const getTempToken = () => Math.random().toString(36).slice(2, 8)
 
 export const tempStore = new Map<string, any>()
@@ -81,4 +92,33 @@ export function createEmbed(
         embed.setFooter(footer)
 
     return embed
+}
+
+export function createCheckinReviewModal(customId: string) {
+    return new ModalBuilder()
+        .setCustomId(customId)
+        .setTitle('Review Check-in')
+        .addLabelComponents(
+            new LabelBuilder()
+                .setLabel('Review Status')
+                .setDescription('Approve or Reject this check-in')
+                .setStringSelectMenuComponent(
+                    new StringSelectMenuBuilder()
+                        .setCustomId('status')
+                        .addOptions(
+                            new StringSelectMenuOptionBuilder().setLabel('❌ Reject').setValue('REJECTED').setDefault(true),
+                            new StringSelectMenuOptionBuilder().setLabel('🔥 Approve').setValue('APPROVED'),
+                        ),
+                ),
+
+            new LabelBuilder()
+                .setLabel('Review Note')
+                .setDescription('Elaborate your thoughts')
+                .setTextInputComponent(
+                    new TextInputBuilder()
+                        .setCustomId('comment')
+                        .setStyle(TextInputStyle.Paragraph)
+                        .setRequired(true),
+                ),
+        )
 }
