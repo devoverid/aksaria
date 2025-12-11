@@ -1,5 +1,5 @@
 PLATFORMS ?= linux/amd64,linux/arm64
-REPO ?= zuramai/aksaria
+REPO ?= devover/aksaria
 TAG ?= latest
 IMAGE_TAG = $(REPO):$(TAG)
 LATEST_TAG = $(REPO):latest

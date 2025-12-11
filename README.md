@@ -9,7 +9,7 @@ A discord bot that helps you to become consistent in grinding
 1. Create [.env](./.env.example) file
 2. Run the image
 ```
-docker run --env-file .env zuramai/aksaria:latest
+docker run --env-file .env devover/aksaria:latest
 ```
 
 ### Local development (from source)
