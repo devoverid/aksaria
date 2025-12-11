@@ -22,7 +22,7 @@ export class CheckinMessage extends DiscordAssert {
 *お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★*
 
 ✨─────✨/✨━━━━✨
-👾 **Grinder:** <@${member.id}>
+🌟 **Grinder:** <@${member.id}>
 🕓 **Date:** ${getParsedNow()}
 🔥 **Current Streak:** ${streakCount} day(s)
 🗓 **Last Check-In:** ${lastCheckin ? getParsedNow(getNow(lastCheckin.created_at)) : '-'}
