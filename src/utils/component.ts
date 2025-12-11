@@ -4,6 +4,7 @@ import { ALPHABETS, CUSTOM_ID_SEPARATOR, SNOWFLAKE_MARKER } from '@constants'
 import { EmbedBuilder, LabelBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { parseHexColor } from './color'
 import { getModuleName } from './io'
+import { DUMMY } from './placeholder'
 
 const isOnlyDigitSnowflake = (id: string): boolean => /^\d+$/.test(id)
 
@@ -97,7 +98,7 @@ export function createEmbed(
 export function createCheckinReviewModal(customId: string, setStatusLabel: boolean = true) {
     const statusLabel = new LabelBuilder()
         .setLabel('Review Status')
-        .setDescription('Approve or Reject this check-in')
+        .setDescription('Setujui atau tolak check-in ini')
         .setStringSelectMenuComponent(
             new StringSelectMenuBuilder()
                 .setCustomId('status')
@@ -109,7 +110,7 @@ export function createCheckinReviewModal(customId: string, setStatusLabel: boole
 
     const noteLabel = new LabelBuilder()
         .setLabel('Review Note')
-        .setDescription('Elaborate your thoughts')
+        .setDescription('Berikan pendapat kamu')
         .setTextInputComponent(
             new TextInputBuilder()
                 .setCustomId('comment')
@@ -126,6 +127,7 @@ export function createCheckinReviewModal(customId: string, setStatusLabel: boole
     }
 
     modal.addLabelComponents(noteLabel)
+    modal.addTextDisplayComponents(textDisplay => textDisplay.setContent(DUMMY.MARKDOWN))
 
     return modal
 }

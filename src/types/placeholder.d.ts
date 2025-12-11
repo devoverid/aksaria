@@ -3,4 +3,5 @@ export interface PlaceholderDummy {
     DESC: string
     COLOR: string
     FOOTER: string
+    MARKDOWN: string
 }
