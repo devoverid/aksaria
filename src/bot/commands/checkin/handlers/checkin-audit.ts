@@ -47,8 +47,7 @@ export default {
                 encodeSnowflake(interaction.guildId),
                 checkinId,
             ])
-
-            const modal = createCheckinReviewModal(modalCustomId, false)
+            const modal = createCheckinReviewModal(modalCustomId, checkin, false)
 
             await interaction.showModal(modal)
         }

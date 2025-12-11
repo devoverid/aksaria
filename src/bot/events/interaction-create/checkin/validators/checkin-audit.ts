@@ -66,7 +66,7 @@ ${checkin.public_id}
     static async assertExistCheckinId(prisma: PrismaClient, checkinId: string) {
         const checkin = await prisma.checkin.findUnique({
             where: { public_id: checkinId },
-            include: { user: true },
+            include: { user: true, checkin_streak: true },
         })
         if (!checkin) {
             throw new CheckinAuditError(this.ERR.CheckinIdInvalid)

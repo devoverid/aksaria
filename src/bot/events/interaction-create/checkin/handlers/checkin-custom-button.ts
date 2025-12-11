@@ -1,5 +1,5 @@
 import type { Event } from '@events/event'
-import type { Interaction, TextChannel } from 'discord.js'
+import type { Client, Interaction, TextChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { createCheckinReviewModal, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
@@ -21,7 +21,7 @@ export const CHECKIN_CUSTOM_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filena
 export default {
     name: Events.InteractionCreate,
     desc: 'Opens review modal for a check-in',
-    async exec(_, interaction: Interaction) {
+    async exec(client: Client, interaction: Interaction) {
         if (!interaction.isButton())
             return
 
@@ -40,13 +40,14 @@ export default {
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
             const { checkinId } = Checkin.getButtonId(interaction, interaction.customId)
+            const checkin = await Checkin.getWaitingCheckin(client.prisma, 'id', checkinId)
             const modalCustomId = getCustomId([
                 CHECKIN_CUSTOM_BUTTON_MODAL_ID,
                 encodeSnowflake(interaction.guildId),
                 encodeSnowflake(checkinId.toString()),
                 encodeSnowflake(interaction.message.id),
             ])
-            const modal = createCheckinReviewModal(modalCustomId)
+            const modal = createCheckinReviewModal(modalCustomId, checkin)
 
             await interaction.showModal(modal)
         }
