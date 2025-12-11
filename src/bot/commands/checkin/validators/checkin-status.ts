@@ -16,7 +16,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
-    static async getEmbedStatusContent(guild: Guild, discordUserId: string, checkin: CheckinType | undefined) {
+    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin: CheckinType | undefined) {
         let content = ''
         let embed: EmbedBuilder
         const checkinStreak = checkin?.checkin_streak
@@ -30,7 +30,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                     content = `<@&${FLAMEWARDEN_ROLE}>`
                     embed = createEmbed(
                         `🧭 Check-In #${checkin.public_id}`,
-                        CheckinStatus.MSG.WaitingCheckin(discordUserId, checkin),
+                        CheckinStatus.MSG.WaitingCheckin(userDiscordId, checkin),
                         DUMMY.COLOR,
                         { text: DUMMY.FOOTER },
                     )
@@ -39,7 +39,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                 case 'APPROVED':
                     embed = createEmbed(
                         `🔥 Check-In #${checkin.public_id}`,
-                        CheckinStatus.MSG.ApprovedCheckin(discordUserId, flamewarden, checkin),
+                        CheckinStatus.MSG.ApprovedCheckin(userDiscordId, flamewarden, checkin),
                         DUMMY.COLOR,
                         { text: DUMMY.FOOTER },
                     )
@@ -48,7 +48,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                 default:
                     embed = createEmbed(
                         `❌ Check-In #${checkin.public_id}`,
-                        CheckinStatus.MSG.RejectedCheckin(discordUserId, flamewarden, checkin),
+                        CheckinStatus.MSG.RejectedCheckin(userDiscordId, flamewarden, checkin),
                         DUMMY.COLOR,
                         { text: DUMMY.FOOTER },
                     )
@@ -58,7 +58,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         else {
             embed = createEmbed(
                 `🧐 Check-In`,
-                CheckinStatus.MSG.NoCheckin(discordUserId, checkinStreak),
+                CheckinStatus.MSG.NoCheckin(userDiscordId, checkinStreak),
                 DUMMY.COLOR,
                 { text: DUMMY.FOOTER },
             )
@@ -67,10 +67,10 @@ export class CheckinStatus extends CheckinStatusMessage {
         return { content, embed }
     }
 
-    static async getUser(prisma: PrismaClient, discordUserId: string): Promise<User> {
+    static async getUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
         const user = await prisma.user.findFirst({
             where: {
-                discord_id: discordUserId,
+                discord_id: userDiscordId,
             },
             select: {
                 id: true,
