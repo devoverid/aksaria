@@ -1,9 +1,12 @@
+import type { Checkin } from '@type/checkin'
 import type { DiscordCustomIdMetadata } from '@type/discord-component'
 import type { EmbedFooterOptions } from 'discord.js'
 import { ALPHABETS, CUSTOM_ID_SEPARATOR, SNOWFLAKE_MARKER } from '@constants'
 import { EmbedBuilder, LabelBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { parseHexColor } from './color'
+import { getNow, getParsedNow } from './date'
 import { getModuleName } from './io'
+import { DUMMY } from './placeholder'
 
 const isOnlyDigitSnowflake = (id: string): boolean => /^\d+$/.test(id)
 
@@ -94,10 +97,10 @@ export function createEmbed(
     return embed
 }
 
-export function createCheckinReviewModal(customId: string, setStatusLabel: boolean = true) {
+export function createCheckinReviewModal(customId: string, checkin: Checkin, setStatusLabel: boolean = true) {
     const statusLabel = new LabelBuilder()
         .setLabel('Review Status')
-        .setDescription('Approve or Reject this check-in')
+        .setDescription('Setujui atau tolak check-in ini')
         .setStringSelectMenuComponent(
             new StringSelectMenuBuilder()
                 .setCustomId('status')
@@ -109,7 +112,7 @@ export function createCheckinReviewModal(customId: string, setStatusLabel: boole
 
     const noteLabel = new LabelBuilder()
         .setLabel('Review Note')
-        .setDescription('Elaborate your thoughts')
+        .setDescription('Berikan pendapat kamu')
         .setTextInputComponent(
             new TextInputBuilder()
                 .setCustomId('comment')
@@ -126,6 +129,21 @@ export function createCheckinReviewModal(customId: string, setStatusLabel: boole
     }
 
     modal.addLabelComponents(noteLabel)
+    modal
+        .addTextDisplayComponents(textDisplay => textDisplay.setContent(`
+# Informasi Grinder
+🆔 **Check-In ID**:
+\`\`\`bash
+${checkin.public_id}
+\`\`\`
+🌟 **Grinder**: <@${checkin.user!.discord_id}>
+📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
+🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
+🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
+## Notulen Grinder
+${checkin.description}
+✰⋆｡:ﾟ･*☽:ﾟ･⋆｡✰⋆｡:ﾟ`))
+        .addTextDisplayComponents(textDisplay => textDisplay.setContent(DUMMY.MARKDOWN))
 
     return modal
 }

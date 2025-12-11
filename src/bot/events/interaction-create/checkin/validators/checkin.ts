@@ -1,5 +1,6 @@
 import type { GrindRole } from '@config/discord'
 import type { Prisma, PrismaClient } from '@generatedDB/client'
+import type { Attachment as AttachmentType } from '@type/attachment'
 import type { CheckinAllowedEmojiType, CheckinColumn, CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
@@ -184,7 +185,7 @@ export class Checkin extends CheckinMessage {
         return emoji as CheckinAllowedEmojiType
     }
 
-    static async getOrCreateUser(prisma: PrismaClient, discordUserId: string): Promise<User> {
+    static async getOrCreateUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
         const select = {
             id: true,
             discord_id: true,
@@ -203,8 +204,8 @@ export class Checkin extends CheckinMessage {
         } satisfies Prisma.UserSelect
 
         return prisma.user.upsert({
-            where: { discord_id: discordUserId },
-            create: { discord_id: discordUserId },
+            where: { discord_id: userDiscordId },
+            create: { discord_id: userDiscordId },
             update: {},
             select,
         })
@@ -226,6 +227,8 @@ export class Checkin extends CheckinMessage {
 
         if (!checkin)
             throw new SubmittedCheckinError(this.ERR.PlainMessage)
+
+        await Checkin.setAttachmentOnFirstCheckin(prisma, checkin)
 
         return checkin
     }
@@ -323,20 +326,33 @@ export class Checkin extends CheckinMessage {
     static async createAttachments(
         tx: Prisma.TransactionClient,
         checkin: CheckinType,
-        attachments?: Attachment[],
+        attachments: Attachment[],
     ) {
-        if (attachments?.length) {
-            return await tx.attachment.createMany({
-                data: attachments.map(a => ({
-                    name: a.name,
-                    url: a.url,
-                    type: a.contentType ?? '',
-                    size: a.size,
-                    module_id: checkin.id,
-                    module_type: 'CHECKIN',
-                })),
-            })
-        }
+        await tx.attachment.createMany({
+            data: attachments.map(a => ({
+                name: a.name,
+                url: a.url,
+                type: a.contentType ?? '',
+                size: a.size,
+                module_id: checkin.id,
+                module_type: 'CHECKIN',
+            })),
+        })
+    }
+
+    static async setAttachmentOnFirstCheckin(tx: Prisma.TransactionClient, checkin: CheckinType | undefined) {
+        if (!checkin)
+            return
+
+        const attachment = await tx.attachment.findFirst({
+            where: {
+                module_id: checkin.id,
+                module_type: 'CHECKIN',
+            },
+            orderBy: { created_at: 'asc' },
+        }) as AttachmentType
+
+        checkin.attachment = attachment
     }
 
     static async validateCheckinStreak(
@@ -353,7 +369,10 @@ export class Checkin extends CheckinMessage {
             const checkin = await this.createCheckin(tx, userId, checkinStreak, description)
             const prevCheckin = await this.getPrevCheckin(tx, userId, checkinStreak, checkin)
 
-            await this.createAttachments(tx, checkin, attachments)
+            if (attachments?.length) {
+                await this.createAttachments(tx, checkin, attachments)
+                await this.setAttachmentOnFirstCheckin(tx, checkin)
+            }
 
             return {
                 checkinStreak,
@@ -380,8 +399,8 @@ export class Checkin extends CheckinMessage {
         await this.validateCheckinHandleSubmittedMsg(message, updatedCheckin, checkinStatus)
     }
 
-    static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, discordUserId: string, updatedCheckin: CheckinType) {
-        const member = await guild.members.fetch(discordUserId)
+    static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
+        const member = await guild.members.fetch(userDiscordId)
         this.assertMember(member)
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)

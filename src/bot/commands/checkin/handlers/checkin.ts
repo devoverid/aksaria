@@ -57,6 +57,7 @@ export default {
                                 .setRequired(true),
                         ),
                 )
+                .addTextDisplayComponents(textDisplay => textDisplay.setContent(DUMMY.MARKDOWN))
 
             await interaction.showModal(modal)
         }

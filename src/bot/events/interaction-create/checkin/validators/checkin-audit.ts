@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@generatedDB/client'
-import type { Checkin } from '@type/checkin'
+import type { Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { Interaction } from 'discord.js'
 import { CheckinAuditError } from '@commands/checkin/handlers/checkin-audit'
@@ -9,6 +9,7 @@ import { DiscordAssert } from '@utils/discord'
 import { PermissionsBitField } from 'discord.js'
 import { CheckinAuditModalError } from '../handlers/checkin-audit-modal'
 import { CheckinAuditMessage } from '../messages/checkin-audit'
+import { Checkin } from './checkin'
 
 export class CheckinAudit extends CheckinAuditMessage {
     static override BASE_PERMS = [
@@ -29,13 +30,13 @@ export class CheckinAudit extends CheckinAuditMessage {
         return { prefix, guildId, checkinId }
     }
 
-    static assertCheckinNotToday(checkin: Checkin) {
+    static assertCheckinNotToday(checkin: CheckinType) {
         if (isDateToday(checkin.created_at)) {
             throw new CheckinAuditError(CheckinAudit.ERR.CheckinShouldNotToday(checkin.link!))
         }
     }
 
-    static assertCheckinWithOldestWaiting(currCheckin: Checkin, checkins: Checkin[]) {
+    static assertCheckinWithOldestWaiting(currCheckin: CheckinType, checkins: CheckinType[]) {
         const oldestWaitingCheckin = checkins[0]
 
         const diffMs = Math.abs(currCheckin.created_at.getTime() - oldestWaitingCheckin.created_at.getTime())
@@ -66,16 +67,18 @@ ${checkin.public_id}
     static async assertExistCheckinId(prisma: PrismaClient, checkinId: string) {
         const checkin = await prisma.checkin.findUnique({
             where: { public_id: checkinId },
-            include: { user: true },
+            include: { user: true, checkin_streak: true },
         })
         if (!checkin) {
             throw new CheckinAuditError(this.ERR.CheckinIdInvalid)
         }
 
+        await Checkin.setAttachmentOnFirstCheckin(prisma, checkin)
+
         return checkin
     }
 
-    static async getOldestWaitingCheckins(prisma: PrismaClient, checkinStreakId: number): Promise<Checkin[]> {
+    static async getOldestWaitingCheckins(prisma: PrismaClient, checkinStreakId: number): Promise<CheckinType[]> {
         const checkinStreak = await prisma.checkinStreak.findFirst({
             where: {
                 id: checkinStreakId,

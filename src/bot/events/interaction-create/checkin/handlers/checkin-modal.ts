@@ -37,9 +37,9 @@ export default {
             Checkin.delTempItem(attachments, tempToken)
 
             const todo = interaction.fields.getTextInputValue('todo')
-            const discordUserId: string = interaction.user.id
+            const userDiscordId: string = interaction.user.id
             const member = interaction.member as GuildMember
-            const user = await Checkin.getOrCreateUser(client.prisma, discordUserId)
+            const user = await Checkin.getOrCreateUser(client.prisma, userDiscordId)
 
             Checkin.assertMember(member)
             Checkin.assertMemberGrindRoles(member)
@@ -57,6 +57,7 @@ export default {
                 interaction,
                 Checkin.MSG.CheckinSuccess(
                     member,
+                    checkin,
                     checkinStreak.streak,
                     todo,
                     prevCheckin,

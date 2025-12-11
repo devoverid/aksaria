@@ -26,9 +26,9 @@ export default {
             const channel = await CheckinStatus.assertAllowedChannel(interaction.guild, interaction.channelId, AUDIT_FLAME_CHANNEL)
             CheckinStatus.assertMissPerms(interaction.client.user, channel)
 
-            const discordUserId: string = interaction.user.id
+            const userDiscordId: string = interaction.user.id
             const member = interaction.member as GuildMember
-            const user = await CheckinStatus.getUser(client.prisma, discordUserId)
+            const user = await CheckinStatus.getUser(client.prisma, userDiscordId)
 
             CheckinStatus.assertMember(member)
             CheckinStatus.assertMemberHasRole(member, GRINDER_ROLE)

@@ -54,7 +54,7 @@ export default {
                 .addLabelComponents(
                     new LabelBuilder()
                         .setLabel('Message')
-                        .setDescription('This will be sent as the bot')
+                        .setDescription('Pesan ini akan disampaikan sebagai bot')
                         .setTextInputComponent(
                             new TextInputBuilder()
                                 .setCustomId('message')
@@ -63,6 +63,7 @@ export default {
                                 .setRequired(false),
                         ),
                 )
+                .addTextDisplayComponents(textDisplay => textDisplay.setContent(DUMMY.MARKDOWN))
 
             await interaction.showModal(modal)
         }

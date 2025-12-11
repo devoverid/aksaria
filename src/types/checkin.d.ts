@@ -1,4 +1,5 @@
 import type { Prisma } from '@generatedDB/client'
+import type { Attachment } from './attachment'
 import type { CheckinStreak } from './checkin-streak'
 import type { User } from './user'
 
@@ -20,6 +21,7 @@ export interface Checkin {
 
     user?: User
     checkin_streak?: CheckinStreak
+    attachment?: Attachment | null
 }
 
 export interface CheckinColumn<T extends keyof Prisma.CheckinWhereInput> {
