@@ -37,15 +37,18 @@ export default {
             CheckinAudit.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
             const checkinId = interaction.options.getString('checkin-id', true)
-            await CheckinAudit.assertExistCheckinId(client.prisma, checkinId)
+            const checkin = await CheckinAudit.assertExistCheckinId(client.prisma, checkinId)
+            CheckinAudit.assertCheckinNotToday(checkin)
+            const checkins = await CheckinAudit.getOldestWaitingCheckins(client.prisma, checkin.checkin_streak_id)
+            CheckinAudit.assertCheckinWithOldestWaiting(checkin, checkins)
 
             const modalCustomId = getCustomId([
                 CHECKIN_AUDIT_ID,
                 encodeSnowflake(interaction.guildId),
-                encodeURIComponent(checkinId),
+                checkinId,
             ])
 
-            const modal = createCheckinReviewModal(modalCustomId)
+            const modal = createCheckinReviewModal(modalCustomId, false)
 
             await interaction.showModal(modal)
         }

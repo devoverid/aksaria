@@ -34,7 +34,7 @@ export default {
             await interaction.deferUpdate()
 
             if (!interaction.inCachedGuild())
-                throw new CheckinAuditModalError(Checkin.ERR.NotGuild)
+                throw new CheckinAuditModalError(CheckinAudit.ERR.NotGuild)
 
             const { checkinId } = CheckinAudit.getModalReviewId(interaction, interaction.customId)
 
@@ -45,22 +45,16 @@ export default {
             CheckinAudit.assertMember(flamewarden)
             CheckinAudit.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
-            const checkin = await CheckinAudit.assertExistCheckinId(client.prisma, checkinId)
-            const { messageId } = CheckinAudit.getMessageFromLink(checkin.link!)
-            const message = await checkinChannel.messages.fetch(messageId)
-
-            const status = interaction.fields.getStringSelectValues('status')[0] as CheckinStatusType
+            const status: CheckinStatusType = 'APPROVED'
             const comment = interaction.fields.getTextInputValue('comment')
 
-            await Checkin.validateCheckin(
-                client.prisma,
-                interaction.guild,
-                flamewarden,
-                { key: 'public_id', value: checkinId },
-                message,
-                status,
-                comment,
-            )
+            const checkin = await Checkin.getWaitingCheckin(client.prisma, 'public_id', checkinId)
+            const updatedCheckin = await Checkin.updateCheckinStatus(client.prisma, flamewarden, checkin, status, comment, true)
+            await Checkin.validateCheckinHandleToUser(interaction.guild, flamewarden, checkin.user!.discord_id, updatedCheckin)
+
+            const { messageId } = CheckinAudit.getMessageFromLink(checkin.link!)
+            const message = await checkinChannel.messages.fetch(messageId)
+            await Checkin.validateCheckinHandleSubmittedMsg(message, updatedCheckin, status)
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
