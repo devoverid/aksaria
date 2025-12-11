@@ -85,6 +85,8 @@ export class CheckinStatus extends CheckinStatusMessage {
             },
         }) as User
 
+        await Checkin.setAttachmentOnFirstCheckin(prisma, user?.checkins?.[0])
+
         return user
     }
 }

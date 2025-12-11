@@ -57,6 +57,7 @@ export default {
                 interaction,
                 Checkin.MSG.CheckinSuccess(
                     member,
+                    checkin,
                     checkinStreak.streak,
                     todo,
                     prevCheckin,

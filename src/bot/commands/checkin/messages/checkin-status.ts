@@ -27,6 +27,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${userDiscordId}>
+📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Menunggu peninjauan <@&${FLAMEWARDEN_ROLE}>
@@ -38,6 +39,7 @@ ${checkin.public_id}
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${userDiscordId}>
+📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
@@ -51,6 +53,7 @@ ${checkin.public_id}
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${userDiscordId}>
+📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}

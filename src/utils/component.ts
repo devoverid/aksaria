@@ -137,6 +137,7 @@ export function createCheckinReviewModal(customId: string, checkin: Checkin, set
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${checkin.user!.discord_id}>
+📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 ## Notulen Grinder

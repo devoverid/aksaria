@@ -17,12 +17,13 @@ export class CheckinMessage extends DiscordAssert {
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        CheckinSuccess: (member: GuildMember, streakCount: number, todo: string, lastCheckin?: Checkin) => `
+        CheckinSuccess: (member: GuildMember, checkin: Checkin, streakCount: number, todo: string, lastCheckin?: Checkin) => `
 # ✅ Check-In Baru Terdeteksi!
 *お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★*
 
 ✨─────✨/✨━━━━✨
 🌟 **Grinder:** <@${member.id}>
+📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
 🕓 **Date:** ${getParsedNow()}
 🔥 **Current Streak:** ${streakCount} day(s)
 🗓 **Last Check-In:** ${lastCheckin ? getParsedNow(getNow(lastCheckin.created_at)) : '-'}
