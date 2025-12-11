@@ -154,7 +154,7 @@ export class Checkin extends CheckinMessage {
 
     static assertCheckinToday(user: User) {
         const latestStreak = user.checkin_streaks?.[0]
-        const latestCheckin = user.checkins?.[0]
+        const latestCheckin = latestStreak?.checkins?.[0]
 
         const hasCheckedInToday = this.hasCheckinToday(latestStreak, latestCheckin)
         const checkinIsNonRejected = this.isNotRejectedCheckin(latestCheckin)
@@ -191,13 +191,14 @@ export class Checkin extends CheckinMessage {
             created_at: true,
             updated_at: true,
             checkin_streaks: {
-                take: 1,
                 orderBy: { first_date: 'desc' },
-                include: { checkins: true },
-            },
-            checkins: {
-                orderBy: { created_at: 'desc' },
-                take: 2,
+                take: 1,
+                include: {
+                    checkins: {
+                        orderBy: { created_at: 'desc' },
+                        take: 1,
+                    },
+                },
             },
         } satisfies Prisma.UserSelect
 
@@ -375,12 +376,19 @@ export class Checkin extends CheckinMessage {
         this.assertSubmittedCheckinToday(checkin)
         const updatedCheckin = await this.updateCheckinStatus(prisma, flamewarden, checkin, checkinStatus, comment) as CheckinType
 
-        const member = await guild.members.fetch(checkin.user!.discord_id)
+        await this.validateCheckinHandleToUser(guild, flamewarden, checkin.user!.discord_id, updatedCheckin)
+        await this.validateCheckinHandleSubmittedMsg(message, updatedCheckin, checkinStatus)
+    }
+
+    static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, discordUserId: string, updatedCheckin: CheckinType) {
+        const member = await guild.members.fetch(discordUserId)
         this.assertMember(member)
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
-
         await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)
+    }
+
+    static async validateCheckinHandleSubmittedMsg(message: Message, updatedCheckin: CheckinType, checkinStatus: CheckinStatusType) {
         await this.updateSubmittedCheckin(message, updatedCheckin.checkin_streak!.streak)
         await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
     }
@@ -403,21 +411,30 @@ export class Checkin extends CheckinMessage {
         await member.send({ embeds: [embed] })
     }
 
-    static async updateCheckinStatus(prisma: PrismaClient, member: GuildMember, checkin: CheckinType, checkinStatus: CheckinStatusType, comment?: string | null): Promise<CheckinType> {
+    static async updateCheckinStatus(
+        prisma: PrismaClient,
+        member: GuildMember,
+        checkin: CheckinType,
+        checkinStatus: CheckinStatusType,
+        comment: string | null = null,
+        isLateCheckin: boolean = false,
+    ): Promise<CheckinType> {
+        const updatedDate = isLateCheckin ? checkin.created_at : new Date()
+
         const updatedCheckin = await prisma.checkin.update({
             where: { id: checkin.id },
             data: {
                 status: checkinStatus,
                 reviewed_by: member.id,
                 comment,
-                updated_at: new Date(),
+                updated_at: updatedDate,
                 checkin_streak: {
                     update: {
                         streak: {
                             increment: checkinStatus === 'APPROVED' ? 1 : 0,
                         },
-                        last_date: new Date(),
-                        updated_at: new Date(),
+                        last_date: updatedDate,
+                        updated_at: updatedDate,
                     },
                 },
             },

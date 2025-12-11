@@ -20,8 +20,11 @@ export class DiscordMessage {
         GuildMissing: '❌ The guild could not be found',
         CannotPost: '❌ I can’t post in that channel',
         MessageIdMissing: '❌ Message ID is missing or invalid',
+        MessageLinkInvalid: '❌ The provided message link is invalid',
 
         PlainMessage: '❌ There is nothing to do with this plain message',
+        CheckinIdMissing: '❌ Check-in ID is missing or invalid',
+        CheckinIdInvalid: '❌ The provided check-in ID is invalid',
 
         UnexpectedModal: '❌ Something went wrong while handling the modal component',
         UnexpectedButton: '❌ Something went wrong while handling the button component',
