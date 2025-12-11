@@ -1,5 +1,5 @@
 import type { ClientUser, Guild, GuildMember, Role, TextChannel } from 'discord.js'
-import { getTempToken, tempStore } from '@utils/component'
+import { getTempToken, parseMessageLink, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
 import { getBotPerms, getChannel, getMissPerms } from '.'
 import { DiscordBaseError } from './error'
@@ -29,6 +29,15 @@ export class DiscordAssert extends DiscordMessage {
     )
 
     static ATTACHMENT_COUNT = 10
+
+    static getMessageFromLink(link: string) {
+        const data = parseMessageLink(link)
+
+        if (!data)
+            throw new DiscordAssertError(this.ERR.MessageLinkInvalid)
+
+        return { ...data }
+    }
 
     static setTempItem(items: any): string {
         const token = getTempToken()
