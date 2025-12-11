@@ -22,32 +22,41 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 > *“Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup.”*
         `,
         WaitingCheckin: (discordUserId: string, checkin: Checkin) => `
+🆔 **Check-In ID**:
+\`\`\`bash
+${checkin.public_id}
+\`\`\`
 👾 **Grinder**: <@${discordUserId}>
-🆔 **Check-In ID**: [${checkin.public_id}](${checkin.link})
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Menunggu peninjauan <@&${FLAMEWARDEN_ROLE}>
-> *“Percikan telah Tuan/Nona <@${discordUserId}> titipkan. Mohon menanti sesaat, <@&${FLAMEWARDEN_ROLE}> tengah menakar apakah nyala tersebut layak menjadi bagian dari perjalanan Tuan/Nona.”*
+> *“Percikan telah Tuan/Nona <@${discordUserId}> titipkan. Mohon menanti sesaat, <@&${FLAMEWARDEN_ROLE}> tengah menakar apakah [nyala tersebut](${checkin.link}) layak menjadi bagian dari perjalanan Tuan/Nona.”*
         `,
         ApprovedCheckin: (discordUserId: string, flamewarden: GuildMember, checkin: Checkin) => `
+🆔 **Check-In ID**:
+\`\`\`bash
+${checkin.public_id}
+\`\`\`
 👾 **Grinder**: <@${discordUserId}>
-🆔 **Check-In ID**: [${checkin.public_id}](${checkin.link})
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
-> *“Nyala hari ini diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari.”*
+> *“[Nyala hari ini](${checkin.link}) diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari.”*
         `,
         RejectedCheckin: (discordUserId: string, flamewarden: GuildMember, checkin: Checkin) => `
+🆔 **Check-In ID**:
+\`\`\`bash
+${checkin.public_id}
+\`\`\`
 👾 **Grinder**: <@${discordUserId}>
-🆔 **Check-In ID**: [${checkin.public_id}](${checkin.link})
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
-> *"Api Tuan/Nona <@${discordUserId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
+> *"[Api Tuan/Nona](${checkin.link}) <@${discordUserId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,
     }
 }
