@@ -42,4 +42,4 @@ COPY --from=prerelease /usr/src/app/tsconfig.json .
 # run the app
 USER bun
 EXPOSE 3000/tcp
-ENTRYPOINT [ "/bin/sh", "-c", "bun commands && bun start" ]
+ENTRYPOINT [ "/bin/sh", "-c", "bunx prisma migrate deploy && bun commands && bun start" ]
