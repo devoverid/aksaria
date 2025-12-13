@@ -37,8 +37,9 @@ COPY --from=prerelease /usr/src/app/src ./src
 COPY --from=prerelease /usr/src/app/db ./db
 COPY --from=prerelease /usr/src/app/prisma.config.ts .
 COPY --from=prerelease /usr/src/app/package.json .
+COPY --from=prerelease /usr/src/app/tsconfig.json .
 
 # run the app
 USER bun
 EXPOSE 3000/tcp
-ENTRYPOINT [ "bun", "start"]
+ENTRYPOINT [ "/bin/sh", "-c", "bun commands && bun start" ]
