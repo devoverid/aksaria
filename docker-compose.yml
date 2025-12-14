@@ -12,6 +12,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - aksaria-network
 
   db:
     image: postgres:17.6
@@ -26,6 +28,12 @@ services:
       timeout: 5s
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - aksaria-network
+
+networks:
+  aksaria-network:
+    driver: bridge
 
 volumes:
   db_data:
