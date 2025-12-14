@@ -1,8 +1,9 @@
-name: Release Latest Docker Image
+name: Release Docker Image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
+    tags: [ 'v*' ]
     workflow_dispatch: {}
 
 jobs:
@@ -24,11 +25,19 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set tag
+        id: tag
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+            echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/aksaria:${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "TAG=latest" >> $GITHUB_ENV
+            echo "IMAGE_TAG=${{ secrets.DOCKERHUB_USERNAME }}/aksaria:latest" >> $GITHUB_ENV
+          fi
+
       - name: Build and push Docker image 🚀
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aksaria:latest
+        run: |
+          make release-multiarch TAG="$TAG"
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
