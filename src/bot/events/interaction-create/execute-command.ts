@@ -5,7 +5,7 @@ import { Events, MessageFlags } from 'discord.js'
 
 export default {
     name: Events.InteractionCreate,
-    desc: 'Executing a command when an interaction is created',
+    desc: 'Executing a command when an interaction is created.',
     async exec(client: Client, interaction: Interaction) {
         if (!interaction.isChatInputCommand())
             return

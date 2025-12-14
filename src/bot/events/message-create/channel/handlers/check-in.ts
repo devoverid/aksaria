@@ -14,7 +14,7 @@ export class CheckInError extends DiscordBaseError {
 
 export default {
     name: Events.MessageCreate,
-    desc: 'Handle messages in channel for Check In event',
+    desc: 'Handle messages in channel for Check In event.',
     async exec(_, msg: Message) {
         try {
             if (!msg.guild)

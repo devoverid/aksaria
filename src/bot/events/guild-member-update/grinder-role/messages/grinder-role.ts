@@ -24,7 +24,7 @@ Sebagai langkah permulaan, perkenankan kami menuntun Tuan/Nona:
 > Streak Tuan/Nona hanya bermula setelah check-in pertama disahkan.
 > Apabila hingga pukul 23:59 WIB Tuan/Nona lalai menorehkan check-in, maka nyala api akan meredup, dan perjalanan harus dimulai kembali dari awal.
 > Selamat menempuh jalan ini.
-> Biarlah disiplin menjadi percikan, dan konsistensi menjelma nyala yang tak mudah padam 🔥
+> Biarlah disiplin menjadi percikan, dan konsistensi menjelma nyala yang tak mudah padam🔥.
         `,
     }
 }
