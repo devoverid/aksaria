@@ -38,6 +38,6 @@ jobs:
 
       - name: Build and push Docker image 🚀
         run: |
-          make release-multiarch TAG="$TAG"
+          make release-multiarch TAG=0.1.0
         env:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
