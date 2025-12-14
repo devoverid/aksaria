@@ -8,6 +8,8 @@ WORKDIR /usr/src/app
 FROM base AS install
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
+
+# Dev deps (for Prisma generate)
 RUN mkdir -p /temp/dev
 COPY package.json bun.lock /temp/dev/
 RUN cd /temp/dev && bun install
