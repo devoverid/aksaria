@@ -2,6 +2,7 @@ services:
   app:
     build: .
     image: devover/aksaria:latest
+    restart: unless-stopped
     ports:
       - 3000:3000
     env_file:
@@ -14,6 +15,7 @@ services:
 
   db:
     image: postgres:17
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASS:-postgres}
