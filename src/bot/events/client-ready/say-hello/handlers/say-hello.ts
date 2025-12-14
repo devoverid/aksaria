@@ -13,7 +13,7 @@ export class SayHelloError extends DiscordBaseError {
 
 export default {
     name: Events.ClientReady,
-    desc: 'Say こんにちは for the first load',
+    desc: 'Say こんにちは for the first load.',
     once: true,
     exec(client: Client) {
         try {

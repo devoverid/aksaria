@@ -11,7 +11,7 @@ export class ImFineError extends DiscordBaseError {
 
 export default {
     name: Events.MessageCreate,
-    desc: 'Replying to a user when the user\'s chat contains \'fine\' word',
+    desc: 'Replying to a user when the user\'s chat contains \'fine\' word.',
     async exec(_, msg: Message) {
         if (!msg.author.bot && msg.content.includes('fine'))
             await msg.reply('gua i\'m fine😅')
