@@ -34,5 +34,4 @@ COPY tsconfig.json .
 
 # run the app
 USER bun
-EXPOSE 3000/tcp
 ENTRYPOINT [ "/entrypoint.sh" ]
