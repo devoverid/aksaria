@@ -41,3 +41,4 @@ jobs:
           make release-multiarch TAG="$TAG"
         env:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          DOCKER_BUILDKIT: "1"
