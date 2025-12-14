@@ -7,7 +7,6 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASS:-postgres}@db:5432/${DB_NAME:-aksaria}
       - NODE_ENV=production
     depends_on:
       db:
