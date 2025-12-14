@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     image: devover/aksaria:latest
     restart: unless-stopped
     ports:
