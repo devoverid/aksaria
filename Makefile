@@ -17,7 +17,8 @@ release:
 	docker push $(LATEST_TAG)
 
 release-multiarch:
+	docker buildx rm multiarch 2>/dev/null || true
 	docker buildx create --use --name multiarch 2>/dev/null || true
-	docker buildx build --no-cache --platform $(PLATFORMS) -f ./docker/Dockerfile -t $(IMAGE_TAG) -t $(LATEST_TAG) --push .
+	docker buildx build --no-cache --platform $(PLATFORMS) -f ./docker/Dockerfile -t $(REPO):$(TAG) --push .
 
 .PHONY: create-migration migrate-up release
