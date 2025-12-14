@@ -57,7 +57,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         }
         else {
             embed = createEmbed(
-                `🧐 Check-In TESTING`,
+                `🧐 Check-In`,
                 CheckinStatus.MSG.NoCheckin(userDiscordId, checkinStreak),
                 DUMMY.COLOR,
                 { text: DUMMY.FOOTER },
