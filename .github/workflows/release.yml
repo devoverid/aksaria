@@ -1,4 +1,4 @@
-name: Release Docker Image
+name: Release Latest Docker Image
 
 on:
   push:
@@ -28,15 +28,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract Git tag or use short SHA
-        id: meta
-        run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          else
-            echo "TAG=prod-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          fi
-
       - name: Build and push Docker image 🚀
         uses: docker/build-push-action@v6
         with:
@@ -45,5 +36,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.TAG }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
