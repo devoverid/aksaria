@@ -1,6 +1,5 @@
 import type { Event } from '@events/event'
 import type { GuildMember, Interaction, TextChannel } from 'discord.js'
-import { CHECKIN_CHANNEL } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { generateCustomId } from '@utils/component'
 import { getRole, sendReply } from '@utils/discord'
@@ -45,7 +44,7 @@ export default {
 
             await member.roles.add(role)
             await sendReply(interaction, `
-                ${RoleGrantCreate.roleGranted(role.id)}. Let's go to <#${CHECKIN_CHANNEL}> to do your first check-in🔥`)
+                ${RoleGrantCreate.roleGranted(role.id)}`)
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
