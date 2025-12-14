@@ -35,4 +35,4 @@ COPY tsconfig.json .
 # run the app
 USER bun
 EXPOSE 3000/tcp
-ENTRYPOINT [ "/bin/sh", "-c", "bunx prisma migrate deploy && bun commands && bun start" ]
+ENTRYPOINT [ "/entrypoint.sh" ]
