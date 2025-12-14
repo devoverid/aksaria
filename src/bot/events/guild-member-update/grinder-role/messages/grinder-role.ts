@@ -11,16 +11,20 @@ export class GrinderRoleMessage extends DiscordAssert {
     static override readonly MSG = {
         ...DiscordAssert.MSG,
         Greetings: (member: GuildMember): string => `
-# 🔥 A New Grinder Has Joined the Camp!
-Welcome, <@${member.id}>✨ Your flame has been lit🔥
-You’ve officially entered the Path of the Grinder.
+# 🔥 Seorang Grinder Baru Telah Memasuki Perkemahan!
+Selamat datang, Tuan/Nona <@${member.id}>✨ 
+Nyala api kamu telah dinyalakan, dan dengan itu Tuan/Nona resmi menapaki Path of Grinder.
 
-Here’s what to do next:
-1️⃣ Visit <#${CHECKIN_CHANNEL}> to begin your first daily grind.
-2️⃣ Type what you’re working on. Whether coding, reading, creating, or learning.
-3️⃣ Wait for a <@&${FLAMEWARDEN_ROLE}> to verify your check-in.
+Sebagai langkah permulaan, perkenankan kami menuntun Tuan/Nona:
+Ⅰ. Kunjungilah ⁠<#${CHECKIN_CHANNEL}> untuk menorehkan grind harian pertama kamu.
+Ⅱ. Tuliskan apa yang tengah Tuan/Nona tempuh hari ini, entah itu reading, coding, crafting, designing, exercise, ataupun belajar hal baru.
+Ⅲ. Nantikan peninjauan dari seorang <@&${FLAMEWARDEN_ROLE}>, yang akan menilai dan mengesahkan check-in Tuan/Nona.
 
-> Remember: your streak begins only when you check in!
-> Fail to check in before 23:59 WIB, and your flame will fade.`,
+> Harap diingat dengan saksama:
+> Streak Tuan/Nona hanya bermula setelah check-in pertama disahkan.
+> Apabila hingga pukul 23:59 WIB Tuan/Nona lalai menorehkan check-in, maka nyala api akan meredup, dan perjalanan harus dimulai kembali dari awal.
+> Selamat menempuh jalan ini.
+> Biarlah disiplin menjadi percikan, dan konsistensi menjelma nyala yang tak mudah padam 🔥
+        `,
     }
 }
