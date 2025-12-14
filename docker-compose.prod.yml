@@ -6,6 +6,8 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     depends_on:
       db:
         condition: service_healthy
@@ -34,8 +36,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --cleanup --interval 300 --label-enable
     restart: unless-stopped
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
     networks:
       - aksaria-network
 
