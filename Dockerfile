@@ -21,25 +21,16 @@ COPY db /temp/prod/db
 COPY prisma.config.ts /temp/prod/
 RUN cd /temp/prod && bun install --production && bun prisma
 
-# copy node_modules from temp directory
-# then copy all (non-ignored) project files into the image
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
-COPY . .
-
-# Generate Prisma client after copying all files
-RUN bun prisma
-
-ENV NODE_ENV=production
-
 # copy production dependencies and source code into final image
 FROM base AS release
+ENV NODE_ENV=production
+COPY --chmod=755 docker/entrypoint.sh /entrypoint.sh
 COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/src ./src
-COPY --from=prerelease /usr/src/app/db ./db
-COPY --from=prerelease /usr/src/app/prisma.config.ts .
-COPY --from=prerelease /usr/src/app/package.json .
-COPY --from=prerelease /usr/src/app/tsconfig.json .
+COPY --from=install /temp/prod/db ./db
+COPY src ./src
+COPY prisma.config.ts .
+COPY package.json .
+COPY tsconfig.json .
 
 # run the app
 USER bun
