@@ -159,7 +159,6 @@ APP_TOKEN=MTQxxxxxxxxxxxx
 GUILD_ID=99999999999999
 APP_ID=99999999999999
 
-# Your DB's creds
 DB_HOST=db
 DB_NAME=aksaria
 DB_USER=postgres
