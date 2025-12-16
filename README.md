@@ -124,29 +124,10 @@ cd aksaria
 2. Copy `.env.example` file with `cp .env.example .env` and configure database:
 
 ```yml
-# Your application's token (APP_TOKEN)
-# Obtain this from the [Discord Developer Portal](https://discord.com/developers/applications):
-# 1. Navigate to your application
-# 2. Go to "Bot" in the sidebar
-# 3. Under "Bot", you will see the "Token" section, click "Reset Token" or "Copy" to get your token.
-# 4. NEVER share your token publicly
 APP_TOKEN=MTQxxxxxxxxxxxx
-
-# Your Discord server's guild id (GUILD_ID)
-# To get your guild (server) ID:
-# 1. In Discord, go to User Settings > Advanced, and turn on "Developer Mode"
-# 2. Right-click your server's icon in the guild/server list
-# 3. Click "Copy Server ID"
 GUILD_ID=99999999999999
-
-# Your application's ID (APP_ID)
-# To get your application (client) ID:
-# 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
-# 2. Select your application
-# 3. Your App's "Application ID" (Client ID) is displayed at the top under the app name
 APP_ID=99999999999999
 
-# Your DB's creds
 DB_HOST=db
 DB_NAME=aksaria
 DB_USER=postgres
@@ -165,41 +146,48 @@ docker compose up --build -d
 - PostgreSQL
 - - `docker compose exec db psql -U postgres -d aksaria`
 
+<h2 id="production">🌐 Production</h2>
 
-END
-## Installation
+<h3 id="deployment-docker-vps">🐳 Deployment w/ Docker (use Virtual Private Server)</h3>
 
-### With docker
+- Clone the repository w/ SSH method `git clone git@github.com:devoverid/aksaria` and go to the directory with `cd aksaria` command.
 
-1. Create [.env](./.env.example) file
-2. Run the image
-```
-docker run --env-file .env devover/aksaria:latest
-```
+- Copy `.env.example` file to `.env` and do configs.
 
-### Local development (from source)
+```yml
+APP_TOKEN=MTQxxxxxxxxxxxx
+GUILD_ID=99999999999999
+APP_ID=99999999999999
 
-```sh
-git clone https://github.com/devoverid/aksaria && cd aksaria
-cp .env.example .env # and edit the required variables
-make migrate-up
-bun install
-bun run dev
+# Your DB's creds
+DB_HOST=db
+DB_NAME=aksaria
+DB_USER=postgres
+DB_PASS=password
 ```
 
-### Local development (docker compose)
+- Let's deploy with `docker compose -f ./docker-compose.prod.yaml up -d` command.
 
-```sh
-git clone https://github.com/devoverid/aksaria && cd aksaria
-cp .env.example .env # and edit the required variables
-docker compose up
-```
+- Congrats! The bot is running securely, connected to persistent Postgres, and auto-updating when `devover/aksaria:latest` changes.
 
-## Deploying commands
+<h4 id="docker-commands-for-production">🔐 Commands</h4>
 
-1. Update required variables `APP_TOKEN`, `GUILD_ID`, and `APP_ID` in your .env
-2. Run `bun src/deploy-commands.ts`
+- `docker compose -f docker-compose.prod.yml ps`
+- `docker compose -f docker-compose.prod.yml logs -f app`
+- `docker compose -f docker-compose.prod.yml logs -f watchtower`
+- `docker compose -f docker-compose.prod.yml logs -f db`
 
-## License
+<h2 id="support">💌 Support us</h2>
 
-MIT license
+<p>You can support us and the further development of Aksaria! Even the smallest contribution goes a long way. Giving a ⭐️ to this repo or sharing it with others is already greatly appreciated.<br><br>
+If you'd like to treat us to a coffee, you can support via Trakteer:<br>
+<a href="https://trakteer.id/aksaria" target="_blank"><img id="wse-buttons-preview" src="https://cdn.trakteer.id/images/embed/trbtn-red-5.png" height="40" style="border:0px;height:40px;" alt="Trakteer Me"></a>
+
+
+<h2 id="contributing">🤝 Contributing</h2>
+
+<p>Contributions, issues, and feature requests are highly appreciated as this application is far from perfect. Please do not hesitate to make a pull request and make changes to this project!</p>
+
+<h2 id="lisensi">📝 License</h2>
+
+Aksaria is open-sourced software licensed under the [MIT License](./LICENSE).
