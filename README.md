@@ -180,7 +180,7 @@ DB_PASS=password
 
 <p>You can support us and the further development of Aksaria! Even the smallest contribution goes a long way. Giving a ⭐️ to this repo or sharing it with others is already greatly appreciated.<br><br>
 If you'd like to treat us to a coffee, you can support via Trakteer:<br>
-<a href="https://trakteer.id/aksaria" target="_blank"><img id="wse-buttons-preview" src="https://cdn.trakteer.id/images/embed/trbtn-red-5.png" height="40" style="border:0px;height:40px;" alt="Trakteer Me"></a>
+<a href="https://trakteer.id/aksaria" target="_blank"><img id="wse-buttons-preview" src="https://cdn.trakteer.id/images/embed/trbtn-red-2.png" height="40" style="border:0px;height:40px;" alt="Trakteer Us"></a>
 
 
 <h2 id="contributing">🤝 Contributing</h2>
