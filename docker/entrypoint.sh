@@ -5,7 +5,7 @@ echo "▶ Running Prisma migrations..."
 max_attempts=10
 attempt_num=1
 
-until make migrate-up; do
+until bunx prisma migrate deploy; do
   if [ $attempt_num -ge $max_attempts ]; then
     echo "Migration failed after $attempt_num attempts. Exiting."
     exit 1
