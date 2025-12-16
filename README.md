@@ -93,11 +93,9 @@ APP_ID=99999999999999
 
 # Your DB's creds
 DB_HOST=localhost
-DB_PORT=5432
 DB_NAME=aksaria
 DB_USER=postgres
 DB_PASS=password
-DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
 ```
 
 3. Do migrations with `Makefile`
@@ -113,6 +111,51 @@ make migrate-reset
 ```sh
 bun commands
 bun start
+```
+
+<h3 id="develop-docker">🐳 Develop w/ Docker</h3>
+
+1. Clone the repository
+```sh
+git clone https://github.com/devoverid/aksaria.git
+cd aksaria
+```
+
+2. Copy `.env.example` file with `cp .env.example .env` and configure database:
+
+```yml
+# Your application's token (APP_TOKEN)
+# Obtain this from the [Discord Developer Portal](https://discord.com/developers/applications):
+# 1. Navigate to your application
+# 2. Go to "Bot" in the sidebar
+# 3. Under "Bot", you will see the "Token" section, click "Reset Token" or "Copy" to get your token.
+# 4. NEVER share your token publicly
+APP_TOKEN=MTQxxxxxxxxxxxx
+
+# Your Discord server's guild id (GUILD_ID)
+# To get your guild (server) ID:
+# 1. In Discord, go to User Settings > Advanced, and turn on "Developer Mode"
+# 2. Right-click your server's icon in the guild/server list
+# 3. Click "Copy Server ID"
+GUILD_ID=99999999999999
+
+# Your application's ID (APP_ID)
+# To get your application (client) ID:
+# 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+# 2. Select your application
+# 3. Your App's "Application ID" (Client ID) is displayed at the top under the app name
+APP_ID=99999999999999
+
+# Your DB's creds
+DB_HOST=db
+DB_NAME=aksaria
+DB_USER=postgres
+DB_PASS=password
+```
+
+3. Make sure you have Docker installed and run:
+```bash
+docker compose up --build -d
 ```
 
 END
