@@ -10,6 +10,9 @@ create-migration:
 migrate-up:
 	bunx prisma migrate deploy
 
+migrate-reset:
+	bunx prisma migrate reset
+
 release:
 	docker build -t $(IMAGE_TAG) -f ./docker/Dockerfile .
 	docker tag $(IMAGE_TAG) $(LATEST_TAG)
