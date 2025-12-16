@@ -58,19 +58,15 @@ We call those who walk this path Grinders.
 
 <h3 id="develop-yourself">🏃‍♂️ Develop by yourself</h3>
 
-1. Clone repository
+1. Clone repository and install its deps
 ```sh
 git clone https://github.com/alfianchii/aksaria.git
 cd aksaria
 bun install
+bun prisma
 ```
 
-2. Configure environment
-```sh
-cp .env.example .env
-```
-
-3. Database configuration through the `.env` file
+2. Copy `.env.example` file with `cp .env.example .env` and configure database:
 
 ```yml
 # Your application's token (APP_TOKEN)
@@ -104,13 +100,13 @@ DB_PASS=password
 DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
 ```
 
-4. Do migrations with `Makefile`
+3. Do migrations with `Makefile`
 
 ```sh
 make migrate-up
 ```
 
-5. Deploy its commands and launch the bot
+4. Deploy its commands and launch the bot
 
 ```sh
 bun commands

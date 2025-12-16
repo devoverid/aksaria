@@ -4,11 +4,11 @@ TAG ?= latest
 IMAGE_TAG = $(REPO):$(TAG)
 LATEST_TAG = $(REPO):latest
 
-migrate-up:
-	bunx prisma migrate deploy
-
 create-migration:
 	bunx prisma migrate dev --name $(name)
+
+migrate-up:
+	bunx prisma migrate deploy
 
 release:
 	docker build -t $(IMAGE_TAG) -f ./docker/Dockerfile .
