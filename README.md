@@ -104,6 +104,8 @@ DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME
 
 ```sh
 make migrate-up
+# Use this command below if you want to reset all of the data on database
+make migrate-reset
 ```
 
 4. Deploy its commands and launch the bot
