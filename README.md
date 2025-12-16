@@ -158,6 +158,14 @@ DB_PASS=password
 docker compose up --build -d
 ```
 
+<h4 id="docker-commands">🔐 Commands</h4>
+
+- Bun
+- - `docker compose run --rm --entrypoint "" app bunx prisma migrate reset`
+- PostgreSQL
+- - `docker compose exec db psql -U postgres -d aksaria`
+
+
 END
 ## Installation
 
