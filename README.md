@@ -60,7 +60,7 @@ We call those who walk this path Grinders.
 
 1. Clone repository and install its deps
 ```sh
-git clone https://github.com/alfianchii/aksaria.git
+git clone https://github.com/devoverid/aksaria.git
 cd aksaria
 bun install
 bun prisma
