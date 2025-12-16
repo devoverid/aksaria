@@ -11,6 +11,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./db/schema.prisma:/usr/src/app/db/schema.prisma
+      - ./prisma.config.ts:/usr/src/app/prisma.config.ts
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
     networks:
       - aksaria-network
 
