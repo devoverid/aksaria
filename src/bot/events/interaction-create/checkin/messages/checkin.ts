@@ -19,7 +19,7 @@ export class CheckinMessage extends DiscordAssert {
         ...DiscordAssert.MSG,
         CheckinSuccess: (member: GuildMember, checkin: Checkin, streakCount: number, todo: string, lastCheckin?: Checkin) => `
 # ✅ Check-In Baru Terdeteksi!
-*お願いいたします、<@&${FLAMEWARDEN_ROLE}>さん★*
+*Mohon bantuannya★、<@&${FLAMEWARDEN_ROLE}>
 
 ✨─────✨/✨━━━━✨
 🌟 **Grinder:** <@${member.id}>
