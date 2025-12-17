@@ -421,7 +421,7 @@ export class Checkin extends CheckinMessage {
 
     static async sendSuccessCheckinToMember(member: GuildMember, checkin: CheckinType) {
         const embed = createEmbed(
-            `🎉 Check-in Berhasil`,
+            `🎉 *Check-In* Berhasil`,
             this.MSG.CheckinSuccessToMember(checkin),
             DUMMY.COLOR,
             { text: DUMMY.FOOTER },
@@ -471,7 +471,7 @@ export class Checkin extends CheckinMessage {
         switch (checkin.status) {
             case 'REJECTED':
                 embed = createEmbed(
-                    `⚠️ Check-In Ditolak`,
+                    `⚠️ *Check-In* Ditolak`,
                     this.MSG.CheckinRejected(flamewarden, checkin),
                     '#D9534F',
                     { text: DUMMY.FOOTER },
@@ -480,7 +480,7 @@ export class Checkin extends CheckinMessage {
 
             case 'APPROVED':
                 embed = createEmbed(
-                    `🔥 Check-In Disetujui`,
+                    `🔥 *Check-In* Disetujui`,
                     this.MSG.CheckinApproved(flamewarden, checkin),
                     '#4CAF50',
                     { text: DUMMY.FOOTER },
