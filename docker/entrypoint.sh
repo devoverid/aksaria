@@ -19,4 +19,8 @@ echo "▶ Deploying commands..."
 bun commands
 
 echo "▶ Starting application..."
-exec bun start
+if [ "$NODE_ENV" = "production" ]; then
+  exec bun prod
+else
+  exec bun start
+fi

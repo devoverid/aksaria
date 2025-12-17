@@ -6,6 +6,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - TZ=Asia/Jakarta
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     depends_on:

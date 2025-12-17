@@ -14,7 +14,7 @@ import { isDateToday, isDateYesterday } from '@utils/date'
 import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { attachNewGrindRole, getGrindRoleByStreakCount } from '@utils/discord/roles'
 import { DUMMY } from '@utils/placeholder'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
 import { CHECKIN_APPROVE_BUTTON_ID } from '../handlers/checkin-approve-button'
 import { CHECKIN_CUSTOM_BUTTON_ID } from '../handlers/checkin-custom-button'
 import { CheckinCustomButtonModalError } from '../handlers/checkin-custom-button-modal'
@@ -228,7 +228,7 @@ export class Checkin extends CheckinMessage {
         if (!checkin)
             throw new SubmittedCheckinError(this.ERR.PlainMessage)
 
-        await Checkin.setAttachmentOnFirstCheckin(prisma, checkin)
+        await Checkin.setAttachments(prisma, checkin)
 
         return checkin
     }
@@ -324,35 +324,37 @@ export class Checkin extends CheckinMessage {
     }
 
     static async createAttachments(
-        tx: Prisma.TransactionClient,
+        prisma: PrismaClient,
         checkin: CheckinType,
         attachments: Attachment[],
     ) {
-        await tx.attachment.createMany({
-            data: attachments.map(a => ({
-                name: a.name,
-                url: a.url,
-                type: a.contentType ?? '',
-                size: a.size,
-                module_id: checkin.id,
-                module_type: 'CHECKIN',
-            })),
+        await prisma.$transaction(async (tx) => {
+            await tx.attachment.createMany({
+                data: attachments.map(a => ({
+                    name: a.name,
+                    url: a.url,
+                    type: a.contentType ?? '',
+                    size: a.size,
+                    module_id: checkin.id,
+                    module_type: 'CHECKIN',
+                })),
+            })
         })
     }
 
-    static async setAttachmentOnFirstCheckin(tx: Prisma.TransactionClient, checkin: CheckinType | undefined) {
+    static async setAttachments(prisma: PrismaClient, checkin: CheckinType | undefined) {
         if (!checkin)
             return
 
-        const attachment = await tx.attachment.findFirst({
+        const attachments = await prisma.attachment.findMany({
             where: {
                 module_id: checkin.id,
                 module_type: 'CHECKIN',
             },
             orderBy: { created_at: 'asc' },
-        }) as AttachmentType
+        }) as AttachmentType[]
 
-        checkin.attachment = attachment
+        checkin.attachments = attachments
     }
 
     static async validateCheckinStreak(
@@ -360,7 +362,6 @@ export class Checkin extends CheckinMessage {
         userId: number,
         lastCheckinStreak: CheckinStreak | undefined,
         description: string,
-        attachments?: Attachment[] | undefined,
     ) {
         const decision = this.determineStreak(lastCheckinStreak)
 
@@ -368,11 +369,6 @@ export class Checkin extends CheckinMessage {
             const checkinStreak = await this.upsertStreak(tx, userId, lastCheckinStreak, decision)
             const checkin = await this.createCheckin(tx, userId, checkinStreak, description)
             const prevCheckin = await this.getPrevCheckin(tx, userId, checkinStreak, checkin)
-
-            if (attachments?.length) {
-                await this.createAttachments(tx, checkin, attachments)
-                await this.setAttachmentOnFirstCheckin(tx, checkin)
-            }
 
             return {
                 checkinStreak,
@@ -412,22 +408,13 @@ export class Checkin extends CheckinMessage {
         await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
     }
 
-    static async updateCheckinMsgLink(prisma: PrismaClient, checkin: CheckinType, msgLink: string | null): Promise<CheckinType> {
+    static async updateCheckinMsgLink(interaction: Interaction, prisma: PrismaClient, checkin: CheckinType, msg: Message): Promise<CheckinType> {
+        const msgLink = messageLink(interaction.channelId!, msg.id, interaction.guildId!)
+
         return prisma.checkin.update({
             where: { id: checkin.id },
             data: { link: msgLink },
         })
-    }
-
-    static async sendSuccessCheckinToMember(member: GuildMember, checkin: CheckinType) {
-        const embed = createEmbed(
-            `🎉 Check-in Berhasil`,
-            this.MSG.CheckinSuccessToMember(checkin),
-            DUMMY.COLOR,
-            { text: DUMMY.FOOTER },
-        )
-
-        await member.send({ embeds: [embed] })
     }
 
     static async updateCheckinStatus(
@@ -465,13 +452,24 @@ export class Checkin extends CheckinMessage {
         return updatedCheckin
     }
 
+    static async sendSuccessCheckinToMember(member: GuildMember, checkin: CheckinType) {
+        const embed = createEmbed(
+            `🎉 *Check-In* Berhasil`,
+            this.MSG.CheckinSuccessToMember(checkin),
+            DUMMY.COLOR,
+            { text: DUMMY.FOOTER },
+        )
+
+        await member.send({ embeds: [embed] })
+    }
+
     static async sendCheckinStatusToMember(flamewarden: GuildMember, member: GuildMember, checkin: CheckinType) {
         let embed: EmbedBuilder
 
         switch (checkin.status) {
             case 'REJECTED':
                 embed = createEmbed(
-                    `⚠️ Check-In Ditolak`,
+                    `⚠️ *Check-In* Ditolak`,
                     this.MSG.CheckinRejected(flamewarden, checkin),
                     '#D9534F',
                     { text: DUMMY.FOOTER },
@@ -480,7 +478,7 @@ export class Checkin extends CheckinMessage {
 
             case 'APPROVED':
                 embed = createEmbed(
-                    `🔥 Check-In Disetujui`,
+                    `🔥 *Check-In* Disetujui`,
                     this.MSG.CheckinApproved(flamewarden, checkin),
                     '#4CAF50',
                     { text: DUMMY.FOOTER },

@@ -18,8 +18,8 @@ Wahai Tuan/Nona <@${userDiscordId}>,
 Nyala api Tuan/Nona belum dinyalakan hari ini.
 🗓 **Date**: ${getParsedNow()}
 🔥 **Current Streak**: ${checkinStreak?.streak ?? 0} day(s)
-🔎 **Status**: Belum melakukan check-in
-> *“Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup.”*
+🔎 **Status**: Belum melakukan *check-in*
+> *“Percikan hari ini belum ditorehkan. Lakukan *check-in* sebelum 23:59 WIB, agar api Tuan/Nona tak meredup.”*
         `,
         WaitingCheckin: (userDiscordId: string, checkin: Checkin) => `
 🆔 **Check-In ID**:
@@ -27,7 +27,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${userDiscordId}>
-📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
+📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Menunggu peninjauan <@&${FLAMEWARDEN_ROLE}>
@@ -39,7 +39,7 @@ ${checkin.public_id}
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${userDiscordId}>
-📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
+📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
@@ -53,7 +53,7 @@ ${checkin.public_id}
 ${checkin.public_id}
 \`\`\`
 🌟 **Grinder**: <@${userDiscordId}>
-📁 **Attachment:** ${checkin.attachment ? '✅' : '❌'}
+📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}

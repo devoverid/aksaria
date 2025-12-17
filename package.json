@@ -18,13 +18,15 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "bun src/index.ts",
+        "prod": "bun src/index.ts",
+        "start": "bun --watch src/index.ts",
         "commands": "bun src/deploy-commands.ts",
         "prisma": "bunx prisma generate --schema db/schema.prisma"
     },
     "dependencies": {
         "@prisma/client": "6.13.0",
         "discord.js": "^14.25.1",
+        "node-cron": "^4.2.1",
         "prisma": "^6.13.0"
     },
     "devDependencies": {

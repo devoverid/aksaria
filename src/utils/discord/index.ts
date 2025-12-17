@@ -1,5 +1,5 @@
 import type { Attachment, ChatInputCommandInteraction, ClientUser, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel } from 'discord.js'
-import { MessageFlags, messageLink } from 'discord.js'
+import { MessageFlags } from 'discord.js'
 
 export async function getChannel(guild: Guild, id: string): Promise<TextChannel> {
     return guild!.channels.cache.get(id) as TextChannel ?? await guild!.channels.fetch(id).then(channel => channel as TextChannel)
@@ -52,14 +52,15 @@ export async function sendReply(
         await interaction.deferReply(deferOpts)
     }
 
-    const msg = interaction.replied || interaction.deferred
-        ? await interaction.followUp(opts)
-        : await interaction.reply(opts)
+    if (interaction.replied || interaction.deferred) {
+        return await interaction.followUp(opts)
+    }
+    else {
+        await interaction.reply(opts)
+    }
 
     if (ephemeral)
         return null
-
-    return messageLink(interaction.channelId!, msg.id, interaction.guildId!)
 }
 
 export async function sendAsBot(
