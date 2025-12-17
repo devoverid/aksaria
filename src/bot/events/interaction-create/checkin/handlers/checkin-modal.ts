@@ -1,5 +1,5 @@
 import type { Event } from '@events/event'
-import type { Attachment, Client, GuildMember, Interaction } from 'discord.js'
+import type { Attachment, Client, GuildMember, Interaction, Message } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { generateCustomId, tempStore } from '@utils/component'
@@ -53,7 +53,7 @@ export default {
 
             const buttons = Checkin.generateButtons(interaction.guildId, checkin.id.toString())
 
-            const msgLink = await sendReply(
+            const msg = await sendReply(
                 interaction,
                 Checkin.MSG.CheckinSuccess(
                     member,
@@ -69,9 +69,9 @@ export default {
                     allowedMentions: { users: [member.id], roles: [FLAMEWARDEN_ROLE] },
                 },
                 true,
-            )
+            ) as Message
 
-            const updatedCheckin = await Checkin.updateCheckinMsgLink(client.prisma, checkin, msgLink)
+            const updatedCheckin = await Checkin.updateCheckinMsgAndAttachmentLink(interaction, client.prisma, checkin, msg)
             await Checkin.sendSuccessCheckinToMember(member, updatedCheckin)
         }
         catch (err: any) {

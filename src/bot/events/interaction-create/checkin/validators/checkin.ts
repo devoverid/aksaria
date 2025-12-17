@@ -14,7 +14,7 @@ import { isDateToday, isDateYesterday } from '@utils/date'
 import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { attachNewGrindRole, getGrindRoleByStreakCount } from '@utils/discord/roles'
 import { DUMMY } from '@utils/placeholder'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
 import { CHECKIN_APPROVE_BUTTON_ID } from '../handlers/checkin-approve-button'
 import { CHECKIN_CUSTOM_BUTTON_ID } from '../handlers/checkin-custom-button'
 import { CheckinCustomButtonModalError } from '../handlers/checkin-custom-button-modal'
@@ -412,22 +412,56 @@ export class Checkin extends CheckinMessage {
         await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
     }
 
-    static async updateCheckinMsgLink(prisma: PrismaClient, checkin: CheckinType, msgLink: string | null): Promise<CheckinType> {
+    static async updateCheckinMsgAndAttachmentLink(interaction: Interaction, prisma: PrismaClient, checkin: CheckinType, msg: Message): Promise<CheckinType> {
+        const msgLink = messageLink(interaction.channelId!, msg.id, interaction.guildId!)
+
+        if (msg.attachments.size > 0) {
+            this.updateAttachments(prisma, msg, checkin.id)
+        }
+
         return prisma.checkin.update({
             where: { id: checkin.id },
             data: { link: msgLink },
         })
     }
 
-    static async sendSuccessCheckinToMember(member: GuildMember, checkin: CheckinType) {
-        const embed = createEmbed(
-            `🎉 *Check-In* Berhasil`,
-            this.MSG.CheckinSuccessToMember(checkin),
-            DUMMY.COLOR,
-            { text: DUMMY.FOOTER },
-        )
+    static async updateAttachments(prisma: PrismaClient, msg: Message, checkinId: number) {
+        const [dbAttachments, msgAttachments] = await Promise.all([
+            prisma.attachment.findMany({
+                where: {
+                    module_id: checkinId,
+                    module_type: 'CHECKIN',
+                },
+            }),
+            Promise.resolve(Array.from(msg.attachments.values())),
+        ])
 
-        await member.send({ embeds: [embed] })
+        const updates = []
+        for (let idx = 0; idx < dbAttachments.length; idx++) {
+            const dbAttachment = dbAttachments[idx]
+            const msgAttachment = msgAttachments.find(a => a.name === dbAttachment.name && a.size === dbAttachment.size) ?? msgAttachments[idx]
+
+            if (!msgAttachment)
+                continue
+            if (dbAttachment.url === msgAttachment.url)
+                continue
+
+            updates.push({
+                id: dbAttachment.id,
+                url: msgAttachment.url,
+            })
+        }
+
+        if (updates.length) {
+            await prisma.$transaction(
+                updates.map(u =>
+                    prisma.attachment.update({
+                        where: { id: u.id },
+                        data: { url: u.url },
+                    }),
+                ),
+            )
+        }
     }
 
     static async updateCheckinStatus(
@@ -463,6 +497,17 @@ export class Checkin extends CheckinMessage {
         })
 
         return updatedCheckin
+    }
+
+    static async sendSuccessCheckinToMember(member: GuildMember, checkin: CheckinType) {
+        const embed = createEmbed(
+            `🎉 *Check-In* Berhasil`,
+            this.MSG.CheckinSuccessToMember(checkin),
+            DUMMY.COLOR,
+            { text: DUMMY.FOOTER },
+        )
+
+        await member.send({ embeds: [embed] })
     }
 
     static async sendCheckinStatusToMember(flamewarden: GuildMember, member: GuildMember, checkin: CheckinType) {
