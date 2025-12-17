@@ -49,7 +49,7 @@ export default {
                 checkinStreak,
                 checkin,
                 prevCheckin,
-            } = await Checkin.validateCheckinStreak(client.prisma, user.id, user.checkin_streaks?.[0], todo, attachments)
+            } = await Checkin.validateCheckinStreak(client.prisma, user.id, user.checkin_streaks?.[0], todo)
 
             const buttons = Checkin.generateButtons(interaction.guildId, checkin.id.toString())
 
@@ -57,7 +57,7 @@ export default {
                 interaction,
                 Checkin.MSG.CheckinSuccess(
                     member,
-                    checkin,
+                    attachments,
                     checkinStreak.streak,
                     todo,
                     prevCheckin,
@@ -71,7 +71,11 @@ export default {
                 true,
             ) as Message
 
-            const updatedCheckin = await Checkin.updateCheckinMsgAndAttachmentLink(interaction, client.prisma, checkin, msg)
+            if (msg.attachments.size > 0) {
+                await Checkin.createAttachments(client.prisma, checkin, Array.from(msg.attachments.values()))
+            }
+
+            const updatedCheckin = await Checkin.updateCheckinMsgLink(interaction, client.prisma, checkin, msg)
             await Checkin.sendSuccessCheckinToMember(member, updatedCheckin)
         }
         catch (err: any) {

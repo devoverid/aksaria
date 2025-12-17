@@ -324,27 +324,29 @@ export class Checkin extends CheckinMessage {
     }
 
     static async createAttachments(
-        tx: Prisma.TransactionClient,
+        prisma: PrismaClient,
         checkin: CheckinType,
         attachments: Attachment[],
     ) {
-        await tx.attachment.createMany({
-            data: attachments.map(a => ({
-                name: a.name,
-                url: a.url,
-                type: a.contentType ?? '',
-                size: a.size,
-                module_id: checkin.id,
-                module_type: 'CHECKIN',
-            })),
+        await prisma.$transaction(async (tx) => {
+            await tx.attachment.createMany({
+                data: attachments.map(a => ({
+                    name: a.name,
+                    url: a.url,
+                    type: a.contentType ?? '',
+                    size: a.size,
+                    module_id: checkin.id,
+                    module_type: 'CHECKIN',
+                })),
+            })
         })
     }
 
-    static async setAttachmentOnFirstCheckin(tx: Prisma.TransactionClient, checkin: CheckinType | undefined) {
+    static async setAttachmentOnFirstCheckin(prisma: PrismaClient, checkin: CheckinType | undefined) {
         if (!checkin)
             return
 
-        const attachment = await tx.attachment.findFirst({
+        const attachment = await prisma.attachment.findFirst({
             where: {
                 module_id: checkin.id,
                 module_type: 'CHECKIN',
@@ -360,7 +362,6 @@ export class Checkin extends CheckinMessage {
         userId: number,
         lastCheckinStreak: CheckinStreak | undefined,
         description: string,
-        attachments?: Attachment[] | undefined,
     ) {
         const decision = this.determineStreak(lastCheckinStreak)
 
@@ -368,11 +369,6 @@ export class Checkin extends CheckinMessage {
             const checkinStreak = await this.upsertStreak(tx, userId, lastCheckinStreak, decision)
             const checkin = await this.createCheckin(tx, userId, checkinStreak, description)
             const prevCheckin = await this.getPrevCheckin(tx, userId, checkinStreak, checkin)
-
-            if (attachments?.length) {
-                await this.createAttachments(tx, checkin, attachments)
-                await this.setAttachmentOnFirstCheckin(tx, checkin)
-            }
 
             return {
                 checkinStreak,
@@ -412,56 +408,13 @@ export class Checkin extends CheckinMessage {
         await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
     }
 
-    static async updateCheckinMsgAndAttachmentLink(interaction: Interaction, prisma: PrismaClient, checkin: CheckinType, msg: Message): Promise<CheckinType> {
+    static async updateCheckinMsgLink(interaction: Interaction, prisma: PrismaClient, checkin: CheckinType, msg: Message): Promise<CheckinType> {
         const msgLink = messageLink(interaction.channelId!, msg.id, interaction.guildId!)
-
-        if (msg.attachments.size > 0) {
-            this.updateAttachments(prisma, msg, checkin.id)
-        }
 
         return prisma.checkin.update({
             where: { id: checkin.id },
             data: { link: msgLink },
         })
-    }
-
-    static async updateAttachments(prisma: PrismaClient, msg: Message, checkinId: number) {
-        const [dbAttachments, msgAttachments] = await Promise.all([
-            prisma.attachment.findMany({
-                where: {
-                    module_id: checkinId,
-                    module_type: 'CHECKIN',
-                },
-            }),
-            Promise.resolve(Array.from(msg.attachments.values())),
-        ])
-
-        const updates = []
-        for (let idx = 0; idx < dbAttachments.length; idx++) {
-            const dbAttachment = dbAttachments[idx]
-            const msgAttachment = msgAttachments.find(a => a.name === dbAttachment.name && a.size === dbAttachment.size) ?? msgAttachments[idx]
-
-            if (!msgAttachment)
-                continue
-            if (dbAttachment.url === msgAttachment.url)
-                continue
-
-            updates.push({
-                id: dbAttachment.id,
-                url: msgAttachment.url,
-            })
-        }
-
-        if (updates.length) {
-            await prisma.$transaction(
-                updates.map(u =>
-                    prisma.attachment.update({
-                        where: { id: u.id },
-                        data: { url: u.url },
-                    }),
-                ),
-            )
-        }
     }
 
     static async updateCheckinStatus(
