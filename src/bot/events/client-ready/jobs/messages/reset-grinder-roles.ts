@@ -28,6 +28,7 @@ Namun jangan berduka, jalan ini selalu terbuka bagi mereka yang bersedia memulai
 > 2. Silakan menjalankan perintah **\`/checkin-status\`** untuk menampilkan status *check-in* terakhir Tuan/Nona.
 > 3. Setelah pesan status tersebut muncul, berikan reaksi “❓” pada pesan tersebut.
 > 4. Dari reaksi tersebut, sebuah *thread* akan tercipta secara otomatis sebagai ruang klarifikasi dan komunikasi dengan <@&${FLAMEWARDEN_ROLE}>.
+> ⏳ Batas waktu penantian atas status WAITING adalah maksimal 1×24 jam sejak *check-in* diajukan.
         `,
     }
 }
