@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=local
       - TZ=Asia/Jakarta
     depends_on:
       db:

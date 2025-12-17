@@ -18,7 +18,8 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "bun src/index.ts",
+        "prod": "bun src/index.ts",
+        "start": "bun --watch src/index.ts",
         "commands": "bun src/deploy-commands.ts",
         "prisma": "bunx prisma generate --schema db/schema.prisma"
     },
