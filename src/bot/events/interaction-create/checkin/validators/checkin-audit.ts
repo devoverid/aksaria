@@ -73,7 +73,7 @@ ${checkin.public_id}
             throw new CheckinAuditError(this.ERR.CheckinIdInvalid)
         }
 
-        await Checkin.setAttachmentOnFirstCheckin(prisma, checkin)
+        await Checkin.setAttachments(prisma, checkin)
 
         return checkin
     }

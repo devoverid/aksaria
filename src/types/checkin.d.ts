@@ -21,7 +21,7 @@ export interface Checkin {
 
     user?: User
     checkin_streak?: CheckinStreak
-    attachment?: Attachment | null
+    attachments?: Attachment[] | null
 }
 
 export interface CheckinColumn<T extends keyof Prisma.CheckinWhereInput> {

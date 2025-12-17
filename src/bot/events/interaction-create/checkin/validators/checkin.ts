@@ -228,7 +228,7 @@ export class Checkin extends CheckinMessage {
         if (!checkin)
             throw new SubmittedCheckinError(this.ERR.PlainMessage)
 
-        await Checkin.setAttachmentOnFirstCheckin(prisma, checkin)
+        await Checkin.setAttachments(prisma, checkin)
 
         return checkin
     }
@@ -342,19 +342,19 @@ export class Checkin extends CheckinMessage {
         })
     }
 
-    static async setAttachmentOnFirstCheckin(prisma: PrismaClient, checkin: CheckinType | undefined) {
+    static async setAttachments(prisma: PrismaClient, checkin: CheckinType | undefined) {
         if (!checkin)
             return
 
-        const attachment = await prisma.attachment.findFirst({
+        const attachments = await prisma.attachment.findMany({
             where: {
                 module_id: checkin.id,
                 module_type: 'CHECKIN',
             },
             orderBy: { created_at: 'asc' },
-        }) as AttachmentType
+        }) as AttachmentType[]
 
-        checkin.attachment = attachment
+        checkin.attachments = attachments
     }
 
     static async validateCheckinStreak(
