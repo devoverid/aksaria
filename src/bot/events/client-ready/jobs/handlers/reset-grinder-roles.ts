@@ -1,6 +1,8 @@
 import type { Event } from '@events/event'
 import type { Client } from 'discord.js'
 import process from 'node:process'
+import { GRIND_ASHES_CHANNEL } from '@config/discord'
+import { getChannel } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { Events } from 'discord.js'
@@ -20,11 +22,16 @@ export default {
     exec(client: Client) {
         try {
             cron.schedule('*/1 * * * *', async () => {
-                log.info(ResetGrinderRoles.MSG.JobRunning)
+                log.check(ResetGrinderRoles.MSG.JobRunning)
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
+                const channel = await getChannel(guild, GRIND_ASHES_CHANNEL)
+                ResetGrinderRoles.assertChannel(channel)
                 const users = await ResetGrinderRoles.getUsersWithLatestCheckin(client.prisma)
-                await ResetGrinderRoles.validateUsers(guild, users)
+
+                await ResetGrinderRoles.validateUsers(guild, channel, users)
+
+                log.success(ResetGrinderRoles.MSG.JobSuccess)
             })
         }
         catch (err: any) {

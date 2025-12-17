@@ -1,7 +1,8 @@
 import type { PrismaClient } from '@generatedDB/client'
-import type { Guild, GuildMember } from 'discord.js'
+import type { Guild, GuildMember, TextChannel } from 'discord.js'
 import { getGrindRoles, GRINDER_ROLE } from '@config/discord'
 import { isDateToday, isDateYesterday } from '@utils/date'
+import { sendAsBot } from '@utils/discord'
 import { log } from '@utils/logger'
 import { ResetGrinderRolesMessage } from '../messages/reset-grinder-roles'
 
@@ -38,7 +39,7 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         }
     }
 
-    static async validateUsers(guild: Guild, users: UserWithLatestCheckin[]) {
+    static async validateUsers(guild: Guild, channel: TextChannel, users: UserWithLatestCheckin[]) {
         for (const user of users) {
             const lastCheckin = user.checkins?.[0]
             if (this.hasValidCheckin(lastCheckin))
@@ -46,6 +47,12 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
 
             const member = await guild.members.fetch(user.discord_id)
             await this.removeGrinderRoles(member)
+
+            await sendAsBot(
+                null,
+                channel,
+                { content: ResetGrinderRoles.MSG.GoodBye(member), allowedMentions: { users: [member.id], roles: [] } },
+            )
 
             log.info(this.MSG.RemoveGrinderRoleFrom(member))
         }
