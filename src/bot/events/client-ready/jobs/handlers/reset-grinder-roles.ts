@@ -2,6 +2,8 @@ import type { Event } from '@events/event'
 import type { Client } from 'discord.js'
 import process from 'node:process'
 import { GRIND_ASHES_CHANNEL } from '@config/discord'
+import { EVENT_PATH } from '@events/index'
+import { generateCustomId } from '@utils/component'
 import { getChannel } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
@@ -14,6 +16,8 @@ export class ResetGrinderRolesError extends DiscordBaseError {
         super('ResetGrinderRolesError', message, options)
     }
 }
+
+export const GOODBYE_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 export default {
     name: Events.ClientReady,

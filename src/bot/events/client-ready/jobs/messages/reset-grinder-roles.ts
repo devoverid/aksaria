@@ -22,7 +22,8 @@ Api bukanlah padam karena kelemahan, melainkan karena ia tak disirami pada waktu
 Namun jangan berduka, jalan ini selalu terbuka bagi mereka yang bersedia memulai kembali. Apabila Tuan/Nona berkehendak menyalakan api kembali, silakan kembali ke <#${IGNITE_PATH_CHANNEL}> dan bangkitlah dari awal.
 
 *Aksaria menanti mereka yang konsisten.*
-
+        `,
+        GoodByeNotes: `
 > Apabila *check-in* Tuan/Nona masih berada dalam status menunggu peninjauan (*waiting*) dan belum memperoleh keputusan hingga mendekati pergantian hari, maka dengan ini disampaikan ketentuan berikut:
 > 1. Jangan terlebih dahulu memasuki ⁠<#${IGNITE_PATH_CHANNEL}>, demi menjaga ketertiban alur peninjauan.
 > 2. Silakan menjalankan perintah **\`/checkin-status\`** untuk menampilkan status *check-in* terakhir Tuan/Nona.

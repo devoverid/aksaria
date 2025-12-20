@@ -3,12 +3,25 @@ import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
 import type { Guild, GuildMember, TextChannel } from 'discord.js'
 import { getGrindRoles, GRINDER_ROLE } from '@config/discord'
+import { encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
 import { sendAsBot } from '@utils/discord'
 import { log } from '@utils/logger'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+import { GOODBYE_NOTE_BUTTON_ID } from '../handlers/reset-grinder-roles'
 import { ResetGrinderRolesMessage } from '../messages/reset-grinder-roles'
 
 export class ResetGrinderRoles extends ResetGrinderRolesMessage {
+    static generateButton(guildId: string): ActionRowBuilder<ButtonBuilder> {
+        const noteButtonId = getCustomId([GOODBYE_NOTE_BUTTON_ID, encodeSnowflake(guildId)])
+        const noteButton = new ButtonBuilder()
+            .setCustomId(noteButtonId)
+            .setLabel('📜 Ketentuan Peninjauan Api')
+            .setStyle(ButtonStyle.Primary)
+
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(noteButton)
+    }
+
     static hasValidCheckin(checkin?: { created_at: Date, status: string }): boolean {
         if (!checkin)
             return false
@@ -46,11 +59,12 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
             const member = await guild.members.fetch(user.discord_id)
             await this.removeGrinderRoles(member)
             await this.breakCheckinStreakAt(prisma, checkinStreak)
+            const button = this.generateButton(guild.id)
 
             await sendAsBot(
                 null,
                 channel,
-                { content: ResetGrinderRoles.MSG.GoodBye(member), allowedMentions: { users: [member.id], roles: [] } },
+                { content: ResetGrinderRoles.MSG.GoodBye(member), components: [button], allowedMentions: { users: [member.id], roles: [] } },
             )
 
             log.info(this.MSG.RemoveGrinderRoleFrom(member))
