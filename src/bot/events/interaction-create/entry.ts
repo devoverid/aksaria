@@ -5,7 +5,7 @@ import { decodeSnowflakes } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { log } from '@utils/logger'
 import { Events } from 'discord.js'
-import { interactionHandlers } from './registry'
+import { interactionHandlerMap, interactionHandlers } from './registry'
 
 export default {
     name: Events.InteractionCreate,
@@ -14,16 +14,24 @@ export default {
         if ('customId' in interaction && interaction.customId) {
             const [prefix] = decodeSnowflakes(interaction.customId)
 
-            const handler = interactionHandlers.get(prefix)
+            const handler = interactionHandlerMap.get(prefix)
             if (handler) {
                 try {
                     await handler.exec(client, interaction)
+                    return
                 }
                 catch (err) {
                     await sendReply(interaction, `❓ Something weird happen... kindly contact <@&${ARCHFYRE_ROLE}> :)`)
                     log.error(`InteractionCreate handler failed ${handler.errorTag()}: ${err}`)
                 }
             }
+        }
+
+        for (const handler of interactionHandlers) {
+            if (handler.match && !handler.match(interaction))
+                continue
+
+            await handler.exec(client, interaction)
         }
     },
 } as Event
