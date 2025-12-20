@@ -61,14 +61,6 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         const users = await prisma.user.findMany({
             select: {
                 discord_id: true,
-                checkins: {
-                    select: {
-                        status: true,
-                        created_at: true,
-                    },
-                    orderBy: { created_at: 'desc' },
-                    take: 1,
-                },
                 checkin_streaks: {
                     orderBy: { first_date: 'desc' },
                     take: 1,
