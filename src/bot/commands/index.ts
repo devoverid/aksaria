@@ -1,9 +1,8 @@
-import type { Command } from '@commands/command'
 import type { Client } from 'discord.js'
 import path from 'node:path'
-import { getModuleName, readFiles } from '@utils/io'
+import { readFiles } from '@utils/io'
 import { log } from '@utils/logger'
-import { Collection } from 'discord.js'
+import { commandRegistry } from './registry'
 
 export class CommandError extends Error {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -14,24 +13,22 @@ export class CommandError extends Error {
 }
 
 export const COMMAND_PATH = path.basename(__dirname)
-const files = readFiles(__dirname)
 
-export async function registerCommands(client: Client) {
-    client.commands = new Collection<string, Command>()
+export async function loadCommands(client: Client) {
+    const root = path.join(__dirname)
+    const files = readFiles(root)
 
-    for (const file of files) {
-        const fileName = getModuleName(COMMAND_PATH, file)
-        const { default: command } = await import(file) as { default: Command }
-        if (!command)
-            continue
+    await Promise.all(
+        files.map(async (file) => {
+            try {
+                await import(file)
+                log.info(`Loaded command file ${file}`)
+            }
+            catch (err) {
+                log.error(`Failed to load command file ${file}: ${err}`)
+            }
+        }),
+    )
 
-        try {
-            log.info(`Registering command ${fileName}...`)
-            client.commands.set(command.data.name, command)
-        }
-        catch (err: any) {
-            const msg = err instanceof CommandError ? err.message : '❌ Something went wrong when importing the command'
-            log.error(`Failed to register a command: ${msg}: ${err.message}`)
-        }
-    }
+    client.commands = commandRegistry
 }

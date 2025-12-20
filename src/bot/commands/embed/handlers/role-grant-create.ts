@@ -1,5 +1,5 @@
-import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction, TextChannel } from 'discord.js'
+import { registerCommand } from '@commands/registry'
 import { LabelBuilder, ModalBuilder, TextInputBuilder } from '@discordjs/builders'
 import { EMBED_ROLE_GRANT_CREATE_MODAL_ID } from '@events/interaction-create/embed/handlers/role-grant-create-modal'
 import { RoleGrantCreate } from '@events/interaction-create/embed/validators/role-grant-create'
@@ -16,7 +16,7 @@ export class EmbedRoleGrantError extends DiscordBaseError {
     }
 }
 
-export default {
+registerCommand({
     data: new SlashCommandBuilder()
         .setName('create-embed-role-grant')
         .setDescription('Create an embed in a channel w/ a role-grant button.')
@@ -103,4 +103,4 @@ export default {
             else log.error(`Failed to handle ${EMBED_ROLE_GRANT_CREATE_MODAL_ID}: ${RoleGrantCreate.ERR.UnexpectedRoleGrantCreate}: ${err}`)
         }
     },
-} as Command
+})

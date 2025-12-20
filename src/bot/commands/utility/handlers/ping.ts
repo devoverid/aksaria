@@ -1,5 +1,5 @@
-import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction, TextChannel } from 'discord.js'
+import { registerCommand } from '@commands/registry'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
@@ -12,7 +12,7 @@ export class PingError extends DiscordBaseError {
     }
 }
 
-export default {
+registerCommand({
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Replies with pong!'),
@@ -33,4 +33,4 @@ export default {
             else log.error(`Failed to handle: ${Ping.ERR.UnexpectedPing}: ${err}`)
         }
     },
-} as Command
+})

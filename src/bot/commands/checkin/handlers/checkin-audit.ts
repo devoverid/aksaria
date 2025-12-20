@@ -1,5 +1,5 @@
-import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction, Client } from 'discord.js'
+import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { CHECKIN_AUDIT_ID } from '@events/interaction-create/checkin/handlers/audit-modal'
 import { createCheckinReviewModal, encodeSnowflake, getCustomId } from '@utils/component'
@@ -15,7 +15,7 @@ export class CheckinAuditError extends DiscordBaseError {
     }
 }
 
-export default {
+registerCommand({
     data: new SlashCommandBuilder()
         .setName('checkin-audit')
         .setDescription('Review an old check-in using its public ID.')
@@ -57,4 +57,4 @@ export default {
             else log.error(`Failed to handle: ${CheckinAudit.ERR.UnexpectedCheckinAudit}: ${err}`)
         }
     },
-} as Command
+})

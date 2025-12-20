@@ -1,5 +1,5 @@
-import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction, Client, GuildMember } from 'discord.js'
+import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE, GRINDER_ROLE } from '@config/discord'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
@@ -13,7 +13,7 @@ export class CheckinStatusError extends DiscordBaseError {
     }
 }
 
-export default {
+registerCommand({
     data: new SlashCommandBuilder()
         .setName('checkin-status')
         .setDescription('Check your current daily check-in and streak status.'),
@@ -47,4 +47,4 @@ export default {
             else log.error(`Failed to handle: ${CheckinStatus.ERR.UnexpectedCheckinStatus}: ${err}`)
         }
     },
-} as Command
+})

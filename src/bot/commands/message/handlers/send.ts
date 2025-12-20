@@ -1,5 +1,5 @@
-import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction, TextChannel } from 'discord.js'
+import { registerCommand } from '@commands/registry'
 import { MESSAGE_SEND_ID } from '@events/interaction-create/message/handlers/send-modal'
 import { Send } from '@events/interaction-create/message/validators/send'
 import { encodeSnowflake, getCustomId } from '@utils/component'
@@ -29,7 +29,7 @@ for (let i = 1; i <= Send.ATTACHMENT_COUNT; i++) {
     )
 }
 
-export default {
+registerCommand({
     data,
     async execute(_, interaction: ChatInputCommandInteraction) {
         try {
@@ -73,4 +73,4 @@ export default {
             else log.error(`Failed to handle: ${Send.ERR.UnexpectedSend}: ${err}`)
         }
     },
-} as Command
+})

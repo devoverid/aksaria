@@ -1,7 +1,7 @@
 import process from 'node:process'
-import { registerCommands } from '@commands/index'
+import { loadCommands } from '@commands/index'
 import { prisma } from '@db/client'
-import { registerEvents } from '@events/index'
+import { loadEvents } from '@events/index'
 import { log } from '@utils/logger'
 import { Client, GatewayIntentBits, Partials } from 'discord.js'
 
@@ -25,11 +25,11 @@ async function main() {
     log.base('🚀 Starting bot...')
 
     log.check('Loading events...')
-    await registerEvents(client)
+    await loadEvents(client)
     log.success('Events loaded~')
 
     log.check('Loading commands...')
-    await registerCommands(client)
+    await loadCommands(client)
     log.success('Commands loaded~')
 
     await client.login(process.env.APP_TOKEN)
