@@ -1,17 +1,32 @@
 import type { PrismaClient } from '@generatedDB/client'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Guild, GuildMember, TextChannel } from 'discord.js'
+import type { Guild, GuildMember, Interaction, TextChannel } from 'discord.js'
 import { getGrindRoles, GRINDER_ROLE } from '@config/discord'
-import { encodeSnowflake, getCustomId } from '@utils/component'
+import { GOODBYE_NOTE_BUTTON_ID, ResetGrinderRolesButtonError } from '@events/interaction-create/jobs/handlers/reset-grinder-roles-button'
+import { decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
-import { sendAsBot } from '@utils/discord'
+import { DiscordAssert, sendAsBot } from '@utils/discord'
 import { log } from '@utils/logger'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { GOODBYE_NOTE_BUTTON_ID } from '../handlers/reset-grinder-roles'
 import { ResetGrinderRolesMessage } from '../messages/reset-grinder-roles'
 
 export class ResetGrinderRoles extends ResetGrinderRolesMessage {
+    static override BASE_PERMS = [
+        ...DiscordAssert.BASE_PERMS,
+    ]
+
+    static getButtonId(interaction: Interaction, customId: string) {
+        const [prefix, guildId] = decodeSnowflakes(customId)
+
+        if (!guildId)
+            throw new ResetGrinderRolesButtonError(this.ERR.GuildMissing)
+        if (interaction.guildId !== guildId)
+            throw new ResetGrinderRolesButtonError(this.ERR.NotGuild)
+
+        return { prefix, guildId }
+    }
+
     static generateButton(guildId: string): ActionRowBuilder<ButtonBuilder> {
         const noteButtonId = getCustomId([GOODBYE_NOTE_BUTTON_ID, encodeSnowflake(guildId)])
         const noteButton = new ButtonBuilder()

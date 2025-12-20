@@ -1,5 +1,5 @@
 import type { GuildMember } from 'discord.js'
-import { FLAMEWARDEN_ROLE, IGNITE_PATH_CHANNEL } from '@config/discord'
+import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE, IGNITE_PATH_CHANNEL } from '@config/discord'
 import { DiscordAssert } from '@utils/discord'
 
 export class ResetGrinderRolesMessage extends DiscordAssert {
@@ -26,7 +26,7 @@ Namun jangan berduka, jalan ini selalu terbuka bagi mereka yang bersedia memulai
         GoodByeNotes: `
 > Apabila *check-in* Tuan/Nona masih berada dalam status menunggu peninjauan (*waiting*) dan belum memperoleh keputusan hingga mendekati pergantian hari, maka dengan ini disampaikan ketentuan berikut:
 > 1. Jangan terlebih dahulu memasuki ⁠<#${IGNITE_PATH_CHANNEL}>, demi menjaga ketertiban alur peninjauan.
-> 2. Silakan menjalankan perintah **\`/checkin-status\`** untuk menampilkan status *check-in* terakhir Tuan/Nona.
+> 2. Silakan menjalankan perintah **\`/checkin-status\`** pada <#${AUDIT_FLAME_CHANNEL}> untuk menampilkan status *check-in* terakhir Tuan/Nona.
 > 3. Setelah pesan status tersebut muncul, berikan reaksi “❓” pada pesan tersebut.
 > 4. Dari reaksi tersebut, sebuah *thread* akan tercipta secara otomatis sebagai ruang klarifikasi dan komunikasi dengan <@&${FLAMEWARDEN_ROLE}>.
 > ⏳ Batas waktu penantian atas status WAITING adalah maksimal 1×24 jam sejak *check-in* diajukan.
