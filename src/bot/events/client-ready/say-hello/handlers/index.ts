@@ -1,8 +1,8 @@
 import type { Client } from 'discord.js'
 import { registerClientReadyHandler } from '@events/client-ready/registry'
 import { EVENT_PATH } from '@events/index'
-import { generateCustomId } from '@utils/component'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { SayHello } from '../validators'
 
 export class SayHelloError extends DiscordBaseError {
@@ -11,12 +11,11 @@ export class SayHelloError extends DiscordBaseError {
     }
 }
 
-export const SAY_HELLO_ID = generateCustomId(EVENT_PATH, __filename)
+const moduleName = getModuleName(EVENT_PATH, __filename)
 
 registerClientReadyHandler({
-    id: SAY_HELLO_ID,
     desc: 'Say こんにちは for the first load.',
-    errorTag: () => `${SAY_HELLO_ID}: ${SayHello.ERR.UnexpectedSayHello}`,
+    errorTag: () => `${moduleName}: ${SayHello.ERR.UnexpectedSayHello}`,
     exec(client: Client) {
         console.warn(`こんにちは、${client.user?.tag}`)
     },

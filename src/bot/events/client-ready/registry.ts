@@ -2,7 +2,6 @@ import type { Client } from 'discord.js'
 
 export interface ClientReadyHandler {
     desc: string
-    id: string
     errorTag: () => string
     exec: (client: Client) => Promise<void> | void
 }

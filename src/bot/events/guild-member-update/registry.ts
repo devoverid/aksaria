@@ -1,7 +1,6 @@
 import type { Client, GuildMember } from 'discord.js'
 
 export interface GuildMemberUpdateHandler {
-    id: string
     desc: string
     errorTag: () => string
     match?: (oldMember: GuildMember, newMember: GuildMember) => boolean

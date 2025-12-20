@@ -2,8 +2,8 @@ import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { registerReactionHandler } from '@events/message-reaction-add/registry'
-import { generateCustomId } from '@utils/component'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 
 export class SubmittedCheckinError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -11,12 +11,11 @@ export class SubmittedCheckinError extends DiscordBaseError {
     }
 }
 
-export const SUBMITTED_CHECKIN_ID = generateCustomId(EVENT_PATH, __filename)
+const moduleName = getModuleName(EVENT_PATH, __filename)
 
 registerReactionHandler({
-    id: SUBMITTED_CHECKIN_ID,
     desc: 'Handles user-submitted checkin submissions with reacted by Flamewarden whether approved or rejected.',
-    errorTag: () => `${SUBMITTED_CHECKIN_ID}: ${Checkin.ERR.UnexpectedSubmittedCheckinMessage}`,
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedSubmittedCheckinMessage}`,
     match: (_, user) => !user.bot,
     async exec(client, reaction, user) {
         const message = reaction.message

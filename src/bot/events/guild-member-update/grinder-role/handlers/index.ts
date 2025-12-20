@@ -1,9 +1,9 @@
 import { GRIND_ASHES_CHANNEL, GRINDER_ROLE } from '@config/discord'
 import { registerGuildMemberUpdateHandler } from '@events/guild-member-update/registry'
 import { EVENT_PATH } from '@events/index'
-import { generateCustomId } from '@utils/component'
 import { getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { GrinderRole } from '../validators'
 
 export class GrinderRoleError extends DiscordBaseError {
@@ -12,12 +12,11 @@ export class GrinderRoleError extends DiscordBaseError {
     }
 }
 
-export const GRINDER_ROLE_ID = generateCustomId(EVENT_PATH, __filename)
+const moduleName = getModuleName(EVENT_PATH, __filename)
 
 registerGuildMemberUpdateHandler({
-    id: GRINDER_ROLE_ID,
     desc: 'Watches grinder role assignment/removal for members on guild member update.',
-    errorTag: () => `${GRINDER_ROLE_ID}: ${GrinderRole.ERR.UnexpectedGrinderRole}`,
+    errorTag: () => `${moduleName}: ${GrinderRole.ERR.UnexpectedGrinderRole}`,
     match: (_, newMember) => GrinderRole.isMemberHasRole(newMember, GRINDER_ROLE),
     async exec(_, oldMember, newMember) {
         try {

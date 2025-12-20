@@ -1,7 +1,6 @@
 import type { Client, MessageReaction, User } from 'discord.js'
 
 export interface ReactionHandler {
-    id: string
     desc: string
     errorTag: () => string
     match?: (reaction: MessageReaction, user: User) => boolean
