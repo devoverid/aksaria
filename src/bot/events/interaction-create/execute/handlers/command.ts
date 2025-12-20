@@ -1,8 +1,6 @@
 import type { Command } from '@commands/command'
-import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { EVENT_PATH } from '../../..'
 import { registerInteractionHandler } from '../../registry'
 import { ExecuteCommand } from '../validators/command'
 
@@ -12,12 +10,9 @@ export class ExecuteCommandError extends DiscordBaseError {
     }
 }
 
-export const EXECUTE_COMMAND_ID = `${generateCustomId(EVENT_PATH, __filename)}`
-
 registerInteractionHandler({
     desc: 'Executing a command when an interaction is created.',
-    id: EXECUTE_COMMAND_ID,
-    errorTag: () => `${EXECUTE_COMMAND_ID}`,
+    errorTag: () => `execute-command`,
     async exec(client, interaction) {
         if (!interaction.isChatInputCommand())
             return
