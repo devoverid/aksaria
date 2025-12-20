@@ -8,6 +8,10 @@ import { COMMAND_PATH } from '.'
 export const commandRegistry = new Collection<string, Command>()
 
 export function registerCommand(command: Command) {
+    if (commandRegistry.has(command.data.name)) {
+        throw new Error(`Duplicate command name: ${command.data.name}`)
+    }
+
     commandRegistry.set(command.data.name, command)
 }
 
