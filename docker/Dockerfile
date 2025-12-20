@@ -6,8 +6,13 @@ WORKDIR /usr/src/app
 # install dependencies into temp directory
 # this will cache them and speed up future builds
 FROM base AS install
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
+    ca-certificates \
+    openssl \
+ && ln -snf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
+ && echo Asia/Jakarta > /etc/timezone \
+ && rm -rf /var/lib/apt/lists/*
 
 # Dev deps (for Prisma generate)
 RUN mkdir -p /temp/dev
