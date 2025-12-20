@@ -7,6 +7,7 @@ export interface CheckinStreak {
     first_date: Date
     last_date?: Date | null
     streak: number
+    is_break?: Date | null
     updated_at?: Date | null
 
     user?: User

@@ -23,6 +23,7 @@ model CheckinStreak {
   first_date DateTime @default(now())
   last_date DateTime?
   streak Int @default(0)
+  is_break DateTime?
   updated_at DateTime?
 
   user User @relation(fields: [user_id], references: [id])
