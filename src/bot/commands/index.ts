@@ -1,8 +1,6 @@
 import type { Client } from 'discord.js'
 import path from 'node:path'
-import { readFiles } from '@utils/io'
-import { log } from '@utils/logger'
-import { commandRegistry } from './registry'
+import { commandRegistry, loadCommands } from './registry'
 
 export class CommandError extends Error {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -12,23 +10,10 @@ export class CommandError extends Error {
     }
 }
 
-export const COMMAND_PATH = path.basename(__dirname)
+export const COMMAND_PATH = path.join(__dirname)
 
-export async function loadCommands(client: Client) {
-    const root = path.join(__dirname)
-    const files = readFiles(root)
-
-    await Promise.all(
-        files.map(async (file) => {
-            try {
-                await import(file)
-                log.info(`Loaded command file ${file}`)
-            }
-            catch (err) {
-                log.error(`Failed to load command file ${file}: ${err}`)
-            }
-        }),
-    )
+export async function registerCommands(client: Client) {
+    await loadCommands()
 
     client.commands = commandRegistry
 }
