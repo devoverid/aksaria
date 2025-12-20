@@ -4,7 +4,6 @@ export interface InteractionHandler {
     desc: string
     id: string
     errorTag: () => string
-    match?: (interaction: Interaction) => boolean
     exec: (client: Client, interaction: Interaction) => Promise<void> | void
 }
 

@@ -21,7 +21,7 @@ export default {
                 }
                 catch (err) {
                     await sendReply(interaction, `❓ Something weird happen... kindly contact <@&${ARCHFYRE_ROLE}> :)`)
-                    log.error(`Interaction handler failed ${handler.errorTag()}: ${err}`)
+                    log.error(`InteractionCreate handler failed ${handler.errorTag()}: ${err}`)
                 }
             }
         }
