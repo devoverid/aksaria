@@ -14,7 +14,7 @@ export class SendModalError extends DiscordBaseError {
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const MESSAGE_SEND_ID = generateCustomId(EVENT_PATH, __filename)
+export const MESSAGE_SEND_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Handles message send modal submissions, posting messages (text/attachments) as the bot in the selected channel.',

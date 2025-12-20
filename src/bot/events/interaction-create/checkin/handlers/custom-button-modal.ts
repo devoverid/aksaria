@@ -16,7 +16,7 @@ export class CheckinCustomButtonModalError extends DiscordBaseError {
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const CHECKIN_CUSTOM_BUTTON_MODAL_ID = generateCustomId(EVENT_PATH, __filename)
+export const CHECKIN_CUSTOM_BUTTON_MODAL_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Handles modal submissions for the custom check-in review modal.',

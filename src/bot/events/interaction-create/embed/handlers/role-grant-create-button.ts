@@ -14,7 +14,7 @@ export class EmbedRoleGrantButtonError extends DiscordBaseError {
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const EMBED_ROLE_GRANT_CREATE_BUTTON_ID = generateCustomId(EVENT_PATH, __filename)
+export const EMBED_ROLE_GRANT_CREATE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Handles role assignment button interactions and adds a role for users.',

@@ -17,7 +17,7 @@ export class CheckinAuditModalError extends DiscordBaseError {
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const CHECKIN_AUDIT_ID = generateCustomId(EVENT_PATH, __filename)
+export const CHECKIN_AUDIT_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Handles modal submissions for check-in audit modal forms.',

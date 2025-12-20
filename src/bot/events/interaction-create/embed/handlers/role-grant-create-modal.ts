@@ -15,7 +15,7 @@ export class EmbedRoleGrantModalError extends DiscordBaseError {
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const EMBED_ROLE_GRANT_CREATE_MODAL_ID = generateCustomId(EVENT_PATH, __filename)
+export const EMBED_ROLE_GRANT_CREATE_MODAL_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Handles modal submissions for creating an embed with a role-grant button.',
