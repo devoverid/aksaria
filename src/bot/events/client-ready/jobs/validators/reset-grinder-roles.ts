@@ -48,12 +48,12 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
 
     static async validateUsers(prisma: PrismaClient, guild: Guild, channel: TextChannel, users: User[]) {
         for (const user of users) {
-            const lastCheckin = user.checkins?.[0]
-            if (this.hasValidCheckin(lastCheckin))
-                continue
-
             const checkinStreak = user.checkin_streaks?.[0]
             if (!checkinStreak)
+                continue
+
+            const lastCheckin = checkinStreak.checkins?.[0]
+            if (this.hasValidCheckin(lastCheckin))
                 continue
 
             const member = await guild.members.fetch(user.discord_id)
