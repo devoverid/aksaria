@@ -13,6 +13,7 @@ CREATE TABLE "public"."CheckinStreak" (
     "first_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "last_date" TIMESTAMP(3),
     "streak" INTEGER NOT NULL DEFAULT 0,
+    "streak_broken_at" TIMESTAMP(3) DEFAULT NULL,
     "updated_at" TIMESTAMP(3),
 
     CONSTRAINT "CheckinStreak_pkey" PRIMARY KEY ("id")

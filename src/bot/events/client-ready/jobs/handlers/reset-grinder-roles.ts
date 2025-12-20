@@ -27,9 +27,9 @@ export default {
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
                 const channel = await getChannel(guild, GRIND_ASHES_CHANNEL)
                 ResetGrinderRoles.assertChannel(channel)
-                const users = await ResetGrinderRoles.getUsersWithLatestCheckin(client.prisma)
+                const users = await ResetGrinderRoles.getUsersWithLatestStreak(client.prisma)
 
-                await ResetGrinderRoles.validateUsers(guild, channel, users)
+                await ResetGrinderRoles.validateUsers(client.prisma, guild, channel, users)
 
                 log.success(ResetGrinderRoles.MSG.JobSuccess)
             })
