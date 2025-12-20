@@ -3,7 +3,7 @@ import type { Client } from 'discord.js'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { Events } from 'discord.js'
-import { SayHello } from '../validators/say-hello'
+import { SayHello } from '../validators'
 
 export class SayHelloError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {

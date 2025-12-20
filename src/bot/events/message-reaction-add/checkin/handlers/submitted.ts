@@ -1,7 +1,7 @@
 import type { Event } from '@events/event'
 import type { Client, MessageReaction, PartialMessageReaction, User } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { Checkin } from '@events/interaction-create/checkin/validators/checkin'
+import { Checkin } from '@events/interaction-create/checkin/validators'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { Events } from 'discord.js'

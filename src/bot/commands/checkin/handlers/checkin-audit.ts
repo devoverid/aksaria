@@ -1,13 +1,13 @@
 import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction, Client } from 'discord.js'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { CHECKIN_AUDIT_ID } from '@events/interaction-create/checkin/handlers/checkin-audit-modal'
+import { CHECKIN_AUDIT_ID } from '@events/interaction-create/checkin/handlers/audit-modal'
 import { createCheckinReviewModal, encodeSnowflake, getCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { SlashCommandBuilder } from 'discord.js'
-import { CheckinAudit } from '../../../events/interaction-create/checkin/validators/checkin-audit'
+import { CheckinAudit } from '../../../events/interaction-create/checkin/validators/audit'
 
 export class CheckinAuditError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {

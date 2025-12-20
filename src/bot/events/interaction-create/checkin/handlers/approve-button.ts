@@ -1,13 +1,11 @@
-import type { Event } from '@events/event'
-import type { Client, Interaction, TextChannel } from 'discord.js'
+import type { TextChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
-import { Checkin } from '../validators/checkin'
+import { Checkin } from '../validators'
 
 export class CheckinApproveButtonError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -17,15 +15,12 @@ export class CheckinApproveButtonError extends DiscordBaseError {
 
 export const CHECKIN_APPROVE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
-export default {
-    name: Events.InteractionCreate,
-    desc: 'Handles check-in approve button interactions and approves user check-in.',
-    async exec(client: Client, interaction: Interaction) {
+registerInteractionHandler({
+    desc: 'Approves a user check-in from the approve button.',
+    id: CHECKIN_APPROVE_BUTTON_ID,
+    errorTag: () => `${CHECKIN_APPROVE_BUTTON_ID}: ${Checkin.ERR.UnexpectedButton}`,
+    async exec(client, interaction) {
         if (!interaction.isButton())
-            return
-
-        const isValidComponent = Checkin.assertComponentId(interaction.customId, CHECKIN_APPROVE_BUTTON_ID)
-        if (!isValidComponent)
             return
 
         try {
@@ -54,7 +49,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${CHECKIN_APPROVE_BUTTON_ID}: ${Checkin.ERR.UnexpectedButton}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})

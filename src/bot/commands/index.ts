@@ -20,12 +20,14 @@ export async function registerCommands(client: Client) {
     client.commands = new Collection<string, Command>()
 
     for (const file of files) {
+        const { default: command } = await import(file) as { default: Command }
         const fileName = getModuleName(COMMAND_PATH, file)
-        log.info(`Registering command ${fileName}...`)
 
         try {
-            const { default: command } = await import(file) as { default: Command }
-            client.commands.set(command.data.name, command)
+            if (command) {
+                log.info(`Registering command ${fileName}...`)
+                client.commands.set(command.data.name, command)
+            }
         }
         catch (err: any) {
             const msg = err instanceof CommandError ? err.message : '❌ Something went wrong when importing the command'

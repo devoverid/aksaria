@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import { resolve } from 'node:path'
 
-const EXCLUDED_FILES = new Set(['index.ts', 'messages.ts', 'validators.ts'])
+const EXCLUDED_FILES = new Set(['registry.ts', 'messages.ts', 'validators.ts'])
 const EXCLUDED_FOLDERS = new Set(['validators', 'messages'])
 const EXCLUDED_PATTERNS: RegExp[] = [/\.d\.ts$/]
 

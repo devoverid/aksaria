@@ -19,16 +19,18 @@ export async function registerEvents(client: Client) {
     for (const file of files) {
         const { default: event } = await import(file) as { default: Event }
         const fileName = getModuleName(EVENT_PATH, file)
-        log.info(`Registering event ${fileName}...`)
 
         try {
-            if (event.once) {
-                client.once(event.name, (...args) => event.exec(client, ...args))
-            }
-            else {
-                client.on(event.name, (...args) => {
-                    event.exec(client, ...args)
-                })
+            if (event) {
+                log.info(`Registering event ${fileName}...`)
+                if (event.once) {
+                    client.once(event.name, (...args) => event.exec(client, ...args))
+                }
+                else {
+                    client.on(event.name, (...args) => {
+                        event.exec(client, ...args)
+                    })
+                }
             }
         }
         catch (err: any) {

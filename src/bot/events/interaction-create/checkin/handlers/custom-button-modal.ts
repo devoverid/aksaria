@@ -1,14 +1,12 @@
-import type { Event } from '@events/event'
 import type { CheckinStatusType } from '@type/checkin'
-import type { Client, Interaction, TextChannel } from 'discord.js'
+import type { TextChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
-import { Checkin } from '../validators/checkin'
+import { Checkin } from '../validators'
 
 export class CheckinCustomButtonModalError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -18,15 +16,12 @@ export class CheckinCustomButtonModalError extends DiscordBaseError {
 
 export const CHECKIN_CUSTOM_BUTTON_MODAL_ID = generateCustomId(EVENT_PATH, __filename)
 
-export default {
-    name: Events.InteractionCreate,
+registerInteractionHandler({
     desc: 'Handles modal submissions for the custom check-in review modal.',
-    async exec(client: Client, interaction: Interaction) {
+    id: CHECKIN_CUSTOM_BUTTON_MODAL_ID,
+    errorTag: () => `${CHECKIN_CUSTOM_BUTTON_MODAL_ID}: ${Checkin.ERR.UnexpectedModal}`,
+    async exec(client, interaction) {
         if (!interaction.isModalSubmit())
-            return
-
-        const isValidComponent = Checkin.assertComponentId(interaction.customId, CHECKIN_CUSTOM_BUTTON_MODAL_ID)
-        if (!isValidComponent)
             return
 
         try {
@@ -60,7 +55,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${CHECKIN_CUSTOM_BUTTON_MODAL_ID}: ${Checkin.ERR.UnexpectedModal}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})

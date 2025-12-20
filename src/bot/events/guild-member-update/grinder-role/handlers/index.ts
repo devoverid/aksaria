@@ -5,7 +5,7 @@ import { getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { Events } from 'discord.js'
-import { GrinderRole } from '../validators/grinder-role'
+import { GrinderRole } from '../validators'
 
 export class GrinderRoleError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {

@@ -13,8 +13,9 @@ export interface GrindRole {
     threshold: number
 }
 
-export const GRINDER_ROLE = '1403320523756146768'
+export const ARCHFYRE_ROLE = '1402625885684891658'
 export const FLAMEWARDEN_ROLE = '1403022712938561668'
+export const GRINDER_ROLE = '1403320523756146768'
 
 const GRIND_ROLES: GrindRole[] = [
     {

@@ -109,13 +109,6 @@ export class DiscordAssert extends DiscordMessage {
         }
     }
 
-    static assertComponentId(modalId: string, id: string): boolean {
-        if (!modalId.startsWith(id))
-            return false
-
-        return true
-    }
-
     static isMemberHasRole(member: GuildMember, roleId: string): boolean {
         return member.roles.cache.has(roleId)
     }

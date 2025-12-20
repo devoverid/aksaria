@@ -1,11 +1,9 @@
-import type { Event } from '@events/event'
-import type { GuildMember, Interaction, TextChannel } from 'discord.js'
+import type { GuildMember, TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { getRole, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
 import { RoleGrantCreate } from '../validators/role-grant-create'
 
 export class EmbedRoleGrantButtonError extends DiscordBaseError {
@@ -16,15 +14,12 @@ export class EmbedRoleGrantButtonError extends DiscordBaseError {
 
 export const EMBED_ROLE_GRANT_CREATE_BUTTON_ID = generateCustomId(EVENT_PATH, __filename)
 
-export default {
-    name: Events.InteractionCreate,
+registerInteractionHandler({
     desc: 'Handles role assignment button interactions and adds a role for users.',
-    async exec(_, interaction: Interaction) {
+    id: EMBED_ROLE_GRANT_CREATE_BUTTON_ID,
+    errorTag: () => `${EMBED_ROLE_GRANT_CREATE_BUTTON_ID}: ${RoleGrantCreate.ERR.UnexpectedButton}`,
+    async exec(_, interaction) {
         if (!interaction.isButton())
-            return
-
-        const isValidComponent = RoleGrantCreate.assertComponentId(interaction.customId, EMBED_ROLE_GRANT_CREATE_BUTTON_ID)
-        if (!isValidComponent)
             return
 
         try {
@@ -49,7 +44,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${EMBED_ROLE_GRANT_CREATE_BUTTON_ID}: ${RoleGrantCreate.ERR.UnexpectedButton}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})

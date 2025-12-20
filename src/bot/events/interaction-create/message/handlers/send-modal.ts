@@ -1,11 +1,9 @@
-import type { Event } from '@events/event'
-import type { Attachment, Interaction } from 'discord.js'
+import type { Attachment } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId, tempStore } from '@utils/component'
 import { getChannel, sendAsBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
 import { Send } from '../validators/send'
 
 export class SendModalError extends DiscordBaseError {
@@ -16,15 +14,12 @@ export class SendModalError extends DiscordBaseError {
 
 export const MESSAGE_SEND_ID = generateCustomId(EVENT_PATH, __filename)
 
-export default {
-    name: Events.InteractionCreate,
-    desc: 'Handles modal submissions for creating an embed with a role-grant button.',
-    async exec(_, interaction: Interaction) {
+registerInteractionHandler({
+    desc: 'Handles message send modal submissions, posting messages (text/attachments) as the bot in the selected channel.',
+    id: MESSAGE_SEND_ID,
+    errorTag: () => `${MESSAGE_SEND_ID}: ${Send.ERR.UnexpectedModal}`,
+    async exec(_, interaction) {
         if (!interaction.isModalSubmit())
-            return
-
-        const isValidComponent = Send.assertComponentId(interaction.customId, MESSAGE_SEND_ID)
-        if (!isValidComponent)
             return
 
         try {
@@ -51,7 +46,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${MESSAGE_SEND_ID}: ${Send.ERR.UnexpectedModal}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})
