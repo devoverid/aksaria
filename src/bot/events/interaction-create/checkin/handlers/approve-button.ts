@@ -5,6 +5,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { Checkin } from '../validators'
 
 export class CheckinApproveButtonError extends DiscordBaseError {
@@ -13,12 +14,13 @@ export class CheckinApproveButtonError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const CHECKIN_APPROVE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Approves a user check-in from the approve button.',
     id: CHECKIN_APPROVE_BUTTON_ID,
-    errorTag: () => `${CHECKIN_APPROVE_BUTTON_ID}: ${Checkin.ERR.UnexpectedButton}`,
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedButton}`,
     async exec(client, interaction) {
         if (!interaction.isButton())
             return

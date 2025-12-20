@@ -5,6 +5,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 
 export class ResetGrinderRolesButtonError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -12,12 +13,13 @@ export class ResetGrinderRolesButtonError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const GOODBYE_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Opens goodbye note modal for users losing Grinder roles.',
     id: GOODBYE_NOTE_BUTTON_ID,
-    errorTag: () => `${GOODBYE_NOTE_BUTTON_ID}: ${ResetGrinderRoles.ERR.UnexpectedButton}`,
+    errorTag: () => `${moduleName}: ${ResetGrinderRoles.ERR.UnexpectedButton}`,
     async exec(_, interaction) {
         if (!interaction.isButton())
             return

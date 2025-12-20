@@ -4,6 +4,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { getRole, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { RoleGrantCreate } from '../validators/role-grant-create'
 
 export class EmbedRoleGrantButtonError extends DiscordBaseError {
@@ -12,12 +13,13 @@ export class EmbedRoleGrantButtonError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const EMBED_ROLE_GRANT_CREATE_BUTTON_ID = generateCustomId(EVENT_PATH, __filename)
 
 registerInteractionHandler({
     desc: 'Handles role assignment button interactions and adds a role for users.',
     id: EMBED_ROLE_GRANT_CREATE_BUTTON_ID,
-    errorTag: () => `${EMBED_ROLE_GRANT_CREATE_BUTTON_ID}: ${RoleGrantCreate.ERR.UnexpectedButton}`,
+    errorTag: () => `${moduleName}: ${RoleGrantCreate.ERR.UnexpectedButton}`,
     async exec(_, interaction) {
         if (!interaction.isButton())
             return

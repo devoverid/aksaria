@@ -6,6 +6,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { Checkin } from '../validators'
 
 export class CheckinCustomButtonModalError extends DiscordBaseError {
@@ -14,12 +15,13 @@ export class CheckinCustomButtonModalError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const CHECKIN_CUSTOM_BUTTON_MODAL_ID = generateCustomId(EVENT_PATH, __filename)
 
 registerInteractionHandler({
     desc: 'Handles modal submissions for the custom check-in review modal.',
     id: CHECKIN_CUSTOM_BUTTON_MODAL_ID,
-    errorTag: () => `${CHECKIN_CUSTOM_BUTTON_MODAL_ID}: ${Checkin.ERR.UnexpectedModal}`,
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedModal}`,
     async exec(client, interaction) {
         if (!interaction.isModalSubmit())
             return

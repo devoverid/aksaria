@@ -3,6 +3,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createEmbed, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
 import { getChannel, getRole, sendAsBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { RoleGrantCreate } from '../validators/role-grant-create'
 import { EMBED_ROLE_GRANT_CREATE_BUTTON_ID } from './role-grant-create-button'
@@ -13,12 +14,13 @@ export class EmbedRoleGrantModalError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const EMBED_ROLE_GRANT_CREATE_MODAL_ID = generateCustomId(EVENT_PATH, __filename)
 
 registerInteractionHandler({
     desc: 'Handles modal submissions for creating an embed with a role-grant button.',
     id: EMBED_ROLE_GRANT_CREATE_MODAL_ID,
-    errorTag: () => `${EMBED_ROLE_GRANT_CREATE_MODAL_ID}: ${RoleGrantCreate.ERR.UnexpectedModal}`,
+    errorTag: () => `${moduleName}: ${RoleGrantCreate.ERR.UnexpectedModal}`,
     async exec(_, interaction) {
         if (!interaction.isModalSubmit())
             return

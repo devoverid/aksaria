@@ -5,6 +5,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { Checkin } from '../validators'
 
 export class CheckinRejectButtonError extends DiscordBaseError {
@@ -13,12 +14,13 @@ export class CheckinRejectButtonError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const CHECKIN_REJECT_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Handles check-in reject button interactions and rejects user check-in.',
     id: CHECKIN_REJECT_BUTTON_ID,
-    errorTag: () => `${CHECKIN_REJECT_BUTTON_ID}: ${Checkin.ERR.UnexpectedButton}`,
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedButton}`,
     async exec(client, interaction) {
         if (!interaction.isButton())
             return

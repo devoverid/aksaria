@@ -5,6 +5,7 @@ import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createCheckinReviewModal, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
+import { getModuleName } from '@utils/io'
 import { Checkin } from '../validators'
 import { CHECKIN_CUSTOM_BUTTON_MODAL_ID } from './custom-button-modal'
 
@@ -14,12 +15,13 @@ export class CheckinCustomButtonError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const CHECKIN_CUSTOM_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Opens review modal for a check-in',
     id: CHECKIN_CUSTOM_BUTTON_ID,
-    errorTag: () => `${CHECKIN_CUSTOM_BUTTON_ID}: ${Checkin.ERR.UnexpectedButton}`,
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedButton}`,
     async exec(client, interaction) {
         if (!interaction.isButton())
             return
