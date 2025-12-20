@@ -16,9 +16,12 @@ async function loadCommands(): Promise<RESTPostAPIChatInputApplicationCommandsJS
     const results: Array<RESTPostAPIChatInputApplicationCommandsJSONBody | null> = await Promise.all(
         files.map(async (file) => {
             const fileName = getModuleName(root, file)
-            log.info(`Registering command ${fileName}...`)
+            const { default: command } = await import(file) as { default: Command }
+            if (!command)
+                return null
+
             try {
-                const { default: command } = (await import(file)) as { default: Command }
+                log.info(`Deploying command ${fileName}...`)
                 if ('data' in command && 'execute' in command) {
                     return command.data.toJSON()
                 }

@@ -17,8 +17,10 @@ const files = readFiles(__dirname)
 
 export async function registerEvents(client: Client) {
     for (const file of files) {
-        const { default: event } = await import(file) as { default: Event }
         const fileName = getModuleName(EVENT_PATH, file)
+        const { default: event } = await import(file) as { default: Event }
+        if (!event)
+            continue
 
         try {
             if (event) {
