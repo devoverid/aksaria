@@ -19,7 +19,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 🗓 **Date**: ${getParsedNow()}
 🔥 **Current Streak**: ${checkinStreak?.streak ?? 0} day(s)
 🔎 **Status**: Belum melakukan *check-in*
-> *“Percikan hari ini belum ditorehkan. Lakukan *check-in* sebelum 23:59 WIB, agar api Tuan/Nona tak meredup.”*
+> *“Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup.”*
         `,
         WaitingCheckin: (userDiscordId: string, checkin: Checkin) => `
 🆔 **Check-In ID**:
