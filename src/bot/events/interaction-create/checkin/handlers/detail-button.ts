@@ -39,7 +39,7 @@ registerInteractionHandler({
             const checkin = await Checkin.getCheckin(client.prisma, checkinId)
             const prevCheckin = await Checkin.getPrevCheckin(client.prisma, checkin.user!.id, checkin.checkin_streak!, checkin)
 
-            await sendReply(interaction, Checkin.MSG.GrinderDetails(member, checkin, checkin.checkin_streak!.streak, prevCheckin))
+            await sendReply(interaction, Checkin.MSG.GrinderDetails(checkin, checkin.checkin_streak!.streak, prevCheckin))
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
