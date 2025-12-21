@@ -1,7 +1,6 @@
 import { GRIND_ASHES_CHANNEL, GRINDER_ROLE } from '@config/discord'
 import { registerGuildMemberUpdateHandler } from '@events/guild-member-update/registry'
 import { EVENT_PATH } from '@events/index'
-import { generateCustomId } from '@utils/component'
 import { getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
@@ -13,7 +12,6 @@ export class GrinderRoleError extends DiscordBaseError {
     }
 }
 
-export const WELCOME_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 const moduleName = getModuleName(EVENT_PATH, __filename)
 
 registerGuildMemberUpdateHandler({

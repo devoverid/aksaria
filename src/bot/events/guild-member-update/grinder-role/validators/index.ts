@@ -1,7 +1,7 @@
+import { WELCOME_NOTE_BUTTON_ID } from '@events/interaction-create/grinder-role/handlers/button'
 import { encodeSnowflake, getCustomId } from '@utils/component'
 import { DiscordAssert } from '@utils/discord'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { WELCOME_NOTE_BUTTON_ID } from '../handlers'
 import { GrinderRoleMessage } from '../messages'
 
 export class GrinderRole extends GrinderRoleMessage {
