@@ -1,6 +1,7 @@
 import { GRIND_ASHES_CHANNEL, GRINDER_ROLE } from '@config/discord'
 import { registerGuildMemberUpdateHandler } from '@events/guild-member-update/registry'
 import { EVENT_PATH } from '@events/index'
+import { generateCustomId } from '@utils/component'
 import { getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
@@ -12,6 +13,7 @@ export class GrinderRoleError extends DiscordBaseError {
     }
 }
 
+export const WELCOME_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 const moduleName = getModuleName(EVENT_PATH, __filename)
 
 registerGuildMemberUpdateHandler({
@@ -28,11 +30,12 @@ registerGuildMemberUpdateHandler({
             if (newHasGrinderRole && !oldHasGrinderRole) {
                 const channel = await getChannel(newMember.guild, GRIND_ASHES_CHANNEL)
                 GrinderRole.assertChannel(channel)
+                const button = GrinderRole.generateButton(newMember.guild.id)
 
                 await sendAsBot(
                     null,
                     channel,
-                    { content: GrinderRole.MSG.Greetings(newMember), allowedMentions: { users: [newMember.id], roles: [] } },
+                    { content: GrinderRole.MSG.Greetings(newMember), components: [button], allowedMentions: { users: [newMember.id], roles: [] } },
                 )
             }
         }
