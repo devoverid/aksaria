@@ -142,7 +142,7 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 ## Notulen Grinder
 ${checkin.description}
-✰⋆｡:ﾟ･*☽:ﾟ･⋆｡✰⋆｡:ﾟ`))
+⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆`))
         .addTextDisplayComponents(textDisplay => textDisplay.setContent(DUMMY.MARKDOWN))
 
     return modal

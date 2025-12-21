@@ -42,23 +42,12 @@ registerInteractionHandler({
             Checkin.assertMemberGrindRoles(member)
             Checkin.assertCheckinToday(user)
 
-            const {
-                checkinStreak,
-                checkin,
-                prevCheckin,
-            } = await Checkin.validateCheckinStreak(client.prisma, user.id, user.checkin_streaks?.[0], todo)
-
+            const { checkin } = await Checkin.validateCheckinStreak(client.prisma, user.id, user.checkin_streaks?.[0], todo)
             const buttons = Checkin.generateButtons(interaction.guildId, checkin.id.toString())
 
             const msg = await sendReply(
                 interaction,
-                Checkin.MSG.CheckinSuccess(
-                    member,
-                    attachments,
-                    checkinStreak.streak,
-                    todo,
-                    prevCheckin,
-                ),
+                Checkin.MSG.CheckinSuccess(todo),
                 false,
                 {
                     files: attachments.length ? attachments : undefined,
