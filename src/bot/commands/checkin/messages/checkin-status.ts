@@ -19,7 +19,7 @@ Nyala api Tuan/Nona belum dinyalakan hari ini.
 🗓 **Date**: ${getParsedNow()}
 🔥 **Current Streak**: ${checkinStreak?.streak ?? 0} day(s)
 🔎 **Status**: Belum melakukan *check-in*
-> *“Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup.”*
+> *"Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup."*
         `,
         WaitingCheckin: (userDiscordId: string, checkin: Checkin) => `
 🆔 **Check-In ID**:
@@ -31,7 +31,7 @@ ${checkin.public_id}
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Menunggu peninjauan <@&${FLAMEWARDEN_ROLE}>
-> *“Percikan telah Tuan/Nona <@${userDiscordId}> titipkan. Mohon menanti sesaat, <@&${FLAMEWARDEN_ROLE}> tengah menakar apakah [nyala tersebut](${checkin.link}) layak menjadi bagian dari perjalanan Tuan/Nona.”*
+> *"Percikan telah Tuan/Nona <@${userDiscordId}> titipkan. Mohon menanti sesaat, <@&${FLAMEWARDEN_ROLE}> tengah menakar apakah [nyala tersebut](${checkin.link}) layak menjadi bagian dari perjalanan Tuan/Nona."*
         `,
         ApprovedCheckin: (userDiscordId: string, flamewarden: GuildMember, checkin: Checkin) => `
 🆔 **Check-In ID**:
@@ -45,7 +45,7 @@ ${checkin.public_id}
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
-> *“[Nyala hari ini](${checkin.link}) diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari.”*
+> *"[Nyala hari ini](${checkin.link}) diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari."*
         `,
         RejectedCheckin: (userDiscordId: string, flamewarden: GuildMember, checkin: Checkin) => `
 🆔 **Check-In ID**:
