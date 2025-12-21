@@ -13,9 +13,9 @@ export class EventError extends Error {
 }
 
 export const EVENT_PATH = path.basename(__dirname)
-const files = readFiles(__dirname)
-
 export async function registerEvents(client: Client) {
+    const files = readFiles(__dirname)
+
     for (const file of files) {
         const fileName = getModuleName(EVENT_PATH, file)
         const { default: event } = await import(file) as { default: Event }

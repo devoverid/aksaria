@@ -6,11 +6,11 @@ import { REST, Routes } from 'discord.js'
 async function main() {
     log.base('🚀 Deploying commands...')
 
-    await loadCommands()
-    const commands = [...commandRegistry.values()].map(cmd => cmd.data.toJSON())
-    const rest = new REST().setToken(process.env.APP_TOKEN!)
-
     try {
+        await loadCommands()
+        const commands = [...commandRegistry.values()].map(cmd => cmd.data.toJSON())
+        const rest = new REST().setToken(process.env.APP_TOKEN!)
+
         log.check(`Started refreshing ${commands.length} application (/) commands...`)
 
         const data = await rest.put(
