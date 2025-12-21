@@ -28,11 +28,12 @@ registerGuildMemberUpdateHandler({
             if (newHasGrinderRole && !oldHasGrinderRole) {
                 const channel = await getChannel(newMember.guild, GRIND_ASHES_CHANNEL)
                 GrinderRole.assertChannel(channel)
+                const button = GrinderRole.generateButton(newMember.guild.id)
 
                 await sendAsBot(
                     null,
                     channel,
-                    { content: GrinderRole.MSG.Greetings(newMember), allowedMentions: { users: [newMember.id], roles: [] } },
+                    { content: GrinderRole.MSG.Greetings(newMember), components: [button], allowedMentions: { users: [newMember.id], roles: [] } },
                 )
             }
         }

@@ -27,9 +27,9 @@ Namun jangan berduka, jalan ini selalu terbuka bagi mereka yang bersedia memulai
 > Apabila *check-in* Tuan/Nona masih berada dalam status menunggu peninjauan (*waiting*) dan belum memperoleh keputusan hingga mendekati pergantian hari, maka dengan ini disampaikan ketentuan berikut:
 > 1. Jangan terlebih dahulu memasuki ⁠<#${IGNITE_PATH_CHANNEL}>, demi menjaga ketertiban alur peninjauan.
 > 2. Silakan menjalankan perintah **\`/checkin-status\`** pada <#${AUDIT_FLAME_CHANNEL}> untuk menampilkan status *check-in* terakhir Tuan/Nona.
-> 3. Setelah pesan status tersebut muncul, berikan reaksi “❓” pada pesan tersebut.
+> 3. Setelah pesan status tersebut muncul, berikan reaksi "❓" pada pesan tersebut.
 > 4. Dari reaksi tersebut, sebuah *thread* akan tercipta secara otomatis sebagai ruang klarifikasi dan komunikasi dengan <@&${FLAMEWARDEN_ROLE}>.
-> ⏳ Batas waktu penantian atas status WAITING adalah maksimal 1×24 jam sejak *check-in* diajukan.
+> ⏳ Batas waktu penantian atas status *WAITING* adalah maksimal 1×24 jam sejak *check-in* diajukan.
         `,
     }
 }
