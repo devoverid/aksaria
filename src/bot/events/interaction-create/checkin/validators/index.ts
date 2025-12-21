@@ -414,7 +414,7 @@ export class Checkin extends CheckinMessage {
         const updatedCheckin = await this.updateCheckinStatus(prisma, flamewarden, checkin, checkinStatus, comment) as CheckinType
 
         await this.validateCheckinHandleToUser(guild, flamewarden, checkin.user!.discord_id, updatedCheckin)
-        await this.validateCheckinHandleSubmittedMsg(message, updatedCheckin, checkinStatus)
+        await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
     }
 
     static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
@@ -423,11 +423,6 @@ export class Checkin extends CheckinMessage {
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
         await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)
-    }
-
-    static async validateCheckinHandleSubmittedMsg(message: Message, updatedCheckin: CheckinType, checkinStatus: CheckinStatusType) {
-        await this.updateSubmittedCheckin(message, updatedCheckin.checkin_streak!.streak)
-        await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
     }
 
     static async updateCheckinMsgLink(interaction: Interaction, prisma: PrismaClient, checkin: CheckinType, msg: Message): Promise<CheckinType> {
@@ -512,14 +507,5 @@ export class Checkin extends CheckinMessage {
         }
 
         await member.send({ embeds: [embed] })
-    }
-
-    static async updateSubmittedCheckin(message: Message, newStreak: number) {
-        await message.edit(
-            message.content.replace(
-                /🔥\s*\*\*Current Streak:\*\*\s*\d+\s*day\(s\)/i,
-                `🔥 **Current Streak:** ${newStreak} day(s)`,
-            ),
-        )
     }
 }
