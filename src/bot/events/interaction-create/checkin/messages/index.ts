@@ -30,7 +30,7 @@ ${todo}
 ✨─────✨/✨━━━━✨
 🌟 **Grinder:** <@${member.id}>
 📁 **Attachment:** ${checkin.attachments && checkin.attachments.length > 0 ? '✅' : '❌'}
-🕓 **Date:** ${getParsedNow()}
+🕓 **Date:** ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Current Streak:** ${streakCount} day(s)
 🗓 **Last Check-In:** ${lastCheckin ? `[${getParsedNow(getNow(lastCheckin.created_at))}](${lastCheckin.link})` : '-'}
         `,
