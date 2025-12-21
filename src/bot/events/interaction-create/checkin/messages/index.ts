@@ -26,12 +26,12 @@ ${todo}
 
 > ${DUMMY.FOOTER}`,
 
-        GrinderDetails: (member: GuildMember, checkin: Checkin, streakCount: number, lastCheckin?: Checkin) => `
+        GrinderDetails: (checkin: Checkin, lastCheckin?: Checkin) => `
 ✨─────✨/✨━━━━✨
-🌟 **Grinder:** <@${member.id}>
+🌟 **Grinder:** <@${checkin.user!.discord_id}>
 📁 **Attachment:** ${checkin.attachments && checkin.attachments.length > 0 ? '✅' : '❌'}
-🕓 **Date:** ${getParsedNow()}
-🔥 **Current Streak:** ${streakCount} day(s)
+🕓 **Date:** ${getParsedNow(getNow(checkin.created_at))}
+🔥 **Current Streak:** ${checkin.checkin_streak!.streak} day(s)
 🗓 **Last Check-In:** ${lastCheckin ? `[${getParsedNow(getNow(lastCheckin.created_at))}](${lastCheckin.link})` : '-'}
         `,
 
