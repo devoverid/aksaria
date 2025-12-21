@@ -18,6 +18,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsB
 import { CHECKIN_APPROVE_BUTTON_ID } from '../handlers/approve-button'
 import { CHECKIN_CUSTOM_BUTTON_ID } from '../handlers/custom-button'
 import { CheckinCustomButtonModalError } from '../handlers/custom-button-modal'
+import { CHECKIN_DETAIL_BUTTON_ID } from '../handlers/detail-button'
 import { CheckinModalError } from '../handlers/modal'
 import { CHECKIN_REJECT_BUTTON_ID } from '../handlers/reject-button'
 import { CheckinMessage } from '../messages'
@@ -100,6 +101,12 @@ export class Checkin extends CheckinMessage {
     }
 
     static generateButtons(guildId: string, checkinId: string): ActionRowBuilder<ButtonBuilder> {
+        const detailButtonId = getCustomId([CHECKIN_DETAIL_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId)])
+        const detailButton = new ButtonBuilder()
+            .setCustomId(detailButtonId)
+            .setLabel('🔍 Detail')
+            .setStyle(ButtonStyle.Primary)
+
         const approveButtonId = getCustomId([CHECKIN_APPROVE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId)])
         const approveButton = new ButtonBuilder()
             .setCustomId(approveButtonId)
@@ -116,9 +123,9 @@ export class Checkin extends CheckinMessage {
         const customButton = new ButtonBuilder()
             .setCustomId(customButtonId)
             .setLabel('⚙️ Review')
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
 
-        return new ActionRowBuilder<ButtonBuilder>().addComponents(approveButton, rejectButton, customButton)
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(detailButton, approveButton, rejectButton, customButton)
     }
 
     static getNewGrindRole(guild: Guild, streakCount: number) {
@@ -323,6 +330,26 @@ export class Checkin extends CheckinMessage {
         }) as CheckinType
     }
 
+    static async getCheckin(
+        prisma: PrismaClient,
+        checkinId: number,
+    ): Promise<CheckinType> {
+        const checkin = await prisma.checkin.findUnique({
+            where: { id: checkinId },
+            include: {
+                checkin_streak: true,
+                user: true,
+            },
+        }) as CheckinType
+
+        if (!checkin)
+            throw new SubmittedCheckinError(this.ERR.PlainMessage)
+
+        await this.setAttachments(prisma, checkin)
+
+        return checkin
+    }
+
     static async createAttachments(
         prisma: PrismaClient,
         checkin: CheckinType,
@@ -368,13 +395,8 @@ export class Checkin extends CheckinMessage {
         return prisma.$transaction(async (tx) => {
             const checkinStreak = await this.upsertStreak(tx, userId, lastCheckinStreak, decision)
             const checkin = await this.createCheckin(tx, userId, checkinStreak, description)
-            const prevCheckin = await this.getPrevCheckin(tx, userId, checkinStreak, checkin)
 
-            return {
-                checkinStreak,
-                checkin,
-                prevCheckin,
-            }
+            return { checkinStreak, checkin }
         })
     }
 
