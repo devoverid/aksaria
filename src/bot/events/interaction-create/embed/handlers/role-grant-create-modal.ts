@@ -1,11 +1,10 @@
-import type { Event } from '@events/event'
-import type { Interaction } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createEmbed, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
 import { getChannel, getRole, sendAsBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events } from 'discord.js'
+import { getModuleName } from '@utils/io'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { RoleGrantCreate } from '../validators/role-grant-create'
 import { EMBED_ROLE_GRANT_CREATE_BUTTON_ID } from './role-grant-create-button'
 
@@ -15,17 +14,15 @@ export class EmbedRoleGrantModalError extends DiscordBaseError {
     }
 }
 
-export const EMBED_ROLE_GRANT_CREATE_MODAL_ID = generateCustomId(EVENT_PATH, __filename)
+const moduleName = getModuleName(EVENT_PATH, __filename)
+export const EMBED_ROLE_GRANT_CREATE_MODAL_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
-export default {
-    name: Events.InteractionCreate,
+registerInteractionHandler({
     desc: 'Handles modal submissions for creating an embed with a role-grant button.',
-    async exec(_, interaction: Interaction) {
+    id: EMBED_ROLE_GRANT_CREATE_MODAL_ID,
+    errorTag: () => `${moduleName}: ${RoleGrantCreate.ERR.UnexpectedModal}`,
+    async exec(_, interaction) {
         if (!interaction.isModalSubmit())
-            return
-
-        const isValidComponent = RoleGrantCreate.assertComponentId(interaction.customId, EMBED_ROLE_GRANT_CREATE_MODAL_ID)
-        if (!isValidComponent)
             return
 
         try {
@@ -68,7 +65,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${EMBED_ROLE_GRANT_CREATE_MODAL_ID}: ${RoleGrantCreate.ERR.UnexpectedModal}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})

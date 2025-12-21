@@ -1,15 +1,14 @@
-import type { Event } from '@events/event'
 import type { CheckinStatusType } from '@type/checkin'
-import type { Client, Interaction, TextChannel } from 'discord.js'
+import type { TextChannel } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
-import { Checkin } from '../validators/checkin'
-import { CheckinAudit } from '../validators/checkin-audit'
+import { getModuleName } from '@utils/io'
+import { Checkin } from '../validators'
+import { CheckinAudit } from '../validators/audit'
 
 export class CheckinAuditModalError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -17,17 +16,15 @@ export class CheckinAuditModalError extends DiscordBaseError {
     }
 }
 
-export const CHECKIN_AUDIT_ID = generateCustomId(EVENT_PATH, __filename)
+const moduleName = getModuleName(EVENT_PATH, __filename)
+export const CHECKIN_AUDIT_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
-export default {
-    name: Events.InteractionCreate,
+registerInteractionHandler({
     desc: 'Handles modal submissions for check-in audit modal forms.',
-    async exec(client: Client, interaction: Interaction) {
+    id: CHECKIN_AUDIT_ID,
+    errorTag: () => `${moduleName}: ${CheckinAudit.ERR.UnexpectedModal}`,
+    async exec(client, interaction) {
         if (!interaction.isModalSubmit())
-            return
-
-        const isValidComponent = CheckinAudit.assertComponentId(interaction.customId, CHECKIN_AUDIT_ID)
-        if (!isValidComponent)
             return
 
         try {
@@ -59,7 +56,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${CHECKIN_AUDIT_ID}: ${CheckinAudit.ERR.UnexpectedModal}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})

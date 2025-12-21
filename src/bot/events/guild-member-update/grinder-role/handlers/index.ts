@@ -1,11 +1,10 @@
-import type { Event } from '@events/event'
-import type { GuildMember } from 'discord.js'
 import { GRIND_ASHES_CHANNEL, GRINDER_ROLE } from '@config/discord'
+import { registerGuildMemberUpdateHandler } from '@events/guild-member-update/registry'
+import { EVENT_PATH } from '@events/index'
 import { getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
-import { GrinderRole } from '../validators/grinder-role'
+import { getModuleName } from '@utils/io'
+import { GrinderRole } from '../validators'
 
 export class GrinderRoleError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -13,10 +12,13 @@ export class GrinderRoleError extends DiscordBaseError {
     }
 }
 
-export default {
-    name: Events.GuildMemberUpdate,
+const moduleName = getModuleName(EVENT_PATH, __filename)
+
+registerGuildMemberUpdateHandler({
     desc: 'Watches grinder role assignment/removal for members on guild member update.',
-    async exec(_, oldMember: GuildMember, newMember: GuildMember) {
+    errorTag: () => `${moduleName}: ${GrinderRole.ERR.UnexpectedGrinderRole}`,
+    match: (_, newMember) => GrinderRole.isMemberHasRole(newMember, GRINDER_ROLE),
+    async exec(_, oldMember, newMember) {
         try {
             if (!newMember.guild)
                 throw new GrinderRoleError(GrinderRole.ERR.NotGuild)
@@ -36,7 +38,7 @@ export default {
         }
         catch (err: any) {
             if (!(err instanceof DiscordBaseError))
-                log.error(`Failed to handle: ${GrinderRole.ERR.UnexpectedGrinderRole}: ${err}`)
+                throw err
         }
     },
-} as Event
+})

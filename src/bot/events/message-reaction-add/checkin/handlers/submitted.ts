@@ -1,10 +1,9 @@
-import type { Event } from '@events/event'
-import type { Client, MessageReaction, PartialMessageReaction, User } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { Checkin } from '@events/interaction-create/checkin/validators/checkin'
+import { EVENT_PATH } from '@events/index'
+import { Checkin } from '@events/interaction-create/checkin/validators'
+import { registerReactionHandler } from '@events/message-reaction-add/registry'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
+import { getModuleName } from '@utils/io'
 
 export class SubmittedCheckinError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -12,16 +11,18 @@ export class SubmittedCheckinError extends DiscordBaseError {
     }
 }
 
-export default {
-    name: Events.MessageReactionAdd,
+const moduleName = getModuleName(EVENT_PATH, __filename)
+
+registerReactionHandler({
     desc: 'Handles user-submitted checkin submissions with reacted by Flamewarden whether approved or rejected.',
-    async exec(client: Client, reaction: MessageReaction | PartialMessageReaction, user: User) {
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedSubmittedCheckinMessage}`,
+    match: (_, user) => !user.bot,
+    async exec(client, reaction, user) {
         const message = reaction.message
         const guild = message.guild
-        if (user.bot)
+        if (!guild || !message.inGuild())
             return
-        if (!message.inGuild() || !guild)
-            return
+
         if (reaction.partial)
             await reaction.fetch()
         if (message.partial)
@@ -45,7 +46,7 @@ export default {
         }
         catch (err: any) {
             if (!(err instanceof DiscordBaseError))
-                log.error(`Failed to handle: ${Checkin.ERR.UnexpectedSubmittedCheckinMessage}: ${err}`)
+                throw err
         }
     },
-} as Event
+})

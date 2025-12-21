@@ -1,14 +1,13 @@
-import type { Event } from '@events/event'
-import type { Client, Interaction, TextChannel } from 'discord.js'
+import type { TextChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
+import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createCheckinReviewModal, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
-import { log } from '@utils/logger'
-import { Events } from 'discord.js'
-import { Checkin } from '../validators/checkin'
-import { CHECKIN_CUSTOM_BUTTON_MODAL_ID } from './checkin-custom-button-modal'
+import { getModuleName } from '@utils/io'
+import { Checkin } from '../validators'
+import { CHECKIN_CUSTOM_BUTTON_MODAL_ID } from './custom-button-modal'
 
 export class CheckinCustomButtonError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
@@ -16,17 +15,15 @@ export class CheckinCustomButtonError extends DiscordBaseError {
     }
 }
 
+const moduleName = getModuleName(EVENT_PATH, __filename)
 export const CHECKIN_CUSTOM_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
-export default {
-    name: Events.InteractionCreate,
+registerInteractionHandler({
     desc: 'Opens review modal for a check-in',
-    async exec(client: Client, interaction: Interaction) {
+    id: CHECKIN_CUSTOM_BUTTON_ID,
+    errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedButton}`,
+    async exec(client, interaction) {
         if (!interaction.isButton())
-            return
-
-        const isValid = Checkin.assertComponentId(interaction.customId, CHECKIN_CUSTOM_BUTTON_ID)
-        if (!isValid)
             return
 
         try {
@@ -54,7 +51,7 @@ export default {
         catch (err: any) {
             if (err instanceof DiscordBaseError)
                 await sendReply(interaction, err.message)
-            else log.error(`Failed to handle ${CHECKIN_CUSTOM_BUTTON_ID}: ${Checkin.ERR.UnexpectedButton}: ${err}`)
+            else throw err
         }
     },
-} as Event
+})

@@ -8,19 +8,19 @@ import type { Attachment, EmbedBuilder, Guild, GuildMember, Interaction, Message
 import crypto from 'node:crypto'
 import { CheckinError } from '@commands/checkin/handlers/checkin'
 import { AURA_FARMING_CHANNEL, CHECKIN_CHANNEL, GRINDER_ROLE } from '@config/discord'
-import { SubmittedCheckinError } from '@events/message-reaction-add/checkin/handlers/submitted-checkin'
+import { SubmittedCheckinError } from '@events/message-reaction-add/checkin/handlers/submitted'
 import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
 import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { attachNewGrindRole, getGrindRoleByStreakCount } from '@utils/discord/roles'
 import { DUMMY } from '@utils/placeholder'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
-import { CHECKIN_APPROVE_BUTTON_ID } from '../handlers/checkin-approve-button'
-import { CHECKIN_CUSTOM_BUTTON_ID } from '../handlers/checkin-custom-button'
-import { CheckinCustomButtonModalError } from '../handlers/checkin-custom-button-modal'
-import { CheckinModalError } from '../handlers/checkin-modal'
-import { CHECKIN_REJECT_BUTTON_ID } from '../handlers/checkin-reject-button'
-import { CheckinMessage } from '../messages/checkin'
+import { CHECKIN_APPROVE_BUTTON_ID } from '../handlers/approve-button'
+import { CHECKIN_CUSTOM_BUTTON_ID } from '../handlers/custom-button'
+import { CheckinCustomButtonModalError } from '../handlers/custom-button-modal'
+import { CheckinModalError } from '../handlers/modal'
+import { CHECKIN_REJECT_BUTTON_ID } from '../handlers/reject-button'
+import { CheckinMessage } from '../messages'
 
 export class Checkin extends CheckinMessage {
     static override BASE_PERMS = [
@@ -228,7 +228,7 @@ export class Checkin extends CheckinMessage {
         if (!checkin)
             throw new SubmittedCheckinError(this.ERR.PlainMessage)
 
-        await Checkin.setAttachments(prisma, checkin)
+        await this.setAttachments(prisma, checkin)
 
         return checkin
     }

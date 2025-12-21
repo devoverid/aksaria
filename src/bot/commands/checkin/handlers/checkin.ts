@@ -1,8 +1,8 @@
-import type { Command } from '@commands/command'
 import type { ChatInputCommandInteraction } from 'discord.js'
+import { registerCommand } from '@commands/registry'
 import { CHECKIN_CHANNEL } from '@config/discord'
-import { CHECKIN_ID } from '@events/interaction-create/checkin/handlers/checkin-modal'
-import { Checkin } from '@events/interaction-create/checkin/validators/checkin'
+import { CHECKIN_ID } from '@events/interaction-create/checkin/handlers/modal'
+import { Checkin } from '@events/interaction-create/checkin/validators'
 import { encodeSnowflake, getCustomId } from '@utils/component'
 import { getAttachments, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
@@ -16,7 +16,7 @@ export class CheckinError extends DiscordBaseError {
     }
 }
 
-export default {
+registerCommand({
     data: new SlashCommandBuilder()
         .setName('checkin')
         .setDescription('Daily grind check-in.')
@@ -67,4 +67,4 @@ export default {
             else log.error(`Failed to handle: ${Checkin.ERR.UnexpectedCheckin}: ${err}`)
         }
     },
-} as Command
+})
