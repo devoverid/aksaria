@@ -1,5 +1,5 @@
 import type { Checkin } from '@type/checkin'
-import type { Attachment, GuildMember } from 'discord.js'
+import type { GuildMember } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
@@ -17,20 +17,23 @@ export class CheckinMessage extends DiscordAssert {
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        CheckinSuccess: (member: GuildMember, checkinAttachments: Attachment[], streakCount: number, todo: string, lastCheckin?: Checkin) => `
+        CheckinSuccess: (todo: string) => `
 # ✅ Check-In Baru Terdeteksi!
 *Kindly take a look and do a review for this one, <@&${FLAMEWARDEN_ROLE}>*
 
-✨─────✨/✨━━━━✨
-🌟 **Grinder:** <@${member.id}>
-📁 **Attachment:** ${checkinAttachments.length > 0 ? '✅' : '❌'}
-🕓 **Date:** ${getParsedNow()}
-🔥 **Current Streak:** ${streakCount} day(s)
-🗓 **Last Check-In:** ${lastCheckin ? getParsedNow(getNow(lastCheckin.created_at)) : '-'}
 ⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆
 ${todo}
 
 > ${DUMMY.FOOTER}`,
+
+        GrinderDetails: (member: GuildMember, checkin: Checkin, streakCount: number, lastCheckin?: Checkin) => `
+✨─────✨/✨━━━━✨
+🌟 **Grinder:** <@${member.id}>
+📁 **Attachment:** ${checkin.attachments && checkin.attachments.length > 0 ? '✅' : '❌'}
+🕓 **Date:** ${getParsedNow()}
+🔥 **Current Streak:** ${streakCount} day(s)
+🗓 **Last Check-In:** ${lastCheckin ? `[${getParsedNow(getNow(lastCheckin.created_at))}](${lastCheckin.link})` : '-'}
+        `,
 
         CheckinSuccessToMember: (checkin: Checkin) => `
 Sebuah [check-in](${checkin.link}) baru telah Tuan/Nona serahkan dan kini menunggu pemeriksaan dari Flamewarden. 
