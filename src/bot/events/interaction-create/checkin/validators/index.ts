@@ -410,7 +410,7 @@ export class Checkin extends CheckinMessage {
         const checkin = await this.getWaitingCheckin(client.prisma, opt.key, opt.value)
         if (!isAudit)
             this.assertSubmittedCheckinToday(checkin)
-        const updatedCheckin = await this.updateCheckinStatus(client.prisma, flamewarden, checkin, checkinStatus, comment) as CheckinType
+        const updatedCheckin = await this.updateCheckinStatus(client.prisma, flamewarden, checkin, checkinStatus, comment, isAudit) as CheckinType
 
         const checkinChannel = await client.channels.fetch(CHECKIN_CHANNEL) as TextChannel
         const { messageId } = this.getMessageFromLink(checkin.link!)
@@ -450,9 +450,9 @@ export class Checkin extends CheckinMessage {
         checkin: CheckinType,
         checkinStatus: CheckinStatusType,
         comment: string | null = null,
-        isLateCheckin: boolean = false,
+        isAudit: boolean = false,
     ): Promise<CheckinType> {
-        const updatedDate = isLateCheckin ? checkin.created_at : new Date()
+        const updatedDate = isAudit ? checkin.created_at : new Date()
 
         const updatedCheckin = await prisma.checkin.update({
             where: { id: checkin.id },
@@ -468,6 +468,7 @@ export class Checkin extends CheckinMessage {
                         },
                         last_date: updatedDate,
                         updated_at: updatedDate,
+                        streak_broken_at: null,
                     },
                 },
             },
