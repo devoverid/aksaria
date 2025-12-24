@@ -54,7 +54,7 @@ export class Checkin extends CheckinMessage {
     }
 
     static getModalReviewId(interaction: Interaction, customId: string) {
-        const [prefix, guildId, checkinId, messageId] = decodeSnowflakes(customId)
+        const [prefix, guildId, checkinId] = decodeSnowflakes(customId)
         const checkinIdNum = Number(checkinId)
 
         if (!guildId)
@@ -63,10 +63,8 @@ export class Checkin extends CheckinMessage {
             throw new CheckinCustomButtonModalError(this.ERR.NotGuild)
         if (!checkinId)
             throw new CheckinCustomButtonModalError(this.ERR.CheckinIdMissing)
-        if (!messageId)
-            throw new CheckinCustomButtonModalError(this.ERR.MessageIdMissing)
 
-        return { prefix, guildId, checkinId: checkinIdNum, messageId }
+        return { prefix, guildId, checkinId: checkinIdNum }
     }
 
     static getButtonId(interaction: Interaction, customId: string) {
