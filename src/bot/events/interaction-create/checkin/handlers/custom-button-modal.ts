@@ -32,24 +32,22 @@ registerInteractionHandler({
             if (!interaction.inCachedGuild())
                 throw new CheckinCustomButtonModalError(Checkin.ERR.NotGuild)
 
-            const { checkinId, messageId } = Checkin.getModalReviewId(interaction, interaction.customId)
+            const { checkinId } = Checkin.getModalReviewId(interaction, interaction.customId)
 
             const channel = interaction.channel as TextChannel
             Checkin.assertMissPerms(interaction.client.user, channel)
             const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
-            const message = await channel.messages.fetch(messageId)
 
             const status = interaction.fields.getStringSelectValues('status')[0] as CheckinStatusType
             const comment = interaction.fields.getTextInputValue('comment')
 
             await Checkin.validateCheckin(
-                client.prisma,
+                client,
                 interaction.guild,
                 flamewarden,
                 { key: 'id', value: checkinId },
-                message,
                 status,
                 comment,
             )

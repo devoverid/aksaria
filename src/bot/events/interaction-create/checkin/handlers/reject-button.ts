@@ -40,11 +40,10 @@ registerInteractionHandler({
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
             await Checkin.validateCheckin(
-                client.prisma,
+                client,
                 interaction.guild,
                 flamewarden,
                 { key: 'id', value: checkinId },
-                interaction.message,
                 'REJECTED',
             )
         }

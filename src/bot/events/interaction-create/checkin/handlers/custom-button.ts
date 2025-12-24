@@ -42,7 +42,6 @@ registerInteractionHandler({
                 CHECKIN_CUSTOM_BUTTON_MODAL_ID,
                 encodeSnowflake(interaction.guildId),
                 encodeSnowflake(checkinId.toString()),
-                encodeSnowflake(interaction.message.id),
             ])
             const modal = createCheckinReviewModal(modalCustomId, checkin)
 

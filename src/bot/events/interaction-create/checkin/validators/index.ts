@@ -4,7 +4,7 @@ import type { Attachment as AttachmentType } from '@type/attachment'
 import type { CheckinAllowedEmojiType, CheckinColumn, CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Attachment, EmbedBuilder, Guild, GuildMember, Interaction, Message } from 'discord.js'
+import type { Attachment, Client, EmbedBuilder, Guild, GuildMember, Interaction, Message, TextChannel } from 'discord.js'
 import crypto from 'node:crypto'
 import { CheckinError } from '@commands/checkin/handlers/checkin'
 import { AURA_FARMING_CHANNEL, CHECKIN_CHANNEL, GRINDER_ROLE } from '@config/discord'
@@ -401,20 +401,27 @@ export class Checkin extends CheckinMessage {
     }
 
     static async validateCheckin<K extends keyof Prisma.CheckinWhereInput>(
-        prisma: PrismaClient,
+        client: Client,
         guild: Guild,
         flamewarden: GuildMember,
         opt: CheckinColumn<K>,
-        message: Message,
         checkinStatus: CheckinStatusType,
         comment?: string | null,
-    ) {
-        const checkin = await this.getWaitingCheckin(prisma, opt.key, opt.value)
-        this.assertSubmittedCheckinToday(checkin)
-        const updatedCheckin = await this.updateCheckinStatus(prisma, flamewarden, checkin, checkinStatus, comment) as CheckinType
+        isAudit: boolean = false,
+    ): Promise<CheckinType> {
+        const checkin = await this.getWaitingCheckin(client.prisma, opt.key, opt.value)
+        if (!isAudit)
+            this.assertSubmittedCheckinToday(checkin)
+        const updatedCheckin = await this.updateCheckinStatus(client.prisma, flamewarden, checkin, checkinStatus, comment) as CheckinType
+
+        const checkinChannel = await client.channels.fetch(CHECKIN_CHANNEL) as TextChannel
+        const { messageId } = this.getMessageFromLink(checkin.link!)
+        const message = await checkinChannel.messages.fetch(messageId)
 
         await this.validateCheckinHandleToUser(guild, flamewarden, checkin.user!.discord_id, updatedCheckin)
         await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
+
+        return updatedCheckin
     }
 
     static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
@@ -462,6 +469,7 @@ export class Checkin extends CheckinMessage {
                 },
             },
             include: {
+                user: true,
                 checkin_streak: true,
             },
         })
