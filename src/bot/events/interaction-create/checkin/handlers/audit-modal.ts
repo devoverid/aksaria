@@ -1,6 +1,6 @@
 import type { CheckinStatusType } from '@type/checkin'
 import type { TextChannel } from 'discord.js'
-import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
+import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
@@ -36,7 +36,6 @@ registerInteractionHandler({
             const { checkinId } = CheckinAudit.getModalReviewId(interaction, interaction.customId)
 
             const channel = interaction.channel as TextChannel
-            const checkinChannel = await interaction.client.channels.fetch(CHECKIN_CHANNEL) as TextChannel
             CheckinAudit.assertMissPerms(interaction.client.user, channel)
             const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
             CheckinAudit.assertMember(flamewarden)
@@ -45,15 +44,17 @@ registerInteractionHandler({
             const status: CheckinStatusType = 'APPROVED'
             const comment = interaction.fields.getTextInputValue('comment')
 
-            const checkin = await Checkin.getWaitingCheckin(client.prisma, 'public_id', checkinId)
-            const updatedCheckin = await Checkin.updateCheckinStatus(client.prisma, flamewarden, checkin, status, comment, true)
-            await Checkin.validateCheckinHandleToUser(interaction.guild, flamewarden, checkin.user!.discord_id, updatedCheckin)
+            const updatedCheckin = await Checkin.validateCheckin(
+                client,
+                interaction.guild,
+                flamewarden,
+                { key: 'public_id', value: checkinId },
+                status,
+                comment,
+                true,
+            )
 
-            const { messageId } = CheckinAudit.getMessageFromLink(checkin.link!)
-            const message = await checkinChannel.messages.fetch(messageId)
-            await message.react(Checkin.REVERSED_EMOJI_STATUS[status])
-
-            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(checkin.link!, checkin.user!.discord_id))
+            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, updatedCheckin.user!.discord_id))
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
