@@ -472,10 +472,7 @@ export class Checkin extends CheckinMessage {
                     },
                 },
             },
-            include: {
-                user: true,
-                checkin_streak: true,
-            },
+            include: { user: true },
         })
 
         return updatedCheckin
