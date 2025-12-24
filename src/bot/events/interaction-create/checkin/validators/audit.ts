@@ -7,9 +7,9 @@ import { decodeSnowflakes } from '@utils/component'
 import { isDateToday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { PermissionsBitField } from 'discord.js'
+import { Checkin } from '.'
 import { CheckinAuditModalError } from '../handlers/audit-modal'
 import { CheckinAuditMessage } from '../messages/audit'
-import { Checkin } from '.'
 
 export class CheckinAudit extends CheckinAuditMessage {
     static override BASE_PERMS = [
