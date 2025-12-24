@@ -426,6 +426,10 @@ export class Checkin extends CheckinMessage {
         const member = await guild.members.fetch(userDiscordId)
         this.assertMember(member)
 
+        const hasGrinderRole = this.isMemberHasRole(member, GRINDER_ROLE)
+        if (!hasGrinderRole)
+            await member.roles.add(GRINDER_ROLE)
+
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
         await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)
