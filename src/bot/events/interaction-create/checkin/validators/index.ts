@@ -138,11 +138,11 @@ export class Checkin extends CheckinMessage {
         if (!newRole)
             return
 
-        const alreadyHasRole = this.isMemberHasRole(member, newRole.id)
+        const hasGrindRole = this.isMemberHasRole(member, newRole.id)
         const channel = await getChannel(guild, AURA_FARMING_CHANNEL)
         this.assertChannel(channel)
 
-        if (!alreadyHasRole) {
+        if (!hasGrindRole) {
             await attachNewGrindRole(member, newRole)
             await sendAsBot(null, channel, {
                 content: `**Congratulations, <@${member.id}>** ${this.MSG.ReachNewGrindRole(newRole)}`,
