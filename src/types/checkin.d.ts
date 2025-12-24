@@ -26,5 +26,5 @@ export interface Checkin {
 
 export interface CheckinColumn<T extends keyof Prisma.CheckinWhereInput> {
     key: T
-    value: Prisma.CheckinWhereInput[T]
+    value: Prisma.CheckinWhereInput[T] | Prisma.CheckinWhereUniqueInput[K]
 }

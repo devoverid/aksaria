@@ -25,6 +25,8 @@ export class DiscordMessage {
         PlainMessage: '❌ There is nothing to do with this plain message',
         CheckinIdMissing: '❌ Check-in ID is missing or invalid',
         CheckinIdInvalid: '❌ The provided check-in ID is invalid',
+        CheckinDateMissing: '❌ Check-in date is missing or invalid',
+        CheckinDateInvalid: '❌ The check-in date is invalid',
 
         UnexpectedModal: '❌ Something went wrong while handling the modal component',
         UnexpectedButton: '❌ Something went wrong while handling the button component',
