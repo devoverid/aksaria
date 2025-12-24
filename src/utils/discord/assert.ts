@@ -77,7 +77,7 @@ export class DiscordAssert extends DiscordMessage {
 
     static assertMemberAlreadyHasRole(member: GuildMember, roleId: string) {
         if (this.isMemberHasRole(member, roleId))
-            throw new DiscordAssertError(this.roleRevoked(roleId))
+            throw new DiscordAssertError(this.MSG.RoleRevoked(roleId))
     }
 
     static assertMemberHasRole(member: GuildMember, roleId: string) {

@@ -35,13 +35,11 @@ export class DiscordMessage {
         ReachNewGrindRole(role: GrindRole) {
             return `🎉 You have reached a new grind role: <@&${(role.id)}>~`
         },
-    }
-
-    static roleGranted(roleId: string): string {
-        return `✅ Granted <@&${(roleId)}> to you`
-    }
-
-    static roleRevoked(roleId: string): string {
-        return `❌ You already have the <@&${(roleId)}> role`
+        RoleGranted(roleId: string): string {
+            return `✅ Granted <@&${(roleId)}> to you`
+        },
+        RoleRevoked(roleId: string): string {
+            return `❌ You already have the <@&${(roleId)}> role`
+        },
     }
 }
