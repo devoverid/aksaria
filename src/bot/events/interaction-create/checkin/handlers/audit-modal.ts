@@ -52,6 +52,8 @@ registerInteractionHandler({
             const { messageId } = CheckinAudit.getMessageFromLink(checkin.link!)
             const message = await checkinChannel.messages.fetch(messageId)
             await message.react(Checkin.REVERSED_EMOJI_STATUS[status])
+
+            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(checkin.link!, checkin.user!.discord_id))
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
