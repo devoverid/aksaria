@@ -38,7 +38,7 @@ model Checkin {
     user_id Int
     checkin_streak_id Int
     description String
-    link String?
+    link String? @unique
     status String
     reviewed_by String?
     comment String?
