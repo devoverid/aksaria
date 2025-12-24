@@ -46,6 +46,7 @@ registerCommand({
                 CHECKIN_AUDIT_ID,
                 encodeSnowflake(interaction.guildId),
                 checkinId,
+                checkin.created_at.getTime().toString(),
             ])
             const modal = createCheckinReviewModal(modalCustomId, checkin, false)
 

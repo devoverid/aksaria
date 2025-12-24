@@ -36,11 +36,11 @@ registerReactionHandler({
             await Checkin.assertAllowedChannel(guild, message.channel.id, CHECKIN_CHANNEL)
 
             await Checkin.validateCheckin(
-                client.prisma,
+                client,
                 guild,
                 flamewarden,
                 { key: 'link', value: message.url },
-                message,
+                message.createdAt,
                 Checkin.EMOJI_STATUS[emoji],
             )
         }

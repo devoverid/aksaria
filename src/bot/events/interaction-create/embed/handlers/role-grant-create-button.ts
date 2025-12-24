@@ -41,7 +41,7 @@ registerInteractionHandler({
 
             await member.roles.add(role)
             await sendReply(interaction, `
-                ${RoleGrantCreate.roleGranted(role.id)}`)
+                ${RoleGrantCreate.MSG.RoleGranted(role.id)}`)
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)

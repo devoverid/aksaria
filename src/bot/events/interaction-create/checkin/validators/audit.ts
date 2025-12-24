@@ -7,9 +7,9 @@ import { decodeSnowflakes } from '@utils/component'
 import { isDateToday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { PermissionsBitField } from 'discord.js'
+import { Checkin } from '.'
 import { CheckinAuditModalError } from '../handlers/audit-modal'
 import { CheckinAuditMessage } from '../messages/audit'
-import { Checkin } from '.'
 
 export class CheckinAudit extends CheckinAuditMessage {
     static override BASE_PERMS = [
@@ -18,7 +18,7 @@ export class CheckinAudit extends CheckinAuditMessage {
     ]
 
     static getModalReviewId(interaction: Interaction, customId: string) {
-        const [prefix, guildId, checkinId] = decodeSnowflakes(customId)
+        const [prefix, guildId, checkinId, checkinTs] = decodeSnowflakes(customId)
 
         if (!guildId)
             throw new CheckinAuditModalError(this.ERR.GuildMissing)
@@ -26,8 +26,14 @@ export class CheckinAudit extends CheckinAuditMessage {
             throw new CheckinAuditModalError(this.ERR.NotGuild)
         if (!checkinId)
             throw new CheckinAuditModalError(this.ERR.CheckinIdMissing)
+        if (!checkinTs)
+            throw new CheckinAuditModalError(this.ERR.CheckinDateMissing)
 
-        return { prefix, guildId, checkinId }
+        const checkinCreatedAt = new Date(Number(checkinTs))
+        if (!checkinCreatedAt)
+            throw new CheckinAuditModalError(this.ERR.CheckinDateInvalid)
+
+        return { prefix, guildId, checkinId, checkinCreatedAt }
     }
 
     static assertCheckinNotToday(checkin: CheckinType) {

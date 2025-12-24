@@ -4,7 +4,7 @@ import type { Attachment as AttachmentType } from '@type/attachment'
 import type { CheckinAllowedEmojiType, CheckinColumn, CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Attachment, EmbedBuilder, Guild, GuildMember, Interaction, Message } from 'discord.js'
+import type { Attachment, Client, EmbedBuilder, Guild, GuildMember, Interaction, Message, TextChannel } from 'discord.js'
 import crypto from 'node:crypto'
 import { CheckinError } from '@commands/checkin/handlers/checkin'
 import { AURA_FARMING_CHANNEL, CHECKIN_CHANNEL, GRINDER_ROLE } from '@config/discord'
@@ -54,8 +54,7 @@ export class Checkin extends CheckinMessage {
     }
 
     static getModalReviewId(interaction: Interaction, customId: string) {
-        const [prefix, guildId, checkinId, messageId] = decodeSnowflakes(customId)
-        const checkinIdNum = Number(checkinId)
+        const [prefix, guildId, checkinId, checkinTs] = decodeSnowflakes(customId)
 
         if (!guildId)
             throw new CheckinCustomButtonModalError(this.ERR.GuildMissing)
@@ -63,15 +62,22 @@ export class Checkin extends CheckinMessage {
             throw new CheckinCustomButtonModalError(this.ERR.NotGuild)
         if (!checkinId)
             throw new CheckinCustomButtonModalError(this.ERR.CheckinIdMissing)
-        if (!messageId)
-            throw new CheckinCustomButtonModalError(this.ERR.MessageIdMissing)
+        if (!checkinTs)
+            throw new CheckinCustomButtonModalError(this.ERR.CheckinDateMissing)
 
-        return { prefix, guildId, checkinId: checkinIdNum, messageId }
+        const checkinIdNum = Number(checkinId)
+        if (Number.isNaN(checkinIdNum))
+            throw new CheckinError(this.ERR.CheckinIdInvalid)
+
+        const checkinCreatedAt = new Date(Number(checkinTs))
+        if (!checkinCreatedAt)
+            throw new CheckinCustomButtonModalError(this.ERR.CheckinDateInvalid)
+
+        return { prefix, guildId, checkinId: checkinIdNum, checkinCreatedAt }
     }
 
     static getButtonId(interaction: Interaction, customId: string) {
-        const [prefix, guildId, checkinId] = decodeSnowflakes(customId)
-        const checkinIdNum = Number(checkinId)
+        const [prefix, guildId, checkinId, checkinTs] = decodeSnowflakes(customId)
 
         if (!guildId)
             throw new CheckinError(this.ERR.GuildMissing)
@@ -79,10 +85,18 @@ export class Checkin extends CheckinMessage {
             throw new CheckinError(this.ERR.NotGuild)
         if (!checkinId)
             throw new CheckinError(this.ERR.CheckinIdMissing)
+        if (!checkinTs)
+            throw new CheckinError(this.ERR.CheckinDateMissing)
+
+        const checkinIdNum = Number(checkinId)
         if (Number.isNaN(checkinIdNum))
             throw new CheckinError(this.ERR.CheckinIdInvalid)
 
-        return { prefix, guildId, checkinId: checkinIdNum }
+        const checkinCreatedAt = new Date(Number(checkinTs))
+        if (!checkinCreatedAt)
+            throw new CheckinError(this.ERR.CheckinDateInvalid)
+
+        return { prefix, guildId, checkinId: checkinIdNum, checkinCreatedAt }
     }
 
     static generatePublicId(): string {
@@ -100,26 +114,26 @@ export class Checkin extends CheckinMessage {
         }
     }
 
-    static generateButtons(guildId: string, checkinId: string): ActionRowBuilder<ButtonBuilder> {
-        const detailButtonId = getCustomId([CHECKIN_DETAIL_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId)])
+    static generateButtons(guildId: string, checkinId: string, checkinCreatedAt: Date): ActionRowBuilder<ButtonBuilder> {
+        const detailButtonId = getCustomId([CHECKIN_DETAIL_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId), checkinCreatedAt.getTime().toString()])
         const detailButton = new ButtonBuilder()
             .setCustomId(detailButtonId)
             .setLabel('🔍 Detail')
             .setStyle(ButtonStyle.Primary)
 
-        const approveButtonId = getCustomId([CHECKIN_APPROVE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId)])
+        const approveButtonId = getCustomId([CHECKIN_APPROVE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId), checkinCreatedAt.getTime().toString()])
         const approveButton = new ButtonBuilder()
             .setCustomId(approveButtonId)
             .setLabel('🔥 Approve')
             .setStyle(ButtonStyle.Success)
 
-        const rejectButtonId = getCustomId([CHECKIN_REJECT_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId)])
+        const rejectButtonId = getCustomId([CHECKIN_REJECT_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId), checkinCreatedAt.getTime().toString()])
         const rejectButton = new ButtonBuilder()
             .setCustomId(rejectButtonId)
             .setLabel('🙅 Reject')
             .setStyle(ButtonStyle.Danger)
 
-        const customButtonId = getCustomId([CHECKIN_CUSTOM_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId)])
+        const customButtonId = getCustomId([CHECKIN_CUSTOM_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(checkinId), checkinCreatedAt.getTime().toString()])
         const customButton = new ButtonBuilder()
             .setCustomId(customButtonId)
             .setLabel('⚙️ Review')
@@ -140,11 +154,11 @@ export class Checkin extends CheckinMessage {
         if (!newRole)
             return
 
-        const alreadyHasRole = member.roles.cache.has(newRole.id)
+        const hasGrindRole = this.isMemberHasRole(member, newRole.id)
         const channel = await getChannel(guild, AURA_FARMING_CHANNEL)
         this.assertChannel(channel)
 
-        if (!alreadyHasRole) {
+        if (!hasGrindRole) {
             await attachNewGrindRole(member, newRole)
             await sendAsBot(null, channel, {
                 content: `**Congratulations, <@${member.id}>** ${this.MSG.ReachNewGrindRole(newRole)}`,
@@ -171,7 +185,9 @@ export class Checkin extends CheckinMessage {
             throw new CheckinModalError(this.ERR.AlreadyCheckinToday(latestCheckin!.link!))
     }
 
-    static assertSubmittedCheckinToday(checkin: CheckinType) {
+    static async assertSubmittedCheckinToday<K extends keyof Prisma.CheckinWhereInput>(prisma: PrismaClient, opt: CheckinColumn<K>) {
+        const checkin = await this.getWaitingCheckin(prisma, opt.key, opt.value)
+
         const isCheckinToday = this.hasCheckinToday(checkin.checkin_streak, checkin)
         if (!isCheckinToday)
             throw new SubmittedCheckinError(this.ERR.SubmittedCheckinNotToday(checkin.link!))
@@ -401,25 +417,37 @@ export class Checkin extends CheckinMessage {
     }
 
     static async validateCheckin<K extends keyof Prisma.CheckinWhereInput>(
-        prisma: PrismaClient,
+        client: Client,
         guild: Guild,
         flamewarden: GuildMember,
         opt: CheckinColumn<K>,
-        message: Message,
+        checkinCreatedAt: Date,
         checkinStatus: CheckinStatusType,
         comment?: string | null,
-    ) {
-        const checkin = await this.getWaitingCheckin(prisma, opt.key, opt.value)
-        this.assertSubmittedCheckinToday(checkin)
-        const updatedCheckin = await this.updateCheckinStatus(prisma, flamewarden, checkin, checkinStatus, comment) as CheckinType
+        isAudit: boolean = false,
+    ): Promise<CheckinType> {
+        if (!isAudit)
+            await this.assertSubmittedCheckinToday(client.prisma, opt)
+        const updatedCheckin = await this.updateCheckinStatus(client.prisma, flamewarden, opt, checkinCreatedAt, checkinStatus, comment, isAudit) as CheckinType
 
-        await this.validateCheckinHandleToUser(guild, flamewarden, checkin.user!.discord_id, updatedCheckin)
+        const checkinChannel = await client.channels.fetch(CHECKIN_CHANNEL) as TextChannel
+        const { messageId } = this.getMessageFromLink(updatedCheckin.link!)
+        const message = await checkinChannel.messages.fetch(messageId)
+
+        await this.validateCheckinHandleToUser(guild, flamewarden, updatedCheckin.user!.discord_id, updatedCheckin)
         await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
+
+        return updatedCheckin
     }
 
     static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
         const member = await guild.members.fetch(userDiscordId)
         this.assertMember(member)
+
+        const hasGrinderRole = this.isMemberHasRole(member, GRINDER_ROLE)
+        if (!hasGrinderRole)
+            await member.roles.add(GRINDER_ROLE)
+
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
         await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)
@@ -434,18 +462,21 @@ export class Checkin extends CheckinMessage {
         })
     }
 
-    static async updateCheckinStatus(
+    static async updateCheckinStatus<K extends keyof Prisma.CheckinWhereInput>(
         prisma: PrismaClient,
         member: GuildMember,
-        checkin: CheckinType,
+        opt: CheckinColumn<K>,
+        checkinCreatedAt: Date,
         checkinStatus: CheckinStatusType,
         comment: string | null = null,
-        isLateCheckin: boolean = false,
+        isAudit: boolean = false,
     ): Promise<CheckinType> {
-        const updatedDate = isLateCheckin ? checkin.created_at : new Date()
+        const updatedDate = isAudit ? checkinCreatedAt : new Date()
 
         const updatedCheckin = await prisma.checkin.update({
-            where: { id: checkin.id },
+            where: {
+                [opt.key!]: opt.value!,
+            } as Prisma.CheckinWhereUniqueInput,
             data: {
                 status: checkinStatus,
                 reviewed_by: member.id,
@@ -458,12 +489,11 @@ export class Checkin extends CheckinMessage {
                         },
                         last_date: updatedDate,
                         updated_at: updatedDate,
+                        streak_broken_at: null,
                     },
                 },
             },
-            include: {
-                checkin_streak: true,
-            },
+            include: { user: true, checkin_streak: true },
         })
 
         return updatedCheckin

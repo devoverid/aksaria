@@ -31,7 +31,7 @@ registerInteractionHandler({
             if (!interaction.inCachedGuild())
                 throw new CheckinApproveButtonError(Checkin.ERR.NotGuild)
 
-            const { checkinId } = Checkin.getButtonId(interaction, interaction.customId)
+            const { checkinId, checkinCreatedAt } = Checkin.getButtonId(interaction, interaction.customId)
 
             const channel = interaction.channel as TextChannel
             Checkin.assertMissPerms(interaction.client.user, channel)
@@ -40,11 +40,11 @@ registerInteractionHandler({
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
             await Checkin.validateCheckin(
-                client.prisma,
+                client,
                 interaction.guild,
                 flamewarden,
                 { key: 'id', value: checkinId },
-                interaction.message,
+                checkinCreatedAt,
                 'APPROVED',
             )
         }

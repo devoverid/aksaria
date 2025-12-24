@@ -11,4 +11,9 @@ ${waitingCheckinList}
         `,
         UnexpectedCheckinAudit: '❌ Something went wrong during the check-in audit',
     }
+
+    static override readonly MSG = {
+        ...DiscordAssert.MSG,
+        AuditSuccess: (msgLink: string, userDiscordId: string) => `✅ Successfully [audited check-in](${msgLink}) for <@${userDiscordId}>.`,
+    }
 }

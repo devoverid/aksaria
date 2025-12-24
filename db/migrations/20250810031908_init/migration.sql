@@ -24,7 +24,7 @@ CREATE TABLE "public"."Checkin" (
     "user_id" INTEGER NOT NULL,
     "checkin_streak_id" INTEGER NOT NULL,
     "description" TEXT NOT NULL,
-    "link" TEXT,
+    "link" TEXT UNIQUE,
     "status" TEXT NOT NULL DEFAULT 'WAITING',
     "reviewed_by" TEXT,
     "comment" TEXT,

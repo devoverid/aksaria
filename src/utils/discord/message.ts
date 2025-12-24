@@ -25,6 +25,8 @@ export class DiscordMessage {
         PlainMessage: '❌ There is nothing to do with this plain message',
         CheckinIdMissing: '❌ Check-in ID is missing or invalid',
         CheckinIdInvalid: '❌ The provided check-in ID is invalid',
+        CheckinDateMissing: '❌ Check-in date is missing or invalid',
+        CheckinDateInvalid: '❌ The check-in date is invalid',
 
         UnexpectedModal: '❌ Something went wrong while handling the modal component',
         UnexpectedButton: '❌ Something went wrong while handling the button component',
@@ -35,13 +37,11 @@ export class DiscordMessage {
         ReachNewGrindRole(role: GrindRole) {
             return `🎉 You have reached a new grind role: <@&${(role.id)}>~`
         },
-    }
-
-    static roleGranted(roleId: string): string {
-        return `✅ Granted <@&${(roleId)}> to you`
-    }
-
-    static roleRevoked(roleId: string): string {
-        return `❌ You already have the <@&${(roleId)}> role`
+        RoleGranted(roleId: string): string {
+            return `✅ Granted <@&${(roleId)}> to you`
+        },
+        RoleRevoked(roleId: string): string {
+            return `❌ You already have the <@&${(roleId)}> role`
+        },
     }
 }
