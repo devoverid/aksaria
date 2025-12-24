@@ -32,7 +32,7 @@ registerInteractionHandler({
             if (!interaction.inCachedGuild())
                 throw new CheckinCustomButtonModalError(Checkin.ERR.NotGuild)
 
-            const { checkinId } = Checkin.getModalReviewId(interaction, interaction.customId)
+            const { checkinId, checkinCreatedAt } = Checkin.getModalReviewId(interaction, interaction.customId)
 
             const channel = interaction.channel as TextChannel
             Checkin.assertMissPerms(interaction.client.user, channel)
@@ -48,6 +48,7 @@ registerInteractionHandler({
                 interaction.guild,
                 flamewarden,
                 { key: 'id', value: checkinId },
+                checkinCreatedAt,
                 status,
                 comment,
             )

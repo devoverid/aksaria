@@ -36,12 +36,13 @@ registerInteractionHandler({
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
-            const { checkinId } = Checkin.getButtonId(interaction, interaction.customId)
+            const { checkinId, checkinCreatedAt } = Checkin.getButtonId(interaction, interaction.customId)
             const checkin = await Checkin.getWaitingCheckin(client.prisma, 'id', checkinId)
             const modalCustomId = getCustomId([
                 CHECKIN_CUSTOM_BUTTON_MODAL_ID,
                 encodeSnowflake(interaction.guildId),
                 encodeSnowflake(checkinId.toString()),
+                checkinCreatedAt.getTime().toString(),
             ])
             const modal = createCheckinReviewModal(modalCustomId, checkin)
 

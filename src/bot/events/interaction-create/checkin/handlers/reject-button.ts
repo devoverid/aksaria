@@ -31,7 +31,7 @@ registerInteractionHandler({
             if (!interaction.inCachedGuild())
                 throw new CheckinRejectButtonError(Checkin.ERR.NotGuild)
 
-            const { checkinId } = Checkin.getButtonId(interaction, interaction.customId)
+            const { checkinId, checkinCreatedAt } = Checkin.getButtonId(interaction, interaction.customId)
 
             const channel = interaction.channel as TextChannel
             Checkin.assertMissPerms(interaction.client.user, channel)
@@ -44,6 +44,7 @@ registerInteractionHandler({
                 interaction.guild,
                 flamewarden,
                 { key: 'id', value: checkinId },
+                checkinCreatedAt,
                 'REJECTED',
             )
         }

@@ -40,6 +40,7 @@ registerReactionHandler({
                 guild,
                 flamewarden,
                 { key: 'link', value: message.url },
+                message.createdAt,
                 Checkin.EMOJI_STATUS[emoji],
             )
         }

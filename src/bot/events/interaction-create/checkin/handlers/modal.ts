@@ -43,7 +43,7 @@ registerInteractionHandler({
             Checkin.assertCheckinToday(user)
 
             const { checkin } = await Checkin.validateCheckinStreak(client.prisma, user.id, user.checkin_streaks?.[0], todo)
-            const buttons = Checkin.generateButtons(interaction.guildId, checkin.id.toString())
+            const buttons = Checkin.generateButtons(interaction.guildId, checkin.id.toString(), checkin.created_at)
 
             const msg = await sendReply(
                 interaction,
