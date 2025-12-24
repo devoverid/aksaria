@@ -138,7 +138,7 @@ export class Checkin extends CheckinMessage {
         if (!newRole)
             return
 
-        const alreadyHasRole = member.roles.cache.has(newRole.id)
+        const alreadyHasRole = this.isMemberHasRole(member, newRole.id)
         const channel = await getChannel(guild, AURA_FARMING_CHANNEL)
         this.assertChannel(channel)
 
@@ -425,6 +425,7 @@ export class Checkin extends CheckinMessage {
     static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
         const member = await guild.members.fetch(userDiscordId)
         this.assertMember(member)
+
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
         await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)

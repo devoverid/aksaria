@@ -55,7 +55,7 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
 
         const grindRoles = getGrindRoles()
         for (const grindRole of grindRoles) {
-            if (member.roles.cache.has(grindRole.id)) {
+            if (this.isMemberHasRole(member, grindRole.id)) {
                 await member.roles.remove(grindRole.id)
             }
         }
