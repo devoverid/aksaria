@@ -16,17 +16,18 @@ export class CheckinStatus extends CheckinStatusMessage {
         PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
-    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin: CheckinType | undefined) {
+    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin?: CheckinType) {
         let content = ''
         let embed: EmbedBuilder
-        const checkinStreak = checkin?.checkin_streak
 
+        const checkinStreak = checkin?.checkin_streak
         const hasCheckedInToday = Checkin.hasCheckinToday(checkinStreak, checkin)
-        if (hasCheckedInToday && checkin) {
+
+        if (checkin && hasCheckedInToday) {
             const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
 
             switch (checkin.status) {
-                case 'WAITING':
+                case 'WAITING': {
                     content = `<@&${FLAMEWARDEN_ROLE}>`
                     embed = createEmbed(
                         `🧭 Check-In #${checkin.public_id}`,
@@ -35,8 +36,9 @@ export class CheckinStatus extends CheckinStatusMessage {
                         { text: DUMMY.FOOTER },
                     )
                     break
+                }
 
-                case 'APPROVED':
+                case 'APPROVED': {
                     embed = createEmbed(
                         `🔥 Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.ApprovedCheckin(userDiscordId, flamewarden, checkin),
@@ -44,8 +46,9 @@ export class CheckinStatus extends CheckinStatusMessage {
                         { text: DUMMY.FOOTER },
                     )
                     break
+                }
 
-                default:
+                default: {
                     embed = createEmbed(
                         `❌ Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.RejectedCheckin(userDiscordId, flamewarden, checkin),
@@ -53,16 +56,31 @@ export class CheckinStatus extends CheckinStatusMessage {
                         { text: DUMMY.FOOTER },
                     )
                     break
+                }
             }
+
+            return { content, embed }
         }
-        else {
+
+        const shouldShowNoCheckin = !checkin || (checkin.status === 'APPROVED' && !hasCheckedInToday)
+        if (shouldShowNoCheckin) {
             embed = createEmbed(
                 `🧐 Check-In`,
                 CheckinStatus.MSG.NoCheckin(userDiscordId, checkinStreak),
                 DUMMY.COLOR,
                 { text: DUMMY.FOOTER },
             )
+
+            return { content, embed }
         }
+
+        const flamewarden = await guild.members.fetch(checkin!.reviewed_by!)
+        embed = createEmbed(
+            `🕯️ Check-In #${checkin!.public_id}`,
+            CheckinStatus.MSG.LastCheckin(userDiscordId, checkin!, flamewarden),
+            DUMMY.COLOR,
+            { text: DUMMY.FOOTER },
+        )
 
         return { content, embed }
     }

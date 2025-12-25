@@ -60,7 +60,7 @@ ${checkin.public_id}
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,
-        LastCheckin: (userDiscordId: string, flamewarden: GuildMember, checkin: Checkin) => `
+        LastCheckin: (userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
 Tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
 Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
