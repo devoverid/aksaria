@@ -60,5 +60,25 @@ ${checkin.public_id}
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,
+        LastCheckin: (userDiscordId: string, flamewarden: GuildMember, checkin: Checkin) => `
+Wahai Tuan/Nona <@${userDiscordId}>,
+Tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
+Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
+
+Berikut adalah check-in terakhir yang pernah Tuan/Nona torehkan:
+🆔 **Check-In ID**:
+\`\`\`bash
+${checkin.public_id}
+\`\`\`
+🌟 **Grinder**: <@${userDiscordId}>
+📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
+🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
+🔥 **Last Streak**: ${checkin.checkin_streak!.streak} day(s)
+🔎 **Status**: ${checkin.status}
+🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
+👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
+> *"[Percikan ini](${checkin.link}) pernah kau titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
+        `,
     }
 }
