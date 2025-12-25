@@ -65,7 +65,7 @@ Wahai Tuan/Nona <@${userDiscordId}>,
 Tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
 Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
 
-Berikut adalah check-in terakhir yang pernah Tuan/Nona torehkan:
+Berikut adalah *check-in* terakhir yang pernah Tuan/Nona torehkan:
 🆔 **Check-In ID**:
 \`\`\`bash
 ${checkin.public_id}
@@ -75,9 +75,12 @@ ${checkin.public_id}
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Last Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: ${checkin.status}
+${flamewarden?.displayName
+    ? `
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
-✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
+✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}`
+    : ''}
 > *"[Percikan ini](${checkin.link}) pernah kau titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
         `,
     }
