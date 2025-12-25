@@ -1,14 +1,15 @@
 import type { PrismaClient } from '@generatedDB/client'
 import type { Checkin as CheckinType } from '@type/checkin'
 import type { User } from '@type/user'
-import type { EmbedBuilder, Guild } from 'discord.js'
-import { FLAMEWARDEN_ROLE } from '@config/discord'
+import type { EmbedBuilder, Guild, Interaction } from 'discord.js'
+import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
+import { LAST_CHECKIN_STATUS_NOTE_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-last-checkin-button'
 import { Checkin } from '@events/interaction-create/checkin/validators'
-import { createEmbed, encodeSnowflake, getCustomId } from '@utils/component'
+import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } from 'discord.js'
-import { LAST_CHECKIN_STATUS_NOTE_BUTTON_ID } from '../handlers/checkin-status'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
+import { CheckinStatusError } from '../handlers/checkin-status'
 import { CheckinStatusMessage } from '../messages/checkin-status'
 
 export class CheckinStatus extends CheckinStatusMessage {
@@ -16,6 +17,21 @@ export class CheckinStatus extends CheckinStatusMessage {
         ...DiscordAssert.BASE_PERMS,
         PermissionsBitField.Flags.UseApplicationCommands,
     ]
+
+    static getButtonId(interaction: Interaction, customId: string) {
+        const [prefix, guildId, checkinMessageId] = decodeSnowflakes(customId)
+
+        if (!guildId)
+            throw new CheckinStatusError(this.ERR.GuildMissing)
+        if (interaction.guildId !== guildId)
+            throw new CheckinStatusError(this.ERR.NotGuild)
+        if (!checkinMessageId)
+            throw new CheckinStatusError(this.ERR.CheckinIdMissing)
+
+        const checkinLink = messageLink(CHECKIN_CHANNEL, checkinMessageId, interaction.guildId)
+
+        return { prefix, guildId, checkinLink }
+    }
 
     static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin?: CheckinType) {
         let content = ''
@@ -76,7 +92,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         }
 
         const flamewarden = await guild.members.fetch(checkin!.reviewed_by!)
-        const button = this.generateButton(guild.id)
+        const button = this.generateButton(guild.id, checkin.link!)
         embed = createEmbed(
             `🕯️ Check-In #${checkin!.public_id}`,
             CheckinStatus.MSG.LastCheckin(userDiscordId, checkin!, flamewarden),
@@ -87,8 +103,10 @@ export class CheckinStatus extends CheckinStatusMessage {
         return { content, embed, button }
     }
 
-    static generateButton(guildId: string): ActionRowBuilder<ButtonBuilder> {
-        const noteButtonId = getCustomId([LAST_CHECKIN_STATUS_NOTE_BUTTON_ID, encodeSnowflake(guildId)])
+    static generateButton(guildId: string, checkinLink: string): ActionRowBuilder<ButtonBuilder> {
+        const { messageId } = this.getMessageFromLink(checkinLink)
+
+        const noteButtonId = getCustomId([LAST_CHECKIN_STATUS_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
         const noteButton = new ButtonBuilder()
             .setCustomId(noteButtonId)
             .setLabel('❓ Ajukan Klarifikasi')

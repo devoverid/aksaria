@@ -83,8 +83,8 @@ ${flamewarden?.displayName
     : ''}
 > *"[Percikan ini](${checkin.link}) pernah kau titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
         `,
-        LastCheckinNote: () => `
-Apabila Tuan/Nona meyakini bahwa *check-in* di atas belum sempat ditinjau oleh <@&${FLAMEWARDEN_ROLE}>,
+        LastCheckinNote: (checkinLink: string) => `
+Apabila Tuan/Nona meyakini bahwa [*check-in*](${checkinLink}) belum sempat ditinjau oleh <@&${FLAMEWARDEN_ROLE}>,
 maka Aksaria membuka ruang klarifikasi dengan tata cara sebagai berikut:
 Ⅰ. Berikan reaksi ❓ pada pesan status *check-in* ini.
 Ⅱ. Sebuah *thread* khusus akan tercipta secara otomatis.
