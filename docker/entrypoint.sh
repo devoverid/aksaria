@@ -22,5 +22,5 @@ echo "▶ Starting application..."
 if [ "$NODE_ENV" = "production" ]; then
   exec bun prod
 else
-  exec bun start
+  exec bun start-discord
 fi
