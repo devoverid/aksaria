@@ -6,6 +6,7 @@ import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
+import { messageLink } from 'discord.js'
 import { Checkin } from '../validators'
 
 export class StatusLastCheckinButtonError extends DiscordBaseError {
@@ -34,7 +35,9 @@ registerInteractionHandler({
             const channel = interaction.channel as TextChannel
             Checkin.assertMissPerms(interaction.client.user, channel)
 
-            await sendReply(interaction, CheckinStatus.MSG.LastCheckinNote(checkinLink))
+            const statusMessageLink = messageLink(interaction.channelId, interaction.message.id, interaction.guildId)
+
+            await sendReply(interaction, CheckinStatus.MSG.LastCheckinNote(checkinLink, statusMessageLink))
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
