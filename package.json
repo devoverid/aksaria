@@ -15,13 +15,16 @@
     "keywords": [
         "bot"
     ],
-    "main": "index.js",
+    "workspaces": [
+        "packages/*"
+    ],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "prod": "bun src/index.ts",
-        "start": "bun --watch src/index.ts",
-        "commands": "bun src/deploy-commands.ts",
-        "prisma": "bunx prisma generate --schema db/schema.prisma"
+        "prod": "bun packages/aksaria-discord/src/index.ts",
+        "discord": "bun --watch packages/aksaria-discord/src/index.ts",
+        "commands": "bun packages/aksaria-discord/src/deploy-commands.ts",
+        "prisma": "bunx prisma generate --schema db/schema.prisma",
+        "build": "npm run build -w aksaria-core && npm run build -w aksaria-discord"
     },
     "dependencies": {
         "@prisma/client": "6.13.0",

@@ -1,0 +1,19 @@
+{
+    "name": "aksaria-discord",
+    "version": "0.1.0",
+    "description": "Discord bot implementation for Aksaria",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "start": "bun src/index.ts"
+    },
+    "dependencies": {
+        "aksaria-core": "*",
+        "discord.js": "^14.25.1",
+        "node-cron": "^4.2.1"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

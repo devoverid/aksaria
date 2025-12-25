@@ -1,0 +1,43 @@
+import type { Event } from '@events/event'
+import type { Client } from 'discord.js'
+import path from 'node:path'
+import { getModuleName, readFiles } from '@utils/io'
+import { log } from '@utils/logger'
+
+export class EventError extends Error {
+    constructor(message: string, options?: { cause?: unknown }) {
+        super(message, options)
+        this.name = 'EventError'
+        Object.setPrototypeOf(this, new.target.prototype)
+    }
+}
+
+export const EVENT_PATH = path.basename(__dirname)
+export async function registerEvents(client: Client) {
+    const files = readFiles(__dirname)
+
+    for (const file of files) {
+        const fileName = getModuleName(EVENT_PATH, file)
+        const { default: event } = await import(file) as { default: Event }
+        if (!event)
+            continue
+
+        try {
+            if (event) {
+                log.info(`Registering event ${fileName}...`)
+                if (event.once) {
+                    client.once(event.name, (...args) => event.exec(client, ...args))
+                }
+                else {
+                    client.on(event.name, (...args) => {
+                        event.exec(client, ...args)
+                    })
+                }
+            }
+        }
+        catch (err: any) {
+            const msg = err instanceof EventError ? err.message : '❌ Something went wrong when importing the event'
+            log.error(`Failed to register an event: ${msg}: ${err.message}`)
+        }
+    }
+}
