@@ -25,12 +25,11 @@ registerCommand({
 
             const channel = await CheckinStatus.assertAllowedChannel(interaction.guild, interaction.channelId, AUDIT_FLAME_CHANNEL)
             CheckinStatus.assertMissPerms(interaction.client.user, channel)
+            const member = interaction.member as GuildMember
+            CheckinStatus.assertMember(member)
 
             const userDiscordId: string = interaction.user.id
-            const member = interaction.member as GuildMember
             const user = await CheckinStatus.getUser(client.prisma, userDiscordId)
-
-            CheckinStatus.assertMember(member)
 
             const { content, embed, button } = await CheckinStatus.getEmbedStatusContent(
                 interaction.guild,
