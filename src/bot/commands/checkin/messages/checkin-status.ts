@@ -1,7 +1,7 @@
 import type { Checkin } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { GuildMember } from 'discord.js'
-import { FLAMEWARDEN_ROLE } from '@config/discord'
+import { FLAMEWARDEN_ROLE, IGNITE_PATH_CHANNEL } from '@config/discord'
 import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 
@@ -16,7 +16,6 @@ export class CheckinStatusMessage extends DiscordAssert {
         NoCheckin: (userDiscordId: string, checkinStreak: CheckinStreak | undefined) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
 Nyala api Tuan/Nona belum dinyalakan hari ini.
-🗓 **Date**: ${getParsedNow()}
 🔥 **Current Streak**: ${checkinStreak?.streak ?? 0} day(s)
 🔎 **Status**: Belum melakukan *check-in*
 > *"Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup."*
@@ -55,11 +54,45 @@ ${checkin.public_id}
 🌟 **Grinder**: <@${userDiscordId}>
 📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
-🔎 **Status**: Disetujui; api Tuan/Nona kian terang
+🔎 **Status**: Ditolak; percikan tak cukup kuat
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
+        `,
+        LastCheckin: (userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
+Wahai Tuan/Nona <@${userDiscordId}>,
+Tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
+Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
+
+Berikut adalah *check-in* terakhir yang pernah Tuan/Nona torehkan:
+🆔 **Check-In ID**:
+\`\`\`bash
+${checkin.public_id}
+\`\`\`
+🌟 **Grinder**: <@${userDiscordId}>
+📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
+🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
+🔥 **Last Streak**: ${checkin.checkin_streak!.streak} day(s)
+💥 **Broken Streak**: ${checkin.checkin_streak!.streak_broken_at ? '✅' : '❌'}
+🔎 **Status**: ${checkin.status}
+${flamewarden?.displayName
+    ? `🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
+👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}`
+    : ''}
+> *"[Percikan ini](${checkin.link}) pernah kau titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
+        `,
+        LastCheckinNote: (checkinLink: string, statusLink: string) => `
+Apabila Tuan/Nona meyakini bahwa [*check-in*](${checkinLink}) belum sempat ditinjau oleh <@&${FLAMEWARDEN_ROLE}>,
+maka Aksaria membuka ruang klarifikasi dengan tata cara sebagai berikut:
+Ⅰ. Berikan reaksi ❓ pada pesan [*status check-in*](${statusLink}) ini.
+Ⅱ. Sebuah *thread* khusus akan tercipta secara otomatis.
+Ⅲ. Gunakan *thread* tersebut untuk berkomunikasi dan mengajukan peninjauan kepada <@&${FLAMEWARDEN_ROLE}>.
+
+⚠️ Ketentuan Penting:
+Selama proses klarifikasi berlangsung, Tuan/Nona tidak diperkenankan terlebih dahulu memasuki <#${IGNITE_PATH_CHANNEL}>, demi menjaga ketertiban alur peninjauan.
+Waktu klarifikasi dibuka maksimal 1x24 jam sejak *check-in* diajukan.
         `,
     }
 }

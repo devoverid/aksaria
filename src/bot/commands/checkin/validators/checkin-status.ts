@@ -1,13 +1,16 @@
 import type { PrismaClient } from '@generatedDB/client'
 import type { Checkin as CheckinType } from '@type/checkin'
 import type { User } from '@type/user'
-import type { EmbedBuilder, Guild } from 'discord.js'
-import { FLAMEWARDEN_ROLE } from '@config/discord'
+import type { EmbedBuilder, Guild, Interaction } from 'discord.js'
+import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
+import { STATUS_LAST_CHECKIN_NOTE_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-last-checkin-note-button'
 import { Checkin } from '@events/interaction-create/checkin/validators'
-import { createEmbed } from '@utils/component'
+import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
+import { isDateYesterday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
-import { PermissionsBitField } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
+import { CheckinStatusError, STATUS_LAST_CHECKIN_CLARIFICATION_BUTTON_ID } from '../handlers/checkin-status'
 import { CheckinStatusMessage } from '../messages/checkin-status'
 
 export class CheckinStatus extends CheckinStatusMessage {
@@ -16,17 +19,33 @@ export class CheckinStatus extends CheckinStatusMessage {
         PermissionsBitField.Flags.UseApplicationCommands,
     ]
 
-    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin: CheckinType | undefined) {
+    static getButtonId(interaction: Interaction, customId: string) {
+        const [prefix, guildId, checkinMessageId] = decodeSnowflakes(customId)
+
+        if (!guildId)
+            throw new CheckinStatusError(this.ERR.GuildMissing)
+        if (interaction.guildId !== guildId)
+            throw new CheckinStatusError(this.ERR.NotGuild)
+        if (!checkinMessageId)
+            throw new CheckinStatusError(this.ERR.CheckinIdMissing)
+
+        const checkinLink = messageLink(CHECKIN_CHANNEL, checkinMessageId, interaction.guildId)
+
+        return { prefix, guildId, checkinLink }
+    }
+
+    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin?: CheckinType) {
         let content = ''
         let embed: EmbedBuilder
-        const checkinStreak = checkin?.checkin_streak
 
+        const checkinStreak = checkin?.checkin_streak
         const hasCheckedInToday = Checkin.hasCheckinToday(checkinStreak, checkin)
-        if (hasCheckedInToday && checkin) {
+
+        if (checkin && hasCheckedInToday) {
             const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
 
             switch (checkin.status) {
-                case 'WAITING':
+                case 'WAITING': {
                     content = `<@&${FLAMEWARDEN_ROLE}>`
                     embed = createEmbed(
                         `🧭 Check-In #${checkin.public_id}`,
@@ -35,8 +54,9 @@ export class CheckinStatus extends CheckinStatusMessage {
                         { text: DUMMY.FOOTER },
                     )
                     break
+                }
 
-                case 'APPROVED':
+                case 'APPROVED': {
                     embed = createEmbed(
                         `🔥 Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.ApprovedCheckin(userDiscordId, flamewarden, checkin),
@@ -44,8 +64,9 @@ export class CheckinStatus extends CheckinStatusMessage {
                         { text: DUMMY.FOOTER },
                     )
                     break
+                }
 
-                default:
+                default: {
                     embed = createEmbed(
                         `❌ Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.RejectedCheckin(userDiscordId, flamewarden, checkin),
@@ -53,18 +74,54 @@ export class CheckinStatus extends CheckinStatusMessage {
                         { text: DUMMY.FOOTER },
                     )
                     break
+                }
             }
+
+            return { content, embed }
         }
-        else {
+
+        const shouldShowNoCheckin = !checkin || (checkin.status === 'APPROVED' && isDateYesterday(checkin.created_at))
+        if (shouldShowNoCheckin) {
             embed = createEmbed(
                 `🧐 Check-In`,
                 CheckinStatus.MSG.NoCheckin(userDiscordId, checkinStreak),
                 DUMMY.COLOR,
                 { text: DUMMY.FOOTER },
             )
+
+            return { content, embed }
         }
 
-        return { content, embed }
+        const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
+        const buttons = this.generateButtons(guild.id, checkin)
+        embed = createEmbed(
+            `🕯️ Check-In #${checkin.public_id}`,
+            CheckinStatus.MSG.LastCheckin(userDiscordId, checkin, flamewarden),
+            DUMMY.COLOR,
+            { text: DUMMY.FOOTER },
+        )
+
+        return { content, embed, buttons }
+    }
+
+    static generateButtons(guildId: string, checkin: CheckinType): ActionRowBuilder<ButtonBuilder> | undefined {
+        if (checkin.status === 'WAITING') {
+            const { messageId } = this.getMessageFromLink(checkin.link!)
+
+            const noteButtonId = getCustomId([STATUS_LAST_CHECKIN_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
+            const noteButton = new ButtonBuilder()
+                .setCustomId(noteButtonId)
+                .setLabel('📜 Maklumat Klarifikasi')
+                .setStyle(ButtonStyle.Primary)
+
+            const clarificationButtonId = getCustomId([STATUS_LAST_CHECKIN_CLARIFICATION_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
+            const clarificationButton = new ButtonBuilder()
+                .setCustomId(clarificationButtonId)
+                .setLabel('❓ Ajukan Klarifikasi')
+                .setStyle(ButtonStyle.Success)
+
+            return new ActionRowBuilder<ButtonBuilder>().addComponents(noteButton, clarificationButton)
+        }
     }
 
     static async getUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
