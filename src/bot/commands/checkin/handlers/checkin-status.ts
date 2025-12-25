@@ -1,6 +1,6 @@
 import type { ChatInputCommandInteraction, Client, GuildMember } from 'discord.js'
 import { registerCommand } from '@commands/registry'
-import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE, GRINDER_ROLE } from '@config/discord'
+import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
@@ -31,7 +31,6 @@ registerCommand({
             const user = await CheckinStatus.getUser(client.prisma, userDiscordId)
 
             CheckinStatus.assertMember(member)
-            CheckinStatus.assertMemberHasRole(member, GRINDER_ROLE)
 
             const { content, embed } = await CheckinStatus.getEmbedStatusContent(
                 interaction.guild,
