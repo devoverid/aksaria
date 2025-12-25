@@ -21,7 +21,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "prod": "bun packages/aksaria-discord/src/index.ts",
-        "discord": "bun --watch packages/aksaria-discord/src/index.ts",
+        "start-discord": "bun --watch packages/aksaria-discord/src/index.ts",
         "commands": "bun packages/aksaria-discord/src/deploy-commands.ts",
         "prisma": "bunx prisma generate --schema db/schema.prisma",
         "build": "npm run build -w aksaria-core && npm run build -w aksaria-discord"

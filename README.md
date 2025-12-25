@@ -110,7 +110,7 @@ make migrate-reset
 
 ```sh
 bun commands
-bun start
+bun start-discord # run discord bot
 ```
 
 <h3 id="develop-docker">🐳 Develop w/ Docker</h3>
