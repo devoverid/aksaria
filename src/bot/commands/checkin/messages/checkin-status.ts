@@ -54,7 +54,7 @@ ${checkin.public_id}
 🌟 **Grinder**: <@${userDiscordId}>
 📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
-🔎 **Status**: Disetujui; api Tuan/Nona kian terang
+🔎 **Status**: Ditolak; percikan tak cukup kuat
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
