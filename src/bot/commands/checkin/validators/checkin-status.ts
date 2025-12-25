@@ -109,7 +109,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         const noteButtonId = getCustomId([LAST_CHECKIN_STATUS_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
         const noteButton = new ButtonBuilder()
             .setCustomId(noteButtonId)
-            .setLabel('❓ Ajukan Klarifikasi')
+            .setLabel('📜 Maklumat Klarifikasi')
             .setStyle(ButtonStyle.Primary)
 
         return new ActionRowBuilder<ButtonBuilder>().addComponents(noteButton)
