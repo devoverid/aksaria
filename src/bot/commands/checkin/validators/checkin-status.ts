@@ -4,10 +4,11 @@ import type { User } from '@type/user'
 import type { EmbedBuilder, Guild } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { Checkin } from '@events/interaction-create/checkin/validators'
-import { createEmbed } from '@utils/component'
+import { createEmbed, encodeSnowflake, getCustomId } from '@utils/component'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
-import { PermissionsBitField } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } from 'discord.js'
+import { LAST_CHECKIN_STATUS_NOTE_BUTTON_ID } from '../handlers/checkin-status'
 import { CheckinStatusMessage } from '../messages/checkin-status'
 
 export class CheckinStatus extends CheckinStatusMessage {
@@ -75,6 +76,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         }
 
         const flamewarden = await guild.members.fetch(checkin!.reviewed_by!)
+        const button = this.generateButton(guild.id)
         embed = createEmbed(
             `🕯️ Check-In #${checkin!.public_id}`,
             CheckinStatus.MSG.LastCheckin(userDiscordId, checkin!, flamewarden),
@@ -82,7 +84,17 @@ export class CheckinStatus extends CheckinStatusMessage {
             { text: DUMMY.FOOTER },
         )
 
-        return { content, embed }
+        return { content, embed, button }
+    }
+
+    static generateButton(guildId: string): ActionRowBuilder<ButtonBuilder> {
+        const noteButtonId = getCustomId([LAST_CHECKIN_STATUS_NOTE_BUTTON_ID, encodeSnowflake(guildId)])
+        const noteButton = new ButtonBuilder()
+            .setCustomId(noteButtonId)
+            .setLabel('❓ Ajukan Klarifikasi')
+            .setStyle(ButtonStyle.Primary)
+
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(noteButton)
     }
 
     static async getUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
