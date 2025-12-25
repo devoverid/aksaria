@@ -74,6 +74,7 @@ ${checkin.public_id}
 📁 **Attachment:** ${checkin.attachments?.length ? '✅' : '❌'}
 🗓 **Submitted At**: ${getParsedNow(getNow(checkin.created_at))}
 🔥 **Last Streak**: ${checkin.checkin_streak!.streak} day(s)
+💥 **Broken Streak**: ${checkin.checkin_streak!.streak_broken_at ? '✅' : '❌'}
 🔎 **Status**: ${checkin.status}
 ${flamewarden?.displayName
     ? `
