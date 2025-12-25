@@ -6,6 +6,7 @@ import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { STATUS_LAST_CHECKIN_NOTE_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-last-checkin-note-button'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
+import { isDateYesterday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
@@ -79,7 +80,7 @@ export class CheckinStatus extends CheckinStatusMessage {
             return { content, embed }
         }
 
-        const shouldShowNoCheckin = !checkin || (checkin.status === 'APPROVED' && !hasCheckedInToday)
+        const shouldShowNoCheckin = !checkin || (checkin.status === 'APPROVED' && isDateYesterday(checkin.created_at))
         if (shouldShowNoCheckin) {
             embed = createEmbed(
                 `🧐 Check-In`,
