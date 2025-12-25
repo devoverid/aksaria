@@ -16,11 +16,11 @@ export class StatusLastCheckinButtonError extends DiscordBaseError {
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const LAST_CHECKIN_STATUS_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
+export const STATUS_LAST_CHECKIN_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Opens a note about how to request clarification for the last check-in if the streak was broken and did not reviewed.',
-    id: LAST_CHECKIN_STATUS_NOTE_BUTTON_ID,
+    id: STATUS_LAST_CHECKIN_NOTE_BUTTON_ID,
     errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedButton}`,
     async exec(_, interaction) {
         if (!interaction.isButton())

@@ -1,6 +1,8 @@
 import type { ChatInputCommandInteraction, Client, GuildMember, InteractionReplyOptions } from 'discord.js'
+import { COMMAND_PATH } from '@commands/index'
 import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
+import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
@@ -12,6 +14,8 @@ export class CheckinStatusError extends DiscordBaseError {
         super('CheckinStatusError', message, options)
     }
 }
+
+export const STATUS_LAST_CHECKIN_CLARIFICATION_BUTTON_ID = `${generateCustomId(COMMAND_PATH, __filename)}`
 
 registerCommand({
     data: new SlashCommandBuilder()
@@ -31,15 +35,15 @@ registerCommand({
             const userDiscordId: string = interaction.user.id
             const user = await CheckinStatus.getUser(client.prisma, userDiscordId)
 
-            const { content, embed, button } = await CheckinStatus.getEmbedStatusContent(
+            const { content, embed, buttons } = await CheckinStatus.getEmbedStatusContent(
                 interaction.guild,
                 user?.discord_id ?? member.id,
                 user?.checkins?.[0],
             )
 
             const payloads = { embeds: [embed], allowedMentions: { roles: [FLAMEWARDEN_ROLE] } } as InteractionReplyOptions
-            if (button)
-                payloads.components = [button]
+            if (buttons)
+                payloads.components = [buttons]
 
             await sendReply(interaction, content, false, payloads)
         }
