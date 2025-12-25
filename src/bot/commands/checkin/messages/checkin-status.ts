@@ -77,8 +77,7 @@ ${checkin.public_id}
 💥 **Broken Streak**: ${checkin.checkin_streak!.streak_broken_at ? '✅' : '❌'}
 🔎 **Status**: ${checkin.status}
 ${flamewarden?.displayName
-    ? `
-🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
+    ? `🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}`
     : ''}
