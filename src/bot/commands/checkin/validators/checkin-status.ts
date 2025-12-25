@@ -92,11 +92,11 @@ export class CheckinStatus extends CheckinStatusMessage {
             return { content, embed }
         }
 
-        const flamewarden = await guild.members.fetch(checkin!.reviewed_by!)
+        const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
         const buttons = this.generateButtons(guild.id, checkin)
         embed = createEmbed(
-            `🕯️ Check-In #${checkin!.public_id}`,
-            CheckinStatus.MSG.LastCheckin(userDiscordId, checkin!, flamewarden),
+            `🕯️ Check-In #${checkin.public_id}`,
+            CheckinStatus.MSG.LastCheckin(userDiscordId, checkin, flamewarden),
             DUMMY.COLOR,
             { text: DUMMY.FOOTER },
         )
