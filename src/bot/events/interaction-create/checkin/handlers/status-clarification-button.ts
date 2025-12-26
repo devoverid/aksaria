@@ -48,7 +48,7 @@ registerInteractionHandler({
 
             await thread.send({ content: CheckinStatus.MSG.ThreadContent(checkin) })
             await sendReply(interaction, CheckinStatus.MSG.ThreadCreated(thread))
-            interaction.message.react(CheckinStatus.CLARIFICATION_EMOJI)
+            await interaction.message.react(CheckinStatus.CLARIFICATION_EMOJI)
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)

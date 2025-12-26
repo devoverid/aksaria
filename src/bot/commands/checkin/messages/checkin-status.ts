@@ -29,7 +29,7 @@ Silakan gunakan thread ini untuk mendiskusikan detail *check-in* bersama <@&${FL
         `,
         NoCheckin: (userDiscordId: string, checkinStreak: CheckinStreak | undefined) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
-Nyala api Tuan/Nona belum dinyalakan hari ini.
+nyala api Tuan/Nona belum dinyalakan hari ini.
 🔥 **Current Streak**: ${checkinStreak?.streak ?? 0} day(s)
 🔎 **Status**: Belum melakukan *check-in*
 > *"Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup."*
@@ -76,7 +76,7 @@ ${checkin.public_id}
         `,
         LastCheckin: (userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
-Tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
+tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
 Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
 
 Berikut adalah *check-in* terakhir yang pernah Tuan/Nona torehkan:

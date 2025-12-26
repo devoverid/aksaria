@@ -1,5 +1,7 @@
 import type { Checkin } from '@type/checkin'
+import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
+import { DUMMY } from '@utils/placeholder'
 
 export class CheckinAuditMessage extends DiscordAssert {
     static override readonly ERR = {
@@ -15,6 +17,13 @@ ${waitingCheckinList}
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        AuditSuccess: (msgLink: string, userDiscordId: string) => `✅ Successfully [audited check-in](${msgLink}) for <@${userDiscordId}>🎉`,
+        AuditSuccess: (checkinLink: string, flamewardenId: string, userDiscordId: string) => `
+Wahai Tuan/Nona <@${userDiscordId}>,
+[percikan](${checkinLink}) yang Tuan/Nona titipkan telah selesai ditakar dan ditetapkan.
+🗓 **Audited At**: ${getParsedNow(getNow())}
+👀 **Audited By**: <@${flamewardenId}>
+
+> ${DUMMY.FOOTER}
+        `,
     }
 }
