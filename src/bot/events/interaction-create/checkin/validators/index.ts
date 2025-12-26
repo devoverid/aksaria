@@ -155,7 +155,7 @@ export class Checkin extends CheckinMessage {
             return
 
         const hasGrindRole = this.isMemberHasRole(member, newRole.id)
-        const channel = await getChannel(guild, AURA_FARMING_CHANNEL)
+        const channel = await getChannel(guild, AURA_FARMING_CHANNEL) as TextChannel
         this.assertChannel(channel)
 
         if (!hasGrindRole) {
@@ -166,7 +166,7 @@ export class Checkin extends CheckinMessage {
             })
         }
         else {
-            const checkinChannel = await getChannel(guild, CHECKIN_CHANNEL)
+            const checkinChannel = await getChannel(guild, CHECKIN_CHANNEL) as TextChannel
             await sendAsBot(null, checkinChannel, {
                 content: `Hey, <@${member.id}>. You already have <@&${newRole.id}>`,
                 allowedMentions: { users: [member.id], roles: [] },

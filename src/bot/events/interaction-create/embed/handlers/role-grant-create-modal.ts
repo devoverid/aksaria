@@ -1,3 +1,4 @@
+import type { TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createEmbed, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
@@ -30,7 +31,7 @@ registerInteractionHandler({
                 throw new EmbedRoleGrantModalError(RoleGrantCreate.ERR.NotGuild)
 
             const { channelId, roleId, buttonName } = RoleGrantCreate.getModalId(interaction, interaction.customId)
-            const channel = await getChannel(interaction.guild, channelId)
+            const channel = await getChannel(interaction.guild, channelId) as TextChannel
             RoleGrantCreate.assertChannel(channel)
             RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
             const role = await getRole(interaction.guild, roleId)

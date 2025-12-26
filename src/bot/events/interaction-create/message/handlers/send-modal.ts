@@ -1,4 +1,4 @@
-import type { Attachment } from 'discord.js'
+import type { Attachment, TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId, tempStore } from '@utils/component'
@@ -29,7 +29,7 @@ registerInteractionHandler({
                 throw new SendModalError(Send.ERR.NotGuild)
 
             const { channelId, tempToken } = Send.getModalId(interaction, interaction.customId)
-            const channel = await getChannel(interaction.guild, channelId)
+            const channel = await getChannel(interaction.guild, channelId) as TextChannel
             Send.assertChannel(channel)
             Send.assertMissPerms(interaction.client.user, channel)
             const attachments = tempStore.get(tempToken) as Attachment[]
