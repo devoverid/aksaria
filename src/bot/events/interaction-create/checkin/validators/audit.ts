@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@generatedDB/client'
 import type { Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
-import type { Interaction, ThreadChannel } from 'discord.js'
+import type { Interaction, Message, ThreadChannel } from 'discord.js'
 import { CheckinAuditError } from '@commands/checkin/handlers/checkin-audit'
 import { CheckinStatus } from '@commands/checkin/validators/checkin-status'
 import { decodeSnowflakes } from '@utils/component'
@@ -113,5 +113,11 @@ ${checkin.public_id}
         }) as CheckinStreak
 
         return checkinStreak.checkins!
+    }
+
+    static closeClarificationThread(thread: ThreadChannel, threadMessage: Message) {
+        threadMessage.react('🔥')
+        thread.setLocked(true)
+        thread.setArchived(true)
     }
 }
