@@ -58,7 +58,7 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Approved By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Nyala hari ini](${checkin.link}) diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari."*
         `,
@@ -72,7 +72,7 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Ditolak; percikan tak cukup kuat
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Reviewed By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,

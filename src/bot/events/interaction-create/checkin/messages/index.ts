@@ -55,7 +55,7 @@ ${checkin.public_id}
 \`\`\`
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Approved By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
 > 🔥 Konsistensi ialah bahan bakar nyala api; teruskan langkah Tuan/Nona`,
@@ -68,7 +68,7 @@ ${checkin.public_id}
 \`\`\`
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Reviewed By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
 > 🧯 Nyala api Tuan/Nona meredup, namun belum padam; silakan mencuba kembali`,
