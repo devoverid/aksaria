@@ -55,7 +55,7 @@ registerInteractionHandler({
                 true,
             )
 
-            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, updatedCheckin.user!.discord_id))
+            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, updatedCheckin.user!.discord_id), false)
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)
