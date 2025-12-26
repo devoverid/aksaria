@@ -9,18 +9,18 @@ import { getModuleName } from '@utils/io'
 import { messageLink } from 'discord.js'
 import { Checkin } from '../validators'
 
-export class StatusLastCheckinButtonError extends DiscordBaseError {
+export class CheckinStatusNoteButtonError extends DiscordBaseError {
     constructor(message: string, options?: { cause?: unknown }) {
-        super('StatusLastCheckinButtonError', message, options)
+        super('CheckinStatusNoteButtonError', message, options)
     }
 }
 
 const moduleName = getModuleName(EVENT_PATH, __filename)
-export const STATUS_LAST_CHECKIN_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
+export const CHECKIN_STATUS_NOTE_BUTTON_ID = `${generateCustomId(EVENT_PATH, __filename)}`
 
 registerInteractionHandler({
     desc: 'Opens a note about how to request clarification for the last check-in if the streak was broken and did not reviewed.',
-    id: STATUS_LAST_CHECKIN_NOTE_BUTTON_ID,
+    id: CHECKIN_STATUS_NOTE_BUTTON_ID,
     errorTag: () => `${moduleName}: ${Checkin.ERR.UnexpectedButton}`,
     async exec(_, interaction) {
         if (!interaction.isButton())
@@ -28,7 +28,7 @@ registerInteractionHandler({
 
         try {
             if (!interaction.inCachedGuild())
-                throw new StatusLastCheckinButtonError(Checkin.ERR.NotGuild)
+                throw new CheckinStatusNoteButtonError(Checkin.ERR.NotGuild)
 
             const { checkinLink } = CheckinStatus.getButtonId(interaction, interaction.customId)
 
