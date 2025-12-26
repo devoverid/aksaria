@@ -18,6 +18,8 @@ export class CheckinStatusMessage extends DiscordAssert {
         ThreadContent: (checkin: Checkin) => `
 👤 <@${checkin.user!.discord_id}> meminta klarifikasi untuk [*check-in*](${checkin.link!}) ini.
 🔥 <@&${FLAMEWARDEN_ROLE}> mohon ditinjau.
+
+Teristimewa untuk <@&${FLAMEWARDEN_ROLE}>, silakan gunakan *command* **\`/checkin-audit\`** untuk melakukan *review* terhadap *check-in*.
         `,
         ThreadCreated: (thread: PublicThreadChannel) => `
 ✅ Sebuah thread klarifikasi telah dibuat:
