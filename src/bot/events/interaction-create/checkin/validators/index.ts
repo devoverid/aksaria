@@ -516,7 +516,7 @@ export class Checkin extends CheckinMessage {
             `🎉 *Check-In* Berhasil`,
             this.MSG.CheckinSuccessToMember(checkin),
             DUMMY.COLOR,
-            { text: DUMMY.FOOTER },
+            { text: DUMMY.FOOTER(member.guild.name) },
         )
 
         await member.send({ embeds: [embed] })
@@ -531,7 +531,7 @@ export class Checkin extends CheckinMessage {
                     `⚠️ *Check-In* Ditolak`,
                     this.MSG.CheckinRejected(flamewarden, checkin),
                     '#D9534F',
-                    { text: DUMMY.FOOTER },
+                    { text: DUMMY.FOOTER(member.guild.name) },
                 )
                 break
 
@@ -540,7 +540,7 @@ export class Checkin extends CheckinMessage {
                     `🔥 *Check-In* Disetujui`,
                     this.MSG.CheckinApproved(flamewarden, checkin),
                     '#4CAF50',
-                    { text: DUMMY.FOOTER },
+                    { text: DUMMY.FOOTER(member.guild.name) },
                 )
                 break
 

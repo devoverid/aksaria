@@ -47,7 +47,7 @@ registerInteractionHandler({
 
             const msg = await sendReply(
                 interaction,
-                Checkin.MSG.CheckinSuccess(todo),
+                Checkin.MSG.CheckinSuccess(interaction.guild.name, todo),
                 false,
                 {
                     files: attachments.length ? attachments : undefined,

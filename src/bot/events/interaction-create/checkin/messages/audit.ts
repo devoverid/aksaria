@@ -16,13 +16,13 @@ ${waitingCheckinList}
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        AuditSuccess: (checkinLink: string, flamewardenId: string, userDiscordId: string) => `
+        AuditSuccess: (guildName: string, checkinLink: string, flamewardenId: string, userDiscordId: string) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
 [percikan](${checkinLink}) yang Tuan/Nona titipkan telah selesai ditakar dan ditetapkan.
 🗓 **Audited At**: ${getParsedNow(getNow())}
 👀 **Audited By**: <@${flamewardenId}>
 
-> *"Api telah diuji, dan keputusannya kini tercatat dalam Aksaria."*
+> *"Api telah diuji, dan keputusannya kini tercatat dalam ${guildName}."*
         `,
     }
 }

@@ -87,8 +87,8 @@ registerCommand({
                         .setTextInputComponent(
                             new TextInputBuilder()
                                 .setCustomId('footer')
-                                .setPlaceholder(DUMMY.FOOTER)
-                                .setValue(DUMMY.FOOTER)
+                                .setPlaceholder(DUMMY.FOOTER(interaction.guild.name))
+                                .setValue(DUMMY.FOOTER(interaction.guild.name))
                                 .setStyle(TextInputStyle.Short)
                                 .setRequired(false),
                         ),

@@ -79,7 +79,7 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
             await sendAsBot(
                 null,
                 channel,
-                { content: ResetGrinderRoles.MSG.GoodBye(member), components: [button], allowedMentions: { users: [member.id], roles: [] } },
+                { content: ResetGrinderRoles.MSG.GoodBye(guild.name, member), components: [button], allowedMentions: { users: [member.id], roles: [] } },
             )
 
             log.info(this.MSG.RemoveGrinderRoleFrom(member))

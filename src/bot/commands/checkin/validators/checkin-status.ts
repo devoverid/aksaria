@@ -56,7 +56,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                         `🧭 Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.WaitingCheckin(userDiscordId, checkin),
                         DUMMY.COLOR,
-                        { text: DUMMY.FOOTER },
+                        { text: DUMMY.FOOTER(guild.name) },
                     )
                     break
                 }
@@ -66,7 +66,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                         `🔥 Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.ApprovedCheckin(userDiscordId, flamewarden, checkin),
                         DUMMY.COLOR,
-                        { text: DUMMY.FOOTER },
+                        { text: DUMMY.FOOTER(guild.name) },
                     )
                     break
                 }
@@ -76,7 +76,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                         `❌ Check-In #${checkin.public_id}`,
                         CheckinStatus.MSG.RejectedCheckin(userDiscordId, flamewarden, checkin),
                         DUMMY.COLOR,
-                        { text: DUMMY.FOOTER },
+                        { text: DUMMY.FOOTER(guild.name) },
                     )
                     break
                 }
@@ -91,7 +91,7 @@ export class CheckinStatus extends CheckinStatusMessage {
                 `🧐 Check-In`,
                 CheckinStatus.MSG.NoCheckin(userDiscordId, checkinStreak),
                 DUMMY.COLOR,
-                { text: DUMMY.FOOTER },
+                { text: DUMMY.FOOTER(guild.name) },
             )
 
             return { content, embed }
@@ -101,9 +101,9 @@ export class CheckinStatus extends CheckinStatusMessage {
         const buttons = this.generateButtons(guild.id, checkin)
         embed = createEmbed(
             `🕯️ Check-In #${checkin.public_id}`,
-            CheckinStatus.MSG.LastCheckin(userDiscordId, checkin, flamewarden),
+            CheckinStatus.MSG.LastCheckin(guild.name, userDiscordId, checkin, flamewarden),
             DUMMY.COLOR,
-            { text: DUMMY.FOOTER },
+            { text: DUMMY.FOOTER(guild.name) },
         )
 
         return { content, embed, buttons }
