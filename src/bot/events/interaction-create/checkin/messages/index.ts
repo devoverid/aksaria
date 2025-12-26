@@ -10,6 +10,8 @@ export class CheckinMessage extends DiscordAssert {
         ...DiscordAssert.ERR,
         AlreadyCheckinToday: (checkinMsgLink: string) => `❌ You already have a [check-in for today](${checkinMsgLink}). Please come back tomorrow`,
         SubmittedCheckinNotToday: (checkinMsgLink: string) => `❌ This [submitted check-in](${checkinMsgLink})'s date should equals as today. You can't review this anymore`,
+        NotWaitingCheckin: (checkinMsgLink: string) => `❌ This [check-in](${checkinMsgLink}) is no longer in a waiting state and cannot be processed further`,
+        NotYourCheckin: '❌ This is not your own check-in',
         UnknownCheckinStatus: '❌ The status for this check-in is unknown or unexpected',
         UnexpectedSubmittedCheckinMessage: '❌ Something went wrong while submitting your check-in',
         UnexpectedCheckin: '❌ Something went wrong during check-in',
@@ -53,7 +55,7 @@ ${checkin.public_id}
 \`\`\`
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Approved By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
 > 🔥 Konsistensi ialah bahan bakar nyala api; teruskan langkah Tuan/Nona`,
@@ -66,7 +68,7 @@ ${checkin.public_id}
 \`\`\`
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Reviewed By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
 > 🧯 Nyala api Tuan/Nona meredup, namun belum padam; silakan mencuba kembali`,

@@ -1,6 +1,6 @@
 import type { Checkin } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
-import type { GuildMember } from 'discord.js'
+import type { GuildMember, PublicThreadChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE, IGNITE_PATH_CHANNEL } from '@config/discord'
 import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
@@ -13,9 +13,25 @@ export class CheckinStatusMessage extends DiscordAssert {
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
+        ThreadName: (publicId: string) => `❓ Klarifikasi Check-In #${publicId}`,
+        ThreadReason: (userTag: string) => `Check-in clarification requested by ${userTag}`,
+        ThreadContent: (checkin: Checkin) => `
+👤 <@${checkin.user!.discord_id}> meminta klarifikasi untuk [*check-in*](${checkin.link!}) ini.
+🔥 <@&${FLAMEWARDEN_ROLE}> mohon ditinjau.
+
+Teristimewa untuk <@&${FLAMEWARDEN_ROLE}>, silakan gunakan *command* **\`/checkin-audit\`** untuk melakukan *review* terhadap *check-in*.
+        `,
+        ThreadCreated: (thread: PublicThreadChannel) => `
+✅ Sebuah thread klarifikasi telah dibuat:
+
+**${thread.name}**  
+🔗 [Lihat Thread](${thread.url})
+
+Silakan gunakan thread ini untuk mendiskusikan detail *check-in* bersama <@&${FLAMEWARDEN_ROLE}>.
+        `,
         NoCheckin: (userDiscordId: string, checkinStreak: CheckinStreak | undefined) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
-Nyala api Tuan/Nona belum dinyalakan hari ini.
+nyala api Tuan/Nona belum dinyalakan hari ini.
 🔥 **Current Streak**: ${checkinStreak?.streak ?? 0} day(s)
 🔎 **Status**: Belum melakukan *check-in*
 > *"Percikan hari ini belum ditorehkan. Lakukan check-in sebelum 23:59 WIB, agar api Tuan/Nona tak meredup."*
@@ -42,7 +58,7 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Approved By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Approved By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Nyala hari ini](${checkin.link}) diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari."*
         `,
@@ -56,13 +72,13 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Ditolak; percikan tak cukup kuat
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
+👀 **Reviewed By**: <@${flamewarden.id}>
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,
         LastCheckin: (userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
-Tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
+tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
 Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
 
 Berikut adalah *check-in* terakhir yang pernah Tuan/Nona torehkan:

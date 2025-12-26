@@ -1,8 +1,6 @@
 import type { ChatInputCommandInteraction, Client, GuildMember, InteractionReplyOptions } from 'discord.js'
-import { COMMAND_PATH } from '@commands/index'
 import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
@@ -14,8 +12,6 @@ export class CheckinStatusError extends DiscordBaseError {
         super('CheckinStatusError', message, options)
     }
 }
-
-export const STATUS_LAST_CHECKIN_CLARIFICATION_BUTTON_ID = `${generateCustomId(COMMAND_PATH, __filename)}`
 
 registerCommand({
     data: new SlashCommandBuilder()

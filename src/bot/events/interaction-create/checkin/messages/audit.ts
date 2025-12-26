@@ -1,4 +1,5 @@
 import type { Checkin } from '@type/checkin'
+import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 
 export class CheckinAuditMessage extends DiscordAssert {
@@ -9,11 +10,19 @@ export class CheckinAuditMessage extends DiscordAssert {
 ❌ Check-ins must be within 1 day of each other. Please validate [this check-in](${checkin.link!}) first:
 ${waitingCheckinList}
         `,
+        NotClarificationThread: '❌ This thread does not correspond to the correct check-in. Please make sure you are reviewing the correct clarification thread',
         UnexpectedCheckinAudit: '❌ Something went wrong during the check-in audit',
     }
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        AuditSuccess: (msgLink: string, userDiscordId: string) => `✅ Successfully [audited check-in](${msgLink}) for <@${userDiscordId}>.`,
+        AuditSuccess: (checkinLink: string, flamewardenId: string, userDiscordId: string) => `
+Wahai Tuan/Nona <@${userDiscordId}>,
+[percikan](${checkinLink}) yang Tuan/Nona titipkan telah selesai ditakar dan ditetapkan.
+🗓 **Audited At**: ${getParsedNow(getNow())}
+👀 **Audited By**: <@${flamewardenId}>
+
+> *"Api telah diuji, dan keputusannya kini tercatat dalam Aksaria."*
+        `,
     }
 }

@@ -1,8 +1,9 @@
 import type { PrismaClient } from '@generatedDB/client'
 import type { Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
-import type { Interaction } from 'discord.js'
+import type { Interaction, Message, ThreadChannel } from 'discord.js'
 import { CheckinAuditError } from '@commands/checkin/handlers/checkin-audit'
+import { CheckinStatus } from '@commands/checkin/validators/checkin-status'
 import { decodeSnowflakes } from '@utils/component'
 import { isDateToday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
@@ -34,6 +35,15 @@ export class CheckinAudit extends CheckinAuditMessage {
             throw new CheckinAuditModalError(this.ERR.CheckinDateInvalid)
 
         return { prefix, guildId, checkinId, checkinCreatedAt }
+    }
+
+    static assertClarificationThread(thread: ThreadChannel, checkinPublicId: string) {
+        const threadName = thread.name
+        const checkinThreadName = CheckinStatus.MSG.ThreadName(checkinPublicId)
+
+        if (threadName !== checkinThreadName) {
+            throw new CheckinAuditError(this.ERR.NotClarificationThread)
+        }
     }
 
     static assertCheckinNotToday(checkin: CheckinType) {
@@ -103,5 +113,11 @@ ${checkin.public_id}
         }) as CheckinStreak
 
         return checkinStreak.checkins!
+    }
+
+    static async closeClarificationThread(thread: ThreadChannel, threadMessage: Message) {
+        await threadMessage.react('🔥')
+        await thread.setLocked(true)
+        await thread.setArchived(true)
     }
 }

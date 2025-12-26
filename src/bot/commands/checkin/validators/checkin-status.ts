@@ -1,16 +1,17 @@
 import type { PrismaClient } from '@generatedDB/client'
-import type { Checkin as CheckinType } from '@type/checkin'
+import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { User } from '@type/user'
-import type { EmbedBuilder, Guild, Interaction } from 'discord.js'
+import type { EmbedBuilder, Guild, Interaction, ThreadAutoArchiveDuration } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { STATUS_LAST_CHECKIN_NOTE_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-last-checkin-note-button'
+import { CHECKIN_STATUS_CLARIFICATION_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-clarification-button'
+import { CHECKIN_STATUS_NOTE_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-note-button'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateYesterday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
-import { CheckinStatusError, STATUS_LAST_CHECKIN_CLARIFICATION_BUTTON_ID } from '../handlers/checkin-status'
+import { CheckinStatusError } from '../handlers/checkin-status'
 import { CheckinStatusMessage } from '../messages/checkin-status'
 
 export class CheckinStatus extends CheckinStatusMessage {
@@ -18,6 +19,10 @@ export class CheckinStatus extends CheckinStatusMessage {
         ...DiscordAssert.BASE_PERMS,
         PermissionsBitField.Flags.UseApplicationCommands,
     ]
+
+    static CLARIFICATION_EMOJI = '❓'
+
+    static override THREAD_ARCHIVE_DURATION: ThreadAutoArchiveDuration = 1440
 
     static getButtonId(interaction: Interaction, customId: string) {
         const [prefix, guildId, checkinMessageId] = decodeSnowflakes(customId)
@@ -44,7 +49,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         if (checkin && hasCheckedInToday) {
             const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
 
-            switch (checkin.status) {
+            switch (checkin.status as CheckinStatusType) {
                 case 'WAITING': {
                     content = `<@&${FLAMEWARDEN_ROLE}>`
                     embed = createEmbed(
@@ -108,13 +113,13 @@ export class CheckinStatus extends CheckinStatusMessage {
         if (checkin.status === 'WAITING') {
             const { messageId } = this.getMessageFromLink(checkin.link!)
 
-            const noteButtonId = getCustomId([STATUS_LAST_CHECKIN_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
+            const noteButtonId = getCustomId([CHECKIN_STATUS_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
             const noteButton = new ButtonBuilder()
                 .setCustomId(noteButtonId)
                 .setLabel('📜 Maklumat Klarifikasi')
                 .setStyle(ButtonStyle.Primary)
 
-            const clarificationButtonId = getCustomId([STATUS_LAST_CHECKIN_CLARIFICATION_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
+            const clarificationButtonId = getCustomId([CHECKIN_STATUS_CLARIFICATION_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
             const clarificationButton = new ButtonBuilder()
                 .setCustomId(clarificationButtonId)
                 .setLabel('❓ Ajukan Klarifikasi')

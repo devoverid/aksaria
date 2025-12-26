@@ -1,9 +1,9 @@
-import type { ChatInputCommandInteraction, Client } from 'discord.js'
+import type { ChatInputCommandInteraction, Client, TextChannel } from 'discord.js'
 import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { CHECKIN_AUDIT_ID } from '@events/interaction-create/checkin/handlers/audit-modal'
 import { createCheckinReviewModal, encodeSnowflake, getCustomId } from '@utils/component'
-import { sendReply } from '@utils/discord'
+import { getChannelOrThread, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { SlashCommandBuilder } from 'discord.js'
@@ -30,14 +30,20 @@ registerCommand({
             if (!interaction.inCachedGuild())
                 throw new CheckinAuditError(CheckinAudit.ERR.NotGuild)
 
-            const channel = await CheckinAudit.assertAllowedChannel(interaction.guild, interaction.channelId, AUDIT_FLAME_CHANNEL)
+            const channel = await getChannelOrThread(interaction.guild, AUDIT_FLAME_CHANNEL) as TextChannel
             CheckinAudit.assertMissPerms(interaction.client.user, channel)
+            const thread = await CheckinAudit.assertThreadUnderChannel(interaction.guild, interaction.channelId, channel)
+            CheckinAudit.assertNotArchivedThread(thread)
+            CheckinAudit.assertNotPrivateThread(thread)
+            const threadMsg = await CheckinAudit.getThreadMessage(thread)
+            CheckinAudit.assertThreadMessageSendBy(threadMsg, interaction.client.user.id)
             const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
             CheckinAudit.assertMember(flamewarden)
             CheckinAudit.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
             const checkinId = interaction.options.getString('checkin-id', true)
             const checkin = await CheckinAudit.assertExistCheckinId(client.prisma, checkinId)
+            CheckinAudit.assertClarificationThread(thread, checkin.public_id)
             CheckinAudit.assertCheckinNotToday(checkin)
             const checkins = await CheckinAudit.getOldestWaitingCheckins(client.prisma, checkin.checkin_streak_id)
             CheckinAudit.assertCheckinWithOldestWaiting(checkin, checkins)
