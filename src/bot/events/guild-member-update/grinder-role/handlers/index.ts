@@ -18,7 +18,6 @@ const moduleName = getModuleName(EVENT_PATH, __filename)
 registerGuildMemberUpdateHandler({
     desc: 'Watches grinder role assignment/removal for members on guild member update.',
     errorTag: () => `${moduleName}: ${GrinderRole.ERR.UnexpectedGrinderRole}`,
-    match: (_, newMember) => GrinderRole.isMemberHasRole(newMember, GRINDER_ROLE),
     async exec(_, oldMember, newMember) {
         try {
             if (!newMember.guild)
