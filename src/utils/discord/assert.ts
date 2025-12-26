@@ -1,4 +1,4 @@
-import type { ClientUser, Guild, GuildMember, Role, TextChannel, ThreadAutoArchiveDuration } from 'discord.js'
+import type { ClientUser, Guild, GuildMember, Message, Role, TextChannel, ThreadAutoArchiveDuration } from 'discord.js'
 import { getTempToken, parseMessageLink, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
 import { getBotPerms, getChannel, getMissPerms } from '.'
@@ -107,6 +107,12 @@ export class DiscordAssert extends DiscordMessage {
             const missingNames = missedPerms.map(p => this.PERM_LABELS.get(p) ?? 'Unknown Permission')
 
             throw new DiscordAssertError(this.ERR.RoleMissing(missingNames))
+        }
+    }
+
+    static assertHasThread(message: Message) {
+        if (message.hasThread && message.hasThread) {
+            throw new DiscordAssertError(this.ERR.ChannelAlreadyHasThread)
         }
     }
 

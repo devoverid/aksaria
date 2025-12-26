@@ -21,6 +21,7 @@ export class DiscordMessage {
         CannotPost: '❌ I can’t post in that channel',
         MessageIdMissing: '❌ Message ID is missing or invalid',
         MessageLinkInvalid: '❌ The provided message link is invalid',
+        ChannelAlreadyHasThread: '❌ This channel message already has an associated thread',
 
         PlainMessage: '❌ There is nothing to do with this plain message',
         CheckinIdMissing: '❌ Check-in ID is missing or invalid',
