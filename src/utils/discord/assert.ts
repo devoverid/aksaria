@@ -1,4 +1,4 @@
-import type { ClientUser, Guild, GuildMember, Role, TextChannel } from 'discord.js'
+import type { ClientUser, Guild, GuildMember, Role, TextChannel, ThreadAutoArchiveDuration } from 'discord.js'
 import { getTempToken, parseMessageLink, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
 import { getBotPerms, getChannel, getMissPerms } from '.'
@@ -29,6 +29,7 @@ export class DiscordAssert extends DiscordMessage {
     )
 
     static ATTACHMENT_COUNT = 10
+    static THREAD_ARCHIVE_DURATION: ThreadAutoArchiveDuration = 1440
 
     static getMessageFromLink(link: string) {
         const data = parseMessageLink(link)
