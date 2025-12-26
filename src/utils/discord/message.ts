@@ -22,6 +22,11 @@ export class DiscordMessage {
         MessageIdMissing: '❌ Message ID is missing or invalid',
         MessageLinkInvalid: '❌ The provided message link is invalid',
         ChannelAlreadyHasThread: '❌ This channel message already has an associated thread',
+        MustBeThread: (parentChannelId: string) => `❌ This action can only be performed in a thread under <#${parentChannelId}>`,
+        ArchivedThread: '❌ This thread is archived',
+        PrivateThread: '❌ This action cannot be performed in a private thread',
+        FailedToFetchThreadFirstMessage: '❌ Failed to fetch the first message in this thread',
+        ThreadMessageShouldSendBy: (userId: string) => `❌ The first thread message must be sent by <@${userId}> to perform this action`,
 
         PlainMessage: '❌ There is nothing to do with this plain message',
         CheckinIdMissing: '❌ Check-in ID is missing or invalid',

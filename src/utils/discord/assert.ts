@@ -1,4 +1,4 @@
-import type { ClientUser, Guild, GuildMember, Message, Role, TextChannel, ThreadAutoArchiveDuration } from 'discord.js'
+import type { ClientUser, Guild, GuildMember, Message, Role, TextChannel, ThreadAutoArchiveDuration, ThreadChannel } from 'discord.js'
 import { getTempToken, parseMessageLink, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
 import { getBotPerms, getChannel, getMissPerms } from '.'
@@ -38,6 +38,15 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.MessageLinkInvalid)
 
         return { ...data }
+    }
+
+    static async getThreadMessage(thread: ThreadChannel) {
+        const starterMessage = await thread.fetchStarterMessage()
+        if (!starterMessage) {
+            throw new DiscordAssertError(this.ERR.FailedToFetchThreadFirstMessage)
+        }
+
+        return starterMessage
     }
 
     static setTempItem(items: any): string {
@@ -93,7 +102,7 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.AllowedChannel(channelId))
         }
 
-        const channel = await getChannel(guild, channelId)
+        const channel = await getChannel(guild, channelId) as TextChannel
         this.assertChannel(channel)
 
         return channel
@@ -113,6 +122,36 @@ export class DiscordAssert extends DiscordMessage {
     static assertHasThread(message: Message) {
         if (message.hasThread && message.hasThread) {
             throw new DiscordAssertError(this.ERR.ChannelAlreadyHasThread)
+        }
+    }
+
+    static async assertThreadUnderChannel(guild: Guild, currentChannelId: string, parentChannel: TextChannel) {
+        const thread = await getChannel(guild, currentChannelId) as ThreadChannel
+
+        if (!thread.isThread())
+            throw new DiscordAssertError(this.ERR.MustBeThread(parentChannel.id))
+
+        if ('parentId' in thread && thread.parentId !== parentChannel.id)
+            throw new DiscordAssertError(this.ERR.MustBeThread(parentChannel.id))
+
+        return thread
+    }
+
+    static assertNotArchivedThread(thread: ThreadChannel) {
+        if (thread.archived) {
+            throw new DiscordAssertError(this.ERR.ArchivedThread)
+        }
+    }
+
+    static assertNotPrivateThread(thread: ThreadChannel) {
+        if (thread.type === ChannelType.PrivateThread) {
+            throw new DiscordAssertError(this.ERR.PrivateThread)
+        }
+    }
+
+    static assertThreadMessageSendBy(threadMessage: Message, userId: string) {
+        if (threadMessage.author.id !== userId) {
+            throw new DiscordAssertError(this.ERR.ThreadMessageShouldSendBy(userId))
         }
     }
 

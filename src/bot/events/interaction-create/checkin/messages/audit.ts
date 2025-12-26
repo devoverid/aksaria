@@ -9,11 +9,12 @@ export class CheckinAuditMessage extends DiscordAssert {
 ❌ Check-ins must be within 1 day of each other. Please validate [this check-in](${checkin.link!}) first:
 ${waitingCheckinList}
         `,
+        NotClarificationThread: '❌ This thread does not correspond to the correct check-in. Please make sure you are reviewing the correct clarification thread',
         UnexpectedCheckinAudit: '❌ Something went wrong during the check-in audit',
     }
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        AuditSuccess: (msgLink: string, userDiscordId: string) => `✅ Successfully [audited check-in](${msgLink}) for <@${userDiscordId}>.`,
+        AuditSuccess: (msgLink: string, userDiscordId: string) => `✅ Successfully [audited check-in](${msgLink}) for <@${userDiscordId}>🎉`,
     }
 }
