@@ -55,8 +55,8 @@ registerInteractionHandler({
                 true,
             )
 
-            CheckinAudit.closeClarificationThread(thread, threadMsg)
-            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, updatedCheckin.user!.discord_id), false)
+            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, flamewarden.id, updatedCheckin.user!.discord_id), false)
+            await CheckinAudit.closeClarificationThread(thread, threadMsg)
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)

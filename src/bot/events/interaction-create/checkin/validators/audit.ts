@@ -115,9 +115,9 @@ ${checkin.public_id}
         return checkinStreak.checkins!
     }
 
-    static closeClarificationThread(thread: ThreadChannel, threadMessage: Message) {
-        threadMessage.react('🔥')
-        thread.setLocked(true)
-        thread.setArchived(true)
+    static async closeClarificationThread(thread: ThreadChannel, threadMessage: Message) {
+        await threadMessage.react('🔥')
+        await thread.setLocked(true)
+        await thread.setArchived(true)
     }
 }
