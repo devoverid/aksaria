@@ -37,7 +37,7 @@ registerInteractionHandler({
 
             const statusMessageLink = messageLink(interaction.channelId, interaction.message.id, interaction.guildId)
 
-            await sendReply(interaction, CheckinStatus.MSG.LastCheckinNote(checkinLink, statusMessageLink))
+            await sendReply(interaction, CheckinStatus.MSG.LastCheckinNote(interaction.guild.name, checkinLink, statusMessageLink))
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)

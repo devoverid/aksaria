@@ -19,14 +19,14 @@ export class CheckinMessage extends DiscordAssert {
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
-        CheckinSuccess: (todo: string) => `
+        CheckinSuccess: (guildName: string, todo: string) => `
 # ✅ Check-In Baru Terdeteksi!
 *Kindly take a look and do a review for this one, <@&${FLAMEWARDEN_ROLE}>*
 
 ⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆
 ${todo}
 
-> ${DUMMY.FOOTER}`,
+> ${DUMMY.FOOTER(guildName)}`,
 
         GrinderDetails: (checkin: Checkin, lastCheckin?: Checkin) => `
 ✨─────✨/✨━━━━✨

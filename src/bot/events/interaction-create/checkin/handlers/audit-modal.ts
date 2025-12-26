@@ -58,9 +58,9 @@ registerInteractionHandler({
 
             const embed = createEmbed(
                 `🔥 Audit Check-In Telah Diselesaikan`,
-                CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, flamewarden.id, updatedCheckin.user!.discord_id),
+                CheckinAudit.MSG.AuditSuccess(interaction.guild.name, updatedCheckin.link!, flamewarden.id, updatedCheckin.user!.discord_id),
                 DUMMY.COLOR,
-                { text: DUMMY.FOOTER },
+                { text: DUMMY.FOOTER(interaction.guild.name) },
             )
 
             await sendReply(interaction, '', false, { embeds: [embed], allowedMentions: { users: [updatedCheckin.user!.discord_id] } })

@@ -1,6 +1,6 @@
 import type { Checkin } from '@type/checkin'
 import type { DiscordCustomIdMetadata } from '@type/discord-component'
-import type { EmbedFooterOptions } from 'discord.js'
+import type { EmbedAuthorOptions, EmbedFooterOptions } from 'discord.js'
 import { ALPHABETS, CUSTOM_ID_SEPARATOR, SNOWFLAKE_MARKER } from '@constants'
 import { EmbedBuilder, LabelBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { parseHexColor } from './color'
@@ -73,10 +73,13 @@ export const getTempToken = () => Math.random().toString(36).slice(2, 8)
 export const tempStore = new Map<string, any>()
 
 export function createEmbed(
-    title?: string | null | undefined,
-    desc?: string | null | undefined,
-    color?: string | null,
-    footer?: EmbedFooterOptions | null | undefined,
+    title: string | null | undefined = null,
+    desc: string | null | undefined = null,
+    color: string | null = null,
+    footer: EmbedFooterOptions | null | undefined = null,
+    author: EmbedAuthorOptions | null | undefined = null,
+    thumbnail: string | null | undefined = null,
+    image: string | null | undefined = null,
     date: boolean = true,
 ): EmbedBuilder {
     const embed = new EmbedBuilder()
@@ -89,10 +92,16 @@ export function createEmbed(
         embed.setDescription(desc)
     if (parsedColor)
         embed.setColor(parsedColor)
-    if (date)
-        embed.setTimestamp(new Date())
     if (footer)
         embed.setFooter(footer)
+    if (author)
+        embed.setAuthor(author)
+    if (thumbnail)
+        embed.setThumbnail(thumbnail)
+    if (image)
+        embed.setImage(image)
+    if (date)
+        embed.setTimestamp(new Date())
 
     return embed
 }

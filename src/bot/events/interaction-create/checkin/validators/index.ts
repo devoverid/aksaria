@@ -11,7 +11,7 @@ import { AURA_FARMING_CHANNEL, CHECKIN_CHANNEL, GRINDER_ROLE } from '@config/dis
 import { SubmittedCheckinError } from '@events/message-reaction-add/checkin/handlers/submitted'
 import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
-import { DiscordAssert, getChannelOrThread, sendAsBot } from '@utils/discord'
+import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { attachNewGrindRole, getGrindRoleByStreakCount } from '@utils/discord/roles'
 import { DUMMY } from '@utils/placeholder'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
@@ -155,7 +155,7 @@ export class Checkin extends CheckinMessage {
             return
 
         const hasGrindRole = this.isMemberHasRole(member, newRole.id)
-        const channel = await getChannelOrThread(guild, AURA_FARMING_CHANNEL) as TextChannel
+        const channel = await getChannel(guild, AURA_FARMING_CHANNEL) as TextChannel
         this.assertChannel(channel)
 
         if (!hasGrindRole) {
@@ -166,7 +166,7 @@ export class Checkin extends CheckinMessage {
             })
         }
         else {
-            const checkinChannel = await getChannelOrThread(guild, CHECKIN_CHANNEL) as TextChannel
+            const checkinChannel = await getChannel(guild, CHECKIN_CHANNEL) as TextChannel
             await sendAsBot(null, checkinChannel, {
                 content: `Hey, <@${member.id}>. You already have <@&${newRole.id}>`,
                 allowedMentions: { users: [member.id], roles: [] },
@@ -516,7 +516,7 @@ export class Checkin extends CheckinMessage {
             `🎉 *Check-In* Berhasil`,
             this.MSG.CheckinSuccessToMember(checkin),
             DUMMY.COLOR,
-            { text: DUMMY.FOOTER },
+            { text: DUMMY.FOOTER(member.guild.name) },
         )
 
         await member.send({ embeds: [embed] })
@@ -531,7 +531,7 @@ export class Checkin extends CheckinMessage {
                     `⚠️ *Check-In* Ditolak`,
                     this.MSG.CheckinRejected(flamewarden, checkin),
                     '#D9534F',
-                    { text: DUMMY.FOOTER },
+                    { text: DUMMY.FOOTER(member.guild.name) },
                 )
                 break
 
@@ -540,7 +540,7 @@ export class Checkin extends CheckinMessage {
                     `🔥 *Check-In* Disetujui`,
                     this.MSG.CheckinApproved(flamewarden, checkin),
                     '#4CAF50',
-                    { text: DUMMY.FOOTER },
+                    { text: DUMMY.FOOTER(member.guild.name) },
                 )
                 break
 

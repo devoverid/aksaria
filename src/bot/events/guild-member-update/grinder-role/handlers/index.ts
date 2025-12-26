@@ -1,8 +1,8 @@
 import type { TextChannel } from 'discord.js'
-import { GRIND_ASHES_CHANNEL, GRINDER_ROLE } from '@config/discord'
+import { AURA_FARMING_CHANNEL, GRINDER_ROLE } from '@config/discord'
 import { registerGuildMemberUpdateHandler } from '@events/guild-member-update/registry'
 import { EVENT_PATH } from '@events/index'
-import { getChannelOrThread, sendAsBot } from '@utils/discord'
+import { getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { GrinderRole } from '../validators'
@@ -18,7 +18,6 @@ const moduleName = getModuleName(EVENT_PATH, __filename)
 registerGuildMemberUpdateHandler({
     desc: 'Watches grinder role assignment/removal for members on guild member update.',
     errorTag: () => `${moduleName}: ${GrinderRole.ERR.UnexpectedGrinderRole}`,
-    match: (_, newMember) => GrinderRole.isMemberHasRole(newMember, GRINDER_ROLE),
     async exec(_, oldMember, newMember) {
         try {
             if (!newMember.guild)
@@ -27,7 +26,7 @@ registerGuildMemberUpdateHandler({
             const newHasGrinderRole = GrinderRole.isMemberHasRole(newMember, GRINDER_ROLE)
             const oldHasGrinderRole = GrinderRole.isMemberHasRole(oldMember, GRINDER_ROLE)
             if (newHasGrinderRole && !oldHasGrinderRole) {
-                const channel = await getChannelOrThread(newMember.guild, GRIND_ASHES_CHANNEL) as TextChannel
+                const channel = await getChannel(newMember.guild, AURA_FARMING_CHANNEL) as TextChannel
                 GrinderRole.assertChannel(channel)
                 const button = GrinderRole.generateButton(newMember.guild.id)
 

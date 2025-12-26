@@ -76,10 +76,10 @@ ${checkin.public_id}
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,
-        LastCheckin: (userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
+        LastCheckin: (guildName: string, userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
 tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
-Namun demikian, percikan terakhir masih tersimpan dalam arsip Aksaria dan dapat ditinjau kembali.
+Namun demikian, percikan terakhir masih tersimpan dalam arsip ${guildName} dan dapat ditinjau kembali.
 
 Berikut adalah *check-in* terakhir yang pernah Tuan/Nona torehkan:
 🆔 **Check-In ID**:
@@ -99,9 +99,9 @@ ${flamewarden?.displayName
     : ''}
 > *"[Percikan ini](${checkin.link}) pernah kau titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
         `,
-        LastCheckinNote: (checkinLink: string, statusLink: string) => `
+        LastCheckinNote: (guildName: string, checkinLink: string, statusLink: string) => `
 Apabila Tuan/Nona meyakini bahwa [*check-in*](${checkinLink}) belum sempat ditinjau oleh <@&${FLAMEWARDEN_ROLE}>,
-maka Aksaria membuka ruang klarifikasi dengan tata cara sebagai berikut:
+maka ${guildName} membuka ruang klarifikasi dengan tata cara sebagai berikut:
 Ⅰ. Berikan reaksi ❓ pada pesan [*status check-in*](${statusLink}) ini.
 Ⅱ. Sebuah *thread* khusus akan tercipta secara otomatis.
 Ⅲ. Gunakan *thread* tersebut untuk berkomunikasi dan mengajukan peninjauan kepada <@&${FLAMEWARDEN_ROLE}>.
