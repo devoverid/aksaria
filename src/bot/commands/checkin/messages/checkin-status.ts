@@ -1,6 +1,6 @@
 import type { Checkin } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
-import type { GuildMember } from 'discord.js'
+import type { GuildMember, PublicThreadChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE, IGNITE_PATH_CHANNEL } from '@config/discord'
 import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
@@ -13,6 +13,20 @@ export class CheckinStatusMessage extends DiscordAssert {
 
     static override readonly MSG = {
         ...DiscordAssert.MSG,
+        ThreadName: (publicId: string) => `❓ Klarifikasi Check-In #${publicId}`,
+        ThreadReason: (userTag: string) => `Check-in clarification requested by ${userTag}`,
+        ThreadContent: (checkin: Checkin) => `
+👤 <@${checkin.user!.discord_id}> meminta klarifikasi untuk [*check-in*](${checkin.link!}) ini.
+🔥 <@&${FLAMEWARDEN_ROLE}> mohon ditinjau.
+        `,
+        ThreadCreated: (thread: PublicThreadChannel) => `
+✅ Sebuah thread klarifikasi telah dibuat:
+
+**${thread.name}**  
+🔗 [Lihat Thread](${thread.url})
+
+Silakan gunakan thread ini untuk mendiskusikan detail *check-in* bersama <@&${FLAMEWARDEN_ROLE}>.
+        `,
         NoCheckin: (userDiscordId: string, checkinStreak: CheckinStreak | undefined) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
 Nyala api Tuan/Nona belum dinyalakan hari ini.
