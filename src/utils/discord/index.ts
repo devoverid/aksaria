@@ -1,7 +1,7 @@
 import type { Attachment, ChatInputCommandInteraction, ClientUser, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel, ThreadChannel } from 'discord.js'
 import { MessageFlags } from 'discord.js'
 
-export async function getChannel(guild: Guild, id: string, isThread: boolean = false): Promise<TextChannel | ThreadChannel> {
+export async function getChannelOrThread(guild: Guild, id: string, isThread: boolean = false): Promise<TextChannel | ThreadChannel> {
     if (isThread) {
         return guild!.channels.cache.get(id) as TextChannel ?? await guild!.channels.fetch(id).then(channel => channel as TextChannel)
     }

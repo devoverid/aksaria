@@ -1,7 +1,7 @@
 import type { ClientUser, Guild, GuildMember, Message, Role, TextChannel, ThreadAutoArchiveDuration, ThreadChannel } from 'discord.js'
 import { getTempToken, parseMessageLink, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
-import { getBotPerms, getChannel, getMissPerms } from '.'
+import { getBotPerms, getChannelOrThread, getMissPerms } from '.'
 import { DiscordBaseError } from './error'
 import { DiscordMessage } from './message'
 
@@ -102,7 +102,7 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.AllowedChannel(channelId))
         }
 
-        const channel = await getChannel(guild, channelId) as TextChannel
+        const channel = await getChannelOrThread(guild, channelId) as TextChannel
         this.assertChannel(channel)
 
         return channel
@@ -126,7 +126,7 @@ export class DiscordAssert extends DiscordMessage {
     }
 
     static async assertThreadUnderChannel(guild: Guild, currentChannelId: string, parentChannel: TextChannel) {
-        const thread = await getChannel(guild, currentChannelId) as ThreadChannel
+        const thread = await getChannelOrThread(guild, currentChannelId) as ThreadChannel
 
         if (!thread.isThread())
             throw new DiscordAssertError(this.ERR.MustBeThread(parentChannel.id))
