@@ -1,7 +1,6 @@
 import type { Checkin } from '@type/checkin'
 import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
-import { DUMMY } from '@utils/placeholder'
 
 export class CheckinAuditMessage extends DiscordAssert {
     static override readonly ERR = {
@@ -23,7 +22,7 @@ Wahai Tuan/Nona <@${userDiscordId}>,
 🗓 **Audited At**: ${getParsedNow(getNow())}
 👀 **Audited By**: <@${flamewardenId}>
 
-> ${DUMMY.FOOTER}
+> *"Api telah diuji, dan keputusannya kini tercatat dalam Aksaria."*
         `,
     }
 }

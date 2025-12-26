@@ -3,10 +3,11 @@ import type { ThreadChannel } from 'discord.js'
 import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
-import { generateCustomId } from '@utils/component'
+import { createEmbed, generateCustomId } from '@utils/component'
 import { sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
+import { DUMMY } from '@utils/placeholder'
 import { Checkin } from '../validators'
 import { CheckinAudit } from '../validators/audit'
 
@@ -55,7 +56,14 @@ registerInteractionHandler({
                 true,
             )
 
-            await sendReply(interaction, CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, flamewarden.id, updatedCheckin.user!.discord_id), false)
+            const embed = createEmbed(
+                `🔥 Audit Check-In Telah Diselesaikan`,
+                CheckinAudit.MSG.AuditSuccess(updatedCheckin.link!, flamewarden.id, updatedCheckin.user!.discord_id),
+                DUMMY.COLOR,
+                { text: DUMMY.FOOTER },
+            )
+
+            await sendReply(interaction, '', false, { embeds: [embed], allowedMentions: { users: [updatedCheckin.user!.discord_id] } })
             await CheckinAudit.closeClarificationThread(thread, threadMsg)
         }
         catch (err: any) {
