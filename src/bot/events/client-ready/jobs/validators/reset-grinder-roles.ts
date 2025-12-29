@@ -2,13 +2,13 @@ import type { PrismaClient } from '@generatedDB/client'
 import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Guild, GuildMember, Interaction, InteractionReplyOptions, Message, PublicThreadChannel, TextChannel } from 'discord.js'
+import type { Guild, GuildMember, Interaction, InteractionReplyOptions, Message, PublicThreadChannel, TextChannel, ThreadChannel } from 'discord.js'
 import { CheckinStatus } from '@commands/checkin/validators/checkin-status'
 import { FLAMEWARDEN_ROLE, getGrindRoles, GRINDER_ROLE } from '@config/discord'
 import { GOODBYE_NOTE_BUTTON_ID, ResetGrinderRolesButtonError } from '@events/interaction-create/jobs/handlers/reset-grinder-roles-button'
 import { decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
-import { DiscordAssert, sendAsBot } from '@utils/discord'
+import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { log } from '@utils/logger'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { ResetGrinderRolesMessage } from '../messages/reset-grinder-roles'
@@ -18,19 +18,25 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         ...DiscordAssert.BASE_PERMS,
     ]
 
-    static getButtonId(interaction: Interaction, customId: string) {
-        const [prefix, guildId] = decodeSnowflakes(customId)
+    static async getButtonId(interaction: Interaction, customId: string) {
+        const [prefix, guildId, threadId] = decodeSnowflakes(customId)
 
         if (!guildId)
             throw new ResetGrinderRolesButtonError(this.ERR.GuildMissing)
         if (interaction.guildId !== guildId)
             throw new ResetGrinderRolesButtonError(this.ERR.NotGuild)
+        if (!threadId)
+            throw new ResetGrinderRolesButtonError(this.ERR.ThreadIdMissing)
 
-        return { prefix, guildId }
+        const thread = await getChannel(interaction.guild!, threadId, true) as ThreadChannel
+        if (!thread)
+            throw new ResetGrinderRolesButtonError(this.ERR.ThreadNotFound)
+
+        return { prefix, guildId, thread }
     }
 
-    static generateButton(guildId: string): ActionRowBuilder<ButtonBuilder> {
-        const noteButtonId = getCustomId([GOODBYE_NOTE_BUTTON_ID, encodeSnowflake(guildId)])
+    static generateButton(guildId: string, thread: ThreadChannel): ActionRowBuilder<ButtonBuilder> {
+        const noteButtonId = getCustomId([GOODBYE_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(thread.id)])
         const noteButton = new ButtonBuilder()
             .setCustomId(noteButtonId)
             .setLabel('📜 Ketentuan Peninjauan Api')
@@ -104,7 +110,7 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
                 allowedMentions: { users: [member.id], roles: [] },
             }
             if (thread)
-                payloads.components = [this.generateButton(guild.id)]
+                payloads.components = [this.generateButton(guild.id, thread)]
 
             await sendAsBot(
                 null,
