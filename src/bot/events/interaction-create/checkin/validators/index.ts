@@ -4,7 +4,7 @@ import type { Attachment as AttachmentType } from '@type/attachment'
 import type { CheckinAllowedEmojiType, CheckinColumn, CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Attachment, Client, EmbedBuilder, Guild, GuildMember, Interaction, Message, TextChannel } from 'discord.js'
+import type { ActionRow, Attachment, ButtonComponent, Client, EmbedBuilder, Guild, GuildMember, Interaction, Message, TextChannel } from 'discord.js'
 import crypto from 'node:crypto'
 import { CheckinError } from '@commands/checkin/handlers'
 import { AURA_FARMING_CHANNEL, CHECKIN_CHANNEL, GRINDER_ROLE } from '@config/discord'
@@ -37,6 +37,12 @@ export class Checkin extends CheckinMessage {
         '❌': 'REJECTED',
         '🔥': 'APPROVED',
     }
+
+    static readonly CHECKIN_DELETED_BUTTONS = [
+        CHECKIN_APPROVE_BUTTON_ID,
+        CHECKIN_REJECT_BUTTON_ID,
+        CHECKIN_CUSTOM_BUTTON_ID,
+    ]
 
     static REVERSED_EMOJI_STATUS = Object.fromEntries(
         Object.entries(this.EMOJI_STATUS).map(([emoji, status]) => [status, emoji]),
@@ -439,7 +445,7 @@ export class Checkin extends CheckinMessage {
         const message = await checkinChannel.messages.fetch(messageId)
 
         await this.validateCheckinHandleToUser(guild, flamewarden, updatedCheckin.user!.discord_id, updatedCheckin)
-        await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
+        await this.editSubmittedCheckinMessage(message, checkinStatus)
 
         return updatedCheckin
     }
@@ -455,6 +461,26 @@ export class Checkin extends CheckinMessage {
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
         await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)
+    }
+
+    static async editSubmittedCheckinMessage(message: Message, checkinStatus: CheckinStatusType) {
+        await message.react(this.REVERSED_EMOJI_STATUS[checkinStatus])
+
+        const newRows = this.getNewButtons(message.components as ActionRow<ButtonComponent>[])
+        await message.edit({ components: newRows })
+    }
+
+    static getNewButtons(components: readonly ActionRow<ButtonComponent>[]): ActionRowBuilder<ButtonBuilder>[] {
+        return components
+            .map((row) => {
+                const buttons = row.components
+                    .filter(btn => btn.customId && !this.CHECKIN_DELETED_BUTTONS.some(id => btn.customId!.startsWith(id)))
+                    .map(btn => ButtonBuilder.from(btn))
+                const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons)
+
+                return buttons.length ? newRow : null
+            })
+            .filter((row): row is ActionRowBuilder<ButtonBuilder> => row !== null)
     }
 
     static async updateCheckinMsgLink(interaction: Interaction, prisma: PrismaClient, checkin: CheckinType, msg: Message): Promise<CheckinType> {
