@@ -15,8 +15,8 @@ export class CheckinStatusMessage extends DiscordAssert {
         ...DiscordAssert.MSG,
         ThreadName: (publicId: string) => `❓ Klarifikasi Check-In #${publicId}`,
         ThreadReason: (userTag: string) => `Check-in clarification requested by ${userTag}`,
-        ThreadContent: (checkin: Checkin) => `
-👤 <@${checkin.user!.discord_id}> meminta klarifikasi untuk [*check-in*](${checkin.link!}) ini.
+        ThreadContent: (discordId: string, checkin: Checkin) => `
+👤 <@${discordId}> meminta klarifikasi untuk [*check-in*](${checkin.link!}) ini.
 🔥 <@&${FLAMEWARDEN_ROLE}> mohon ditinjau.
 
 Teristimewa untuk <@&${FLAMEWARDEN_ROLE}>, silakan gunakan *command* **\`/checkin-audit\`** untuk melakukan *review* terhadap *check-in*.

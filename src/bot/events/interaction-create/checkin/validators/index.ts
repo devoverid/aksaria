@@ -208,18 +208,6 @@ export class Checkin extends CheckinMessage {
         return emoji as CheckinAllowedEmojiType
     }
 
-    static assertWaitingCheckin(checkinStatus: CheckinStatusType, checkinMsgLink: string) {
-        if (checkinStatus !== 'WAITING') {
-            throw new SubmittedCheckinError(this.ERR.NotWaitingCheckin(checkinMsgLink))
-        }
-    }
-
-    static assertOwnedCheckin(checkinUserDiscordId: string, currentUserId: string) {
-        if (checkinUserDiscordId !== currentUserId) {
-            throw new SubmittedCheckinError(this.ERR.NotYourCheckin)
-        }
-    }
-
     static async getOrCreateUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
         const select = {
             id: true,
