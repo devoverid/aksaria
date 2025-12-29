@@ -42,6 +42,10 @@ export class Checkin extends CheckinMessage {
         Object.entries(this.EMOJI_STATUS).map(([emoji, status]) => [status, emoji]),
     ) as Record<CheckinStatusType, CheckinAllowedEmojiType>
 
+    static getCheckinIdRegex() {
+        return new RegExp(`${this.PUBLIC_ID_PREFIX}[A-Z0-9]+`, 'i')
+    }
+
     static getModalId(interaction: Interaction, customId: string) {
         const [prefix, guildId, tempToken] = decodeSnowflakes(customId)
 
