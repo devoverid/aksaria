@@ -31,7 +31,9 @@ registerInteractionHandler({
             const channel = interaction.channel as TextChannel
             ResetGrinderRoles.assertMissPerms(interaction.client.user, channel)
 
-            await sendReply(interaction, ResetGrinderRoles.MSG.GoodByeNotes)
+            const { thread } = await ResetGrinderRoles.getButtonId(interaction, interaction.customId)
+
+            await sendReply(interaction, ResetGrinderRoles.MSG.GoodByeNotes(thread))
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)

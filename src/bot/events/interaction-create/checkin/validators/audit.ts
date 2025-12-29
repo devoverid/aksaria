@@ -53,6 +53,9 @@ export class CheckinAudit extends CheckinAuditMessage {
     }
 
     static assertCheckinWithOldestWaiting(currCheckin: CheckinType, checkins: CheckinType[]) {
+        if (!checkins.length)
+            throw new CheckinAuditError(CheckinAudit.ERR.NoOldestCheckins)
+
         const oldestWaitingCheckin = checkins[0]
 
         const diffMs = Math.abs(currCheckin.created_at.getTime() - oldestWaitingCheckin.created_at.getTime())
@@ -78,6 +81,30 @@ ${checkin.public_id}
             }
             throw new CheckinAuditError(CheckinAudit.ERR.CheckinNotDiffWithinDay(oldestWaitingCheckin, waitingCheckinList))
         }
+    }
+
+    static assertCheckinIdFromThread(thread: ThreadChannel, threadMsg: Message): string {
+        const threadName = thread.name
+        const embeds = threadMsg.embeds
+        if (!embeds || !embeds.length)
+            throw new CheckinAuditError(this.ERR.ThreadMessageMissingEmbed)
+
+        const embedTitle = embeds[0].title
+        if (!embedTitle)
+            throw new CheckinAuditError(this.ERR.ThreadMessageMissingTitle)
+
+        const idRegex = Checkin.getCheckinIdRegex()
+        const nameMatch = threadName.match(idRegex)
+        const titleMatch = embedTitle.match(idRegex)
+        if (!nameMatch || !titleMatch)
+            throw new CheckinAuditError(this.ERR.ThreadOrEmbedMissingId)
+
+        const threadId = nameMatch[0]
+        const embedId = titleMatch[0]
+        if (threadId !== embedId)
+            throw new CheckinAuditError(this.ERR.ThreadIdEmbedIdMismatch)
+
+        return threadId
     }
 
     static async assertExistCheckinId(prisma: PrismaClient, checkinId: string) {

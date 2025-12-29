@@ -42,6 +42,10 @@ export class Checkin extends CheckinMessage {
         Object.entries(this.EMOJI_STATUS).map(([emoji, status]) => [status, emoji]),
     ) as Record<CheckinStatusType, CheckinAllowedEmojiType>
 
+    static getCheckinIdRegex() {
+        return new RegExp(`${this.PUBLIC_ID_PREFIX}[A-Z0-9]+`, 'i')
+    }
+
     static getModalId(interaction: Interaction, customId: string) {
         const [prefix, guildId, tempToken] = decodeSnowflakes(customId)
 
@@ -206,18 +210,6 @@ export class Checkin extends CheckinMessage {
         }
 
         return emoji as CheckinAllowedEmojiType
-    }
-
-    static assertWaitingCheckin(checkinStatus: CheckinStatusType, checkinMsgLink: string) {
-        if (checkinStatus !== 'WAITING') {
-            throw new SubmittedCheckinError(this.ERR.NotWaitingCheckin(checkinMsgLink))
-        }
-    }
-
-    static assertOwnedCheckin(checkinUserDiscordId: string, currentUserId: string) {
-        if (checkinUserDiscordId !== currentUserId) {
-            throw new SubmittedCheckinError(this.ERR.NotYourCheckin)
-        }
     }
 
     static async getOrCreateUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {

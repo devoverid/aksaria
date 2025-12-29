@@ -94,6 +94,8 @@ export async function sendAsBot(
     const msg = await channel.send(opts)
     if (isTempMessage)
         setTimeout(() => msg?.delete().catch(() => {}), 5000)
+
+    return msg
 }
 
 export * from './assert'

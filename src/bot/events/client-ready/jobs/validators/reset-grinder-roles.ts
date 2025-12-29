@@ -1,12 +1,14 @@
 import type { PrismaClient } from '@generatedDB/client'
+import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Guild, GuildMember, Interaction, TextChannel } from 'discord.js'
-import { getGrindRoles, GRINDER_ROLE } from '@config/discord'
+import type { Guild, GuildMember, Interaction, InteractionReplyOptions, Message, PublicThreadChannel, TextChannel, ThreadChannel } from 'discord.js'
+import { CheckinStatus } from '@commands/checkin/validators/checkin-status'
+import { FLAMEWARDEN_ROLE, getGrindRoles, GRINDER_ROLE } from '@config/discord'
 import { GOODBYE_NOTE_BUTTON_ID, ResetGrinderRolesButtonError } from '@events/interaction-create/jobs/handlers/reset-grinder-roles-button'
 import { decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
-import { DiscordAssert, sendAsBot } from '@utils/discord'
+import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
 import { log } from '@utils/logger'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { ResetGrinderRolesMessage } from '../messages/reset-grinder-roles'
@@ -16,19 +18,25 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         ...DiscordAssert.BASE_PERMS,
     ]
 
-    static getButtonId(interaction: Interaction, customId: string) {
-        const [prefix, guildId] = decodeSnowflakes(customId)
+    static async getButtonId(interaction: Interaction, customId: string) {
+        const [prefix, guildId, threadId] = decodeSnowflakes(customId)
 
         if (!guildId)
             throw new ResetGrinderRolesButtonError(this.ERR.GuildMissing)
         if (interaction.guildId !== guildId)
             throw new ResetGrinderRolesButtonError(this.ERR.NotGuild)
+        if (!threadId)
+            throw new ResetGrinderRolesButtonError(this.ERR.ThreadIdMissing)
 
-        return { prefix, guildId }
+        const thread = await getChannel(interaction.guild!, threadId, true) as ThreadChannel
+        if (!thread)
+            throw new ResetGrinderRolesButtonError(this.ERR.ThreadNotFound)
+
+        return { prefix, guildId, thread }
     }
 
-    static generateButton(guildId: string): ActionRowBuilder<ButtonBuilder> {
-        const noteButtonId = getCustomId([GOODBYE_NOTE_BUTTON_ID, encodeSnowflake(guildId)])
+    static generateButton(guildId: string, thread: ThreadChannel): ActionRowBuilder<ButtonBuilder> {
+        const noteButtonId = getCustomId([GOODBYE_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(thread.id)])
         const noteButton = new ButtonBuilder()
             .setCustomId(noteButtonId)
             .setLabel('📜 Ketentuan Peninjauan Api')
@@ -61,7 +69,28 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         }
     }
 
-    static async validateUsers(prisma: PrismaClient, guild: Guild, channel: TextChannel, users: User[]) {
+    static async validateWaitingCheckin(guild: Guild, auditFlameChannel: TextChannel, member: GuildMember, user: User, checkin: CheckinType): Promise<PublicThreadChannel | undefined> {
+        if (checkin && checkin.status as CheckinStatusType === 'WAITING') {
+            const { content, embed } = await CheckinStatus.getEmbedStatusContent(
+                guild,
+                user.discord_id,
+                checkin,
+            )
+            const message = await sendAsBot(null, auditFlameChannel, { embeds: [embed], allowedMentions: { roles: [FLAMEWARDEN_ROLE] }, content }) as Message
+            const thread = await message.startThread({
+                name: CheckinStatus.MSG.ThreadName(checkin.public_id),
+                reason: CheckinStatus.MSG.ThreadReason(member.user.tag),
+                autoArchiveDuration: CheckinStatus.THREAD_ARCHIVE_DURATION,
+            })
+
+            await thread.send({ content: CheckinStatus.MSG.ThreadContent(user.discord_id, checkin) })
+            await message.react(CheckinStatus.CLARIFICATION_EMOJI)
+
+            return thread
+        }
+    }
+
+    static async validateUsers(prisma: PrismaClient, guild: Guild, grindAshesChannel: TextChannel, auditFlameChannel: TextChannel, users: User[]) {
         for (const user of users) {
             const checkinStreak = user.checkin_streaks?.[0]
             if (!checkinStreak)
@@ -73,13 +102,20 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
 
             const member = await guild.members.fetch(user.discord_id)
             await this.removeGrinderRoles(member)
-            await this.breakCheckinStreakAt(prisma, checkinStreak)
-            const button = this.generateButton(guild.id)
+            await this.breakCheckinStreakAt(prisma, checkinStreak, lastCheckin!)
+            const thread = await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
+
+            const payloads: InteractionReplyOptions = {
+                content: ResetGrinderRoles.MSG.GoodBye(guild.name, member),
+                allowedMentions: { users: [member.id], roles: [] },
+            }
+            if (thread)
+                payloads.components = [this.generateButton(guild.id, thread)]
 
             await sendAsBot(
                 null,
-                channel,
-                { content: ResetGrinderRoles.MSG.GoodBye(guild.name, member), components: [button], allowedMentions: { users: [member.id], roles: [] } },
+                grindAshesChannel,
+                payloads,
             )
 
             log.info(this.MSG.RemoveGrinderRoleFrom(member))
@@ -100,6 +136,7 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
                         checkins: {
                             orderBy: { created_at: 'desc' },
                             take: 1,
+                            include: { checkin_streak: true },
                         },
                     },
                 },
@@ -109,13 +146,15 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         return users
     }
 
-    static async breakCheckinStreakAt(prisma: PrismaClient, checkinStreak: CheckinStreak) {
-        await prisma.checkinStreak.update({
+    static async breakCheckinStreakAt(prisma: PrismaClient, checkinStreak: CheckinStreak, checkin: CheckinType) {
+        const streak = await prisma.checkinStreak.update({
             where: { id: checkinStreak.id },
             data: {
                 streak_broken_at: new Date(),
                 updated_at: new Date(),
             },
-        })
+        }) as CheckinStreak
+
+        checkin.checkin_streak = streak
     }
 }

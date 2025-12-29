@@ -1,4 +1,4 @@
-import type { ChatInputCommandInteraction, Client, GuildMember, InteractionReplyOptions } from 'discord.js'
+import type { ChatInputCommandInteraction, Client, GuildMember } from 'discord.js'
 import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { sendReply } from '@utils/discord'
@@ -31,17 +31,13 @@ registerCommand({
             const userDiscordId: string = interaction.user.id
             const user = await CheckinStatus.getUser(client.prisma, userDiscordId)
 
-            const { content, embed, buttons } = await CheckinStatus.getEmbedStatusContent(
+            const { content, embed } = await CheckinStatus.getEmbedStatusContent(
                 interaction.guild,
                 user?.discord_id ?? member.id,
                 user?.checkins?.[0],
             )
 
-            const payloads = { embeds: [embed], allowedMentions: { roles: [FLAMEWARDEN_ROLE] } } as InteractionReplyOptions
-            if (buttons)
-                payloads.components = [buttons]
-
-            await sendReply(interaction, content, false, payloads)
+            await sendReply(interaction, content, false, { embeds: [embed], allowedMentions: { roles: [FLAMEWARDEN_ROLE] } })
         }
         catch (err: any) {
             if (err instanceof DiscordBaseError)

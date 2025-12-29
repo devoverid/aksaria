@@ -21,6 +21,8 @@ export class DiscordMessage {
         CannotPost: '❌ I can’t post in that channel',
         MessageIdMissing: '❌ Message ID is missing or invalid',
         MessageLinkInvalid: '❌ The provided message link is invalid',
+        ThreadIdMissing: '❌ Thread ID is missing or invalid',
+        ThreadNotFound: '❌ The specified thread could not be found',
         ChannelAlreadyHasThread: '❌ This channel message already has an associated thread',
         MustBeThread: (parentChannelId: string) => `❌ This action can only be performed in a thread under <#${parentChannelId}>`,
         ArchivedThread: '❌ This thread is archived',

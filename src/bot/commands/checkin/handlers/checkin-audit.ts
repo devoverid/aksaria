@@ -18,12 +18,7 @@ export class CheckinAuditError extends DiscordBaseError {
 registerCommand({
     data: new SlashCommandBuilder()
         .setName('checkin-audit')
-        .setDescription('Review an old check-in using its public ID.')
-        .addStringOption(opt =>
-            opt.setName('checkin-id')
-                .setDescription('Check-In ID (e.g., CHK-A1B2C3)')
-                .setRequired(true),
-        ),
+        .setDescription('Review an old check-in using its public ID.'),
 
     async execute(client: Client, interaction: ChatInputCommandInteraction) {
         try {
@@ -41,7 +36,7 @@ registerCommand({
             CheckinAudit.assertMember(flamewarden)
             CheckinAudit.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
-            const checkinId = interaction.options.getString('checkin-id', true)
+            const checkinId = CheckinAudit.assertCheckinIdFromThread(thread, threadMsg)
             const checkin = await CheckinAudit.assertExistCheckinId(client.prisma, checkinId)
             CheckinAudit.assertClarificationThread(thread, checkin.public_id)
             CheckinAudit.assertCheckinNotToday(checkin)

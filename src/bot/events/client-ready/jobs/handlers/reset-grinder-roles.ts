@@ -1,6 +1,6 @@
 import type { Client, TextChannel } from 'discord.js'
 import process from 'node:process'
-import { GRIND_ASHES_CHANNEL } from '@config/discord'
+import { AUDIT_FLAME_CHANNEL, GRIND_ASHES_CHANNEL } from '@config/discord'
 import { registerClientReadyHandler } from '@events/client-ready/registry'
 import { EVENT_PATH } from '@events/index'
 import { getChannel } from '@utils/discord'
@@ -27,11 +27,13 @@ registerClientReadyHandler({
                 log.check(ResetGrinderRoles.MSG.JobRunning)
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
-                const channel = await getChannel(guild, GRIND_ASHES_CHANNEL) as TextChannel
-                ResetGrinderRoles.assertChannel(channel)
+                const grindAshesChannel = await getChannel(guild, GRIND_ASHES_CHANNEL) as TextChannel
+                ResetGrinderRoles.assertChannel(grindAshesChannel)
+                const auditFlameChannel = await getChannel(guild, AUDIT_FLAME_CHANNEL) as TextChannel
+                ResetGrinderRoles.assertChannel(auditFlameChannel)
                 const users = await ResetGrinderRoles.getUsersWithLatestStreak(client.prisma)
 
-                await ResetGrinderRoles.validateUsers(client.prisma, guild, channel, users)
+                await ResetGrinderRoles.validateUsers(client.prisma, guild, grindAshesChannel, auditFlameChannel, users)
 
                 log.success(ResetGrinderRoles.MSG.JobSuccess)
             })

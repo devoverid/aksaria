@@ -3,14 +3,12 @@ import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { User } from '@type/user'
 import type { EmbedBuilder, Guild, Interaction, ThreadAutoArchiveDuration } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { CHECKIN_STATUS_CLARIFICATION_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-clarification-button'
-import { CHECKIN_STATUS_NOTE_BUTTON_ID } from '@events/interaction-create/checkin/handlers/status-note-button'
 import { Checkin } from '@events/interaction-create/checkin/validators'
-import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
+import { createEmbed, decodeSnowflakes } from '@utils/component'
 import { isDateYesterday } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
+import { messageLink, PermissionsBitField } from 'discord.js'
 import { CheckinStatusError } from '../handlers/checkin-status'
 import { CheckinStatusMessage } from '../messages/checkin-status'
 
@@ -98,7 +96,6 @@ export class CheckinStatus extends CheckinStatusMessage {
         }
 
         const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
-        const buttons = this.generateButtons(guild.id, checkin)
         embed = createEmbed(
             `🕯️ Check-In #${checkin.public_id}`,
             CheckinStatus.MSG.LastCheckin(guild.name, userDiscordId, checkin, flamewarden),
@@ -106,27 +103,7 @@ export class CheckinStatus extends CheckinStatusMessage {
             { text: DUMMY.FOOTER(guild.name) },
         )
 
-        return { content, embed, buttons }
-    }
-
-    static generateButtons(guildId: string, checkin: CheckinType): ActionRowBuilder<ButtonBuilder> | undefined {
-        if (checkin.status === 'WAITING') {
-            const { messageId } = this.getMessageFromLink(checkin.link!)
-
-            const noteButtonId = getCustomId([CHECKIN_STATUS_NOTE_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
-            const noteButton = new ButtonBuilder()
-                .setCustomId(noteButtonId)
-                .setLabel('📜 Maklumat Klarifikasi')
-                .setStyle(ButtonStyle.Primary)
-
-            const clarificationButtonId = getCustomId([CHECKIN_STATUS_CLARIFICATION_BUTTON_ID, encodeSnowflake(guildId), encodeSnowflake(messageId)])
-            const clarificationButton = new ButtonBuilder()
-                .setCustomId(clarificationButtonId)
-                .setLabel('❓ Ajukan Klarifikasi')
-                .setStyle(ButtonStyle.Success)
-
-            return new ActionRowBuilder<ButtonBuilder>().addComponents(noteButton, clarificationButton)
-        }
+        return { content, embed }
     }
 
     static async getUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
