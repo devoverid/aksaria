@@ -53,6 +53,9 @@ export class CheckinAudit extends CheckinAuditMessage {
     }
 
     static assertCheckinWithOldestWaiting(currCheckin: CheckinType, checkins: CheckinType[]) {
+        if (!checkins.length)
+            throw new CheckinAuditError(CheckinAudit.ERR.NoOldestCheckins)
+
         const oldestWaitingCheckin = checkins[0]
 
         const diffMs = Math.abs(currCheckin.created_at.getTime() - oldestWaitingCheckin.created_at.getTime())

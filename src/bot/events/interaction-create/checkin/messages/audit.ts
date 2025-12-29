@@ -11,6 +11,7 @@ export class CheckinAuditMessage extends DiscordAssert {
 ${waitingCheckinList}
         `,
         NotClarificationThread: '❌ This thread does not correspond to the correct check-in. Please make sure you are reviewing the correct clarification thread',
+        NoOldestCheckins: '❌ There are no waiting check-ins to audit for this user.',
         UnexpectedCheckinAudit: '❌ Something went wrong during the check-in audit',
     }
 
