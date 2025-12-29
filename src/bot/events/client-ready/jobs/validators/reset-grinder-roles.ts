@@ -2,7 +2,7 @@ import type { PrismaClient } from '@generatedDB/client'
 import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { User } from '@type/user'
-import type { Guild, GuildMember, Interaction, Message, PublicThreadChannel, TextChannel } from 'discord.js'
+import type { Guild, GuildMember, Interaction, InteractionReplyOptions, Message, PublicThreadChannel, TextChannel } from 'discord.js'
 import { CheckinStatus } from '@commands/checkin/validators/checkin-status'
 import { FLAMEWARDEN_ROLE, getGrindRoles, GRINDER_ROLE } from '@config/discord'
 import { GOODBYE_NOTE_BUTTON_ID, ResetGrinderRolesButtonError } from '@events/interaction-create/jobs/handlers/reset-grinder-roles-button'
@@ -95,14 +95,21 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
                 continue
 
             const member = await guild.members.fetch(user.discord_id)
-            await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
+            const thread = await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
             await this.removeGrinderRoles(member)
             await this.breakCheckinStreakAt(prisma, checkinStreak)
-            const button = this.generateButton(guild.id)
+
+            const payloads: InteractionReplyOptions = {
+                content: ResetGrinderRoles.MSG.GoodBye(guild.name, member),
+                allowedMentions: { users: [member.id], roles: [] },
+            }
+            if (thread)
+                payloads.components = [this.generateButton(guild.id)]
+
             await sendAsBot(
                 null,
                 grindAshesChannel,
-                { content: ResetGrinderRoles.MSG.GoodBye(guild.name, member), components: [button], allowedMentions: { users: [member.id], roles: [] } },
+                payloads,
             )
 
             log.info(this.MSG.RemoveGrinderRoleFrom(member))
