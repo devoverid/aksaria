@@ -101,9 +101,9 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
                 continue
 
             const member = await guild.members.fetch(user.discord_id)
-            const thread = await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
             await this.removeGrinderRoles(member)
-            await this.breakCheckinStreakAt(prisma, checkinStreak)
+            await this.breakCheckinStreakAt(prisma, checkinStreak, lastCheckin!)
+            const thread = await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
 
             const payloads: InteractionReplyOptions = {
                 content: ResetGrinderRoles.MSG.GoodBye(guild.name, member),
@@ -146,13 +146,15 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
         return users
     }
 
-    static async breakCheckinStreakAt(prisma: PrismaClient, checkinStreak: CheckinStreak) {
-        await prisma.checkinStreak.update({
+    static async breakCheckinStreakAt(prisma: PrismaClient, checkinStreak: CheckinStreak, checkin: CheckinType) {
+        const streak = await prisma.checkinStreak.update({
             where: { id: checkinStreak.id },
             data: {
                 streak_broken_at: new Date(),
                 updated_at: new Date(),
             },
-        })
+        }) as CheckinStreak
+
+        checkin.checkin_streak = streak
     }
 }
