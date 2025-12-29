@@ -27,7 +27,7 @@ Namun jangan berduka, jalan ini selalu terbuka bagi mereka yang bersedia memulai
 > Apabila *check-in* Tuan/Nona masih berada dalam status menunggu peninjauan (*waiting*) dan belum memperoleh keputusan hingga mendekati pergantian hari, maka dengan ini disampaikan ketentuan berikut:
 > Ⅰ. Jangan terlebih dahulu memasuki ⁠<#${IGNITE_PATH_CHANNEL}>, demi menjaga ketertiban alur peninjauan.
 > Ⅱ. Pada saat pergantian hari (pukul 00:00 WIB), sistem akan secara otomatis menampilkan arsip *check-in* terakhir Tuan/Nona di kanal <#${AUDIT_FLAME_CHANNEL}>, lengkap dengan penanda bahwa rangkaian nyala telah terputus.
-> Ⅲ. Bersamaan dengan pesan tersebut, sebuah *thread* klarifikasi (${thread.url}) akan tercipta secara otomatis, sebagai ruang resmi untuk peninjauan, penandaan, dan komunikasi antara Tuan/Nona dengan <@&${FLAMEWARDEN_ROLE}>.
+> Ⅲ. Bersamaan dengan pesan tersebut, sebuah [*thread* klarifikasi](${thread.url}) akan tercipta secara otomatis, sebagai ruang resmi untuk peninjauan, penandaan, dan komunikasi antara Tuan/Nona dengan <@&${FLAMEWARDEN_ROLE}>.
 > Ⅳ. Tuan/Nona dipersilakan menanti proses audit di dalam *thread* tersebut. Apabila diperlukan, Tuan/Nona dapat menyampaikan penjelasan tambahan atau melakukan penandaan dengan tertib, tanpa membuka *check-in* baru terlebih dahulu.
 > ⏳ Waktu peninjauan dan klarifikasi dibuka maksimal 1×24 jam sejak pesan arsip *check-in* tersebut ditampilkan.
         `,
