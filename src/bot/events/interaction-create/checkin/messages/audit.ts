@@ -11,7 +11,11 @@ export class CheckinAuditMessage extends DiscordAssert {
 ${waitingCheckinList}
         `,
         NotClarificationThread: '❌ This thread does not correspond to the correct check-in. Please make sure you are reviewing the correct clarification thread',
-        NoOldestCheckins: '❌ There are no waiting check-ins to audit for this user.',
+        NoOldestCheckins: '❌ There are no waiting check-ins to audit for this user',
+        ThreadMessageMissingEmbed: '❌ The thread message is missing the expected embed. Please ensure the clarification thread contains an embed',
+        ThreadMessageMissingTitle: '❌ The thread message embed is missing a title. Please ensure the embed contains a check-in ID in its title',
+        ThreadOrEmbedMissingId: '❌ Could not find the check-in ID in the thread name or in the embed title',
+        ThreadIdEmbedIdMismatch: '❌ The check-in ID in the thread name does not match the embed title. Please verify that you are reviewing the correct thread',
         UnexpectedCheckinAudit: '❌ Something went wrong during the check-in audit',
     }
 
