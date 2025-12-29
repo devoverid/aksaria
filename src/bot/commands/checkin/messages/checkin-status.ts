@@ -1,7 +1,7 @@
 import type { Checkin } from '@type/checkin'
 import type { CheckinStreak } from '@type/checkin-streak'
 import type { GuildMember, PublicThreadChannel } from 'discord.js'
-import { FLAMEWARDEN_ROLE, IGNITE_PATH_CHANNEL } from '@config/discord'
+import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { getNow, getParsedNow } from '@utils/date'
 import { DiscordAssert } from '@utils/discord'
 
@@ -97,18 +97,7 @@ ${flamewarden?.displayName
 👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
 ✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}`
     : ''}
-> *"[Percikan ini](${checkin.link}) pernah kau titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
-        `,
-        LastCheckinNote: (guildName: string, checkinLink: string, statusLink: string) => `
-Apabila Tuan/Nona meyakini bahwa [*check-in*](${checkinLink}) belum sempat ditinjau oleh <@&${FLAMEWARDEN_ROLE}>,
-maka ${guildName} membuka ruang klarifikasi dengan tata cara sebagai berikut:
-Ⅰ. Berikan reaksi ❓ pada pesan [*status check-in*](${statusLink}) ini.
-Ⅱ. Sebuah *thread* khusus akan tercipta secara otomatis.
-Ⅲ. Gunakan *thread* tersebut untuk berkomunikasi dan mengajukan peninjauan kepada <@&${FLAMEWARDEN_ROLE}>.
-
-⚠️ Ketentuan Penting:
-Selama proses klarifikasi berlangsung, Tuan/Nona tidak diperkenankan terlebih dahulu memasuki <#${IGNITE_PATH_CHANNEL}>, demi menjaga ketertiban alur peninjauan.
-Waktu klarifikasi dibuka maksimal 1x24 jam sejak *check-in* diajukan.
+> *"[Percikan ini](${checkin.link}) pernah kamu titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
         `,
     }
 }
