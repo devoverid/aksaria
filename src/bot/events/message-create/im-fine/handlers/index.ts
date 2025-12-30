@@ -17,6 +17,9 @@ registerMessageHandler({
     errorTag: () => `${moduleName}: ${ImFine.ERR.UnexpectedImFine}`,
     match: msg => !msg.author.bot && msg.content.includes('fine'),
     async exec(_, msg) {
+        if (!msg.guild || !msg.inGuild())
+            throw new ImFineError(ImFine.ERR.NotGuild)
+
         await msg.reply('gua I\'m fine😅')
     },
 })
