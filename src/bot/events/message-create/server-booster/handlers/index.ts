@@ -21,8 +21,8 @@ registerMessageHandler({
     match: msg => msg.system && msg.channelId === SYSTEM_ASHES_CHANNEL && !!msg.member && ServerBooster.isBoostSystemMessage(msg),
     async exec(_, msg) {
         try {
-            if (!msg.guild)
-                return
+            if (!msg.guild || !msg.inGuild())
+                throw new ServerBoosterError(ServerBooster.ERR.NotGuild)
 
             const channel = msg.channel as TextChannel
             ServerBooster.assertChannel(channel)

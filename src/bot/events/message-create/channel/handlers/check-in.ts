@@ -22,7 +22,7 @@ registerMessageHandler({
     match: msg => !msg.author.bot && msg.channel.id === CHECKIN_CHANNEL && msg.channel.type === ChannelType.GuildText,
     async exec(_, msg) {
         try {
-            if (!msg.guild)
+            if (!msg.guild || !msg.inGuild())
                 throw new CheckInError(CheckIn.ERR.NotGuild)
 
             const channel = msg.channel as TextChannel

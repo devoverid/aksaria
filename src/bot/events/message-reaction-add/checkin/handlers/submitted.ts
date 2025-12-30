@@ -21,7 +21,7 @@ registerReactionHandler({
         const message = reaction.message
         const guild = message.guild
         if (!guild || !message.inGuild())
-            return
+            throw new SubmittedCheckinError(Checkin.ERR.NotGuild)
 
         if (reaction.partial)
             await reaction.fetch()
