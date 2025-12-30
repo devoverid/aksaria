@@ -32,7 +32,7 @@ registerMessageHandler({
 
             const embed = ServerBooster.sayDeeplyThanksTo(member)
 
-            await sendAsBot(null, systemAshesChannel, {
+            await sendAsBot(null, auraFarmingChannel, {
                 content: ServerBooster.MSG.SpecialThanks,
                 embeds: [embed],
             })
