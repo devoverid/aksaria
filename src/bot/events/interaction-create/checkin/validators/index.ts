@@ -175,13 +175,6 @@ export class Checkin extends CheckinMessage {
                 allowedMentions: { users: [member.id], roles: [] },
             })
         }
-        else {
-            const checkinChannel = await getChannel(guild, CHECKIN_CHANNEL) as TextChannel
-            await sendAsBot(null, checkinChannel, {
-                content: `Hey, <@${member.id}>. You already have <@&${newRole.id}>`,
-                allowedMentions: { users: [member.id], roles: [] },
-            }, true)
-        }
     }
 
     static assertCheckinToday(user: User) {
