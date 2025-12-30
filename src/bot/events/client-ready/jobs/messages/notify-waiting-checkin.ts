@@ -31,5 +31,13 @@ dimohon para <@&${FLAMEWARDEN_ROLE}> berkenan:
         List: (checkin: Checkin) => `
 - 🔥 <@${checkin.user!.discord_id}> pada [${getParsedNow(checkin.created_at)}](${checkin.link})
         `,
+        Closing: `
+Apabila hingga pergantian hari *check-in* di atas belum ditinjau, maka rangkaian nyala para <@&${GRINDER_ROLE}> terkait berisiko terputus oleh hukum waktu.
+
+Kami mohon kebijaksanaan dan perhatian para <@&${FLAMEWARDEN_ROLE}>,
+agar setiap api dinilai dengan adil sebelum malam berganti.
+
+> *"Api bukan sekadar menyala; ia dijaga agar tak padam oleh kelalaian."*
+        `,
     }
 }

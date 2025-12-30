@@ -50,6 +50,19 @@ export class NotifyWaitingCheckin extends NotifyWaitingCheckinMessage {
         })
     }
 
+    static async sendClosing(guildName: string, wardenDutyChannel: TextChannel) {
+        const closingEmbed = createEmbed(
+            '🛡️ Amanat Penjagaan',
+            this.MSG.Closing,
+            DUMMY.COLOR,
+            { text: DUMMY.FOOTER(guildName) },
+        )
+        await sendAsBot(null, wardenDutyChannel, {
+            embeds: [closingEmbed],
+            allowedMentions: { roles: [FLAMEWARDEN_ROLE, GRINDER_ROLE] },
+        })
+    }
+
     static async getTodayWaitingCheckins(prisma: PrismaClient): Promise<CheckinType[]> {
         const waitingCheckins = await prisma.checkin.findMany({
             where: {

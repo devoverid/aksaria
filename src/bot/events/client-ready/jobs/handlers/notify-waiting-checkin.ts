@@ -33,6 +33,7 @@ registerClientReadyHandler({
 
                 await NotifyWaitingCheckin.sendOpening(guild.name, wardenDutyChannel)
                 await NotifyWaitingCheckin.sendList(checkins, wardenDutyChannel)
+                await NotifyWaitingCheckin.sendClosing(guild.name, wardenDutyChannel)
 
                 log.success(NotifyWaitingCheckin.MSG.JobSuccess)
             })
