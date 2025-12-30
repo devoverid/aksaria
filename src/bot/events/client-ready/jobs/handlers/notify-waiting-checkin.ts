@@ -32,6 +32,7 @@ registerClientReadyHandler({
                 const checkins = await NotifyWaitingCheckin.getTodayWaitingCheckins(client.prisma)
 
                 await NotifyWaitingCheckin.sendOpening(guild.name, wardenDutyChannel)
+                await NotifyWaitingCheckin.sendList(checkins, wardenDutyChannel)
 
                 log.success(NotifyWaitingCheckin.MSG.JobSuccess)
             })

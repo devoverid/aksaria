@@ -30,6 +30,26 @@ export class NotifyWaitingCheckin extends NotifyWaitingCheckinMessage {
         })
     }
 
+    static async sendList(checkins: CheckinType[], wardenDutyChannel: TextChannel) {
+        const list: string[] = []
+        for (const checkin of checkins) {
+            list.push(this.MSG.List(checkin))
+        }
+        const listEmbed = createEmbed(
+            `⏳ Daftar Waiting Check-In`,
+            list.join('\n'),
+            DUMMY.COLOR,
+            null,
+            null,
+            null,
+            null,
+            false,
+        )
+        await sendAsBot(null, wardenDutyChannel, {
+            embeds: [listEmbed],
+        })
+    }
+
     static async getTodayWaitingCheckins(prisma: PrismaClient): Promise<CheckinType[]> {
         const waitingCheckins = await prisma.checkin.findMany({
             where: {

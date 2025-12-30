@@ -28,5 +28,8 @@ dimohon para <@&${FLAMEWARDEN_ROLE}> berkenan:
 Ⅱ. Menetapkan keputusan dengan bijaksana,
 Ⅲ. Atau memberi arahan seperlunya sebelum waktu berganti.
         `,
+        List: (checkin: Checkin) => `
+- 🔥 <@${checkin.user!.discord_id}> pada [${getParsedNow(checkin.created_at)}](${checkin.link})
+        `,
     }
 }
