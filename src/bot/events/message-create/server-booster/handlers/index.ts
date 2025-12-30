@@ -1,5 +1,5 @@
 import type { TextChannel } from 'discord.js'
-import { SYSTEM_ASHES_CHANNEL } from '@config/discord'
+import { AURA_FARMING_CHANNEL, SYSTEM_ASHES_CHANNEL } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerMessageHandler } from '@events/message-create/registry'
 import { getChannel, sendAsBot } from '@utils/discord'
@@ -24,15 +24,15 @@ registerMessageHandler({
             if (!msg.guild || !msg.inGuild())
                 throw new ServerBoosterError(ServerBooster.ERR.NotGuild)
 
-            const systemAshesChannel = await getChannel(msg.guild, SYSTEM_ASHES_CHANNEL) as TextChannel
-            ServerBooster.assertChannel(systemAshesChannel)
-            ServerBooster.assertMissPerms(msg.guild.members.me!, systemAshesChannel)
+            const auraFarmingChannel = await getChannel(msg.guild, AURA_FARMING_CHANNEL) as TextChannel
+            ServerBooster.assertChannel(auraFarmingChannel)
+            ServerBooster.assertMissPerms(msg.guild.members.me!, auraFarmingChannel)
             const member = msg.member!
             ServerBooster.assertMember(member)
 
             const embed = ServerBooster.sayDeeplyThanksTo(member)
 
-            await sendAsBot(null, systemAshesChannel, {
+            await sendAsBot(null, auraFarmingChannel, {
                 content: ServerBooster.MSG.SpecialThanks,
                 embeds: [embed],
             })
