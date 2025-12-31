@@ -2,6 +2,7 @@ import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { registerReactionHandler } from '@events/message-reaction-add/registry'
+import { getMember } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 
@@ -29,7 +30,7 @@ registerReactionHandler({
             await message.fetch()
 
         try {
-            const flamewarden = await guild.members.fetch(user.id)
+            const flamewarden = await getMember(guild, user.id)
             const emoji = Checkin.assertEmojis(reaction.emoji.name)
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)

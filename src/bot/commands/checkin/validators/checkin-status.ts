@@ -6,7 +6,7 @@ import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { createEmbed, decodeSnowflakes } from '@utils/component'
 import { isDateYesterday } from '@utils/date'
-import { DiscordAssert } from '@utils/discord'
+import { DiscordAssert, getMember } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
 import { messageLink, PermissionsBitField } from 'discord.js'
 import { CheckinStatusError } from '../handlers/checkin-status'
@@ -45,7 +45,7 @@ export class CheckinStatus extends CheckinStatusMessage {
         const hasCheckedInToday = Checkin.hasCheckinToday(checkinStreak, checkin)
 
         if (checkin && hasCheckedInToday) {
-            const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
+            const flamewarden = await getMember(guild, checkin.reviewed_by!)
 
             switch (checkin.status as CheckinStatusType) {
                 case 'WAITING': {
@@ -95,7 +95,7 @@ export class CheckinStatus extends CheckinStatusMessage {
             return { content, embed }
         }
 
-        const flamewarden = await guild.members.fetch(checkin.reviewed_by!)
+        const flamewarden = await getMember(guild, checkin.reviewed_by!)
         embed = createEmbed(
             `🕯️ Check-In #${checkin.public_id}`,
             CheckinStatus.MSG.LastCheckin(guild.name, userDiscordId, checkin, flamewarden),

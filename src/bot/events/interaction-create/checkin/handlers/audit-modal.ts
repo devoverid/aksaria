@@ -4,7 +4,7 @@ import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createEmbed, generateCustomId } from '@utils/component'
-import { sendReply } from '@utils/discord'
+import { getMember, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { DUMMY } from '@utils/placeholder'
@@ -38,7 +38,7 @@ registerInteractionHandler({
 
             const thread = interaction.channel as ThreadChannel
             const threadMsg = await CheckinAudit.getThreadMessage(thread)
-            const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
+            const flamewarden = await getMember(interaction.guild, interaction.member.id)
             CheckinAudit.assertMember(flamewarden)
             CheckinAudit.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
