@@ -1,7 +1,7 @@
 import type { ChatInputCommandInteraction, Client, GuildMember } from 'discord.js'
 import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
-import { sendReply } from '@utils/discord'
+import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { SlashCommandBuilder } from 'discord.js'
@@ -24,7 +24,8 @@ registerCommand({
                 throw new CheckinStatusError(CheckinStatus.ERR.NotGuild)
 
             const channel = await CheckinStatus.assertAllowedChannel(interaction.guild, interaction.channelId, AUDIT_FLAME_CHANNEL)
-            CheckinStatus.assertMissPerms(interaction.guild.members.me!, channel)
+            const bot = await getBot(interaction.guild)
+            CheckinStatus.assertMissPerms(bot, channel)
             const member = interaction.member as GuildMember
             CheckinStatus.assertMember(member)
 

@@ -2,6 +2,7 @@ import type { TextChannel } from 'discord.js'
 import { CHECKIN_CHANNEL } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerMessageHandler } from '@events/message-create/registry'
+import { getBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { log } from '@utils/logger'
@@ -26,7 +27,8 @@ registerMessageHandler({
                 throw new CheckInError(CheckIn.ERR.NotGuild)
 
             const channel = msg.channel as TextChannel
-            CheckIn.assertMissPerms(msg.guild.members.me!, channel)
+            const bot = await getBot(msg.guild)
+            CheckIn.assertMissPerms(bot, channel)
 
             await msg.delete()
             log.warn(`${channel.name}: deleted unauthorized message from '${msg.author.tag}'`)

@@ -2,7 +2,7 @@ import type { TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { createEmbed, encodeSnowflake, generateCustomId, getCustomId } from '@utils/component'
-import { getChannel, getRole, sendAsBot, sendReply } from '@utils/discord'
+import { getBot, getChannel, getRole, sendAsBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
@@ -33,7 +33,8 @@ registerInteractionHandler({
             const { channelId, roleId, buttonName } = RoleGrantCreate.getModalId(interaction, interaction.customId)
             const channel = await getChannel(interaction.guild, channelId) as TextChannel
             RoleGrantCreate.assertChannel(channel)
-            RoleGrantCreate.assertMissPerms(interaction.guild.members.me!, channel)
+            const bot = await getBot(interaction.guild)
+            RoleGrantCreate.assertMissPerms(bot, channel)
             const role = await getRole(interaction.guild, roleId)
             RoleGrantCreate.assertRole(role)
 

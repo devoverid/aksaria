@@ -4,7 +4,7 @@ import { LabelBuilder, ModalBuilder, TextInputBuilder } from '@discordjs/builder
 import { EMBED_ROLE_GRANT_CREATE_MODAL_ID } from '@events/interaction-create/embed/handlers/role-grant-create-modal'
 import { RoleGrantCreate } from '@events/interaction-create/embed/validators/role-grant-create'
 import { encodeSnowflake, getCustomId } from '@utils/component'
-import { sendReply } from '@utils/discord'
+import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { DUMMY } from '@utils/placeholder'
@@ -30,7 +30,8 @@ registerCommand({
                 throw new EmbedRoleGrantError(RoleGrantCreate.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            RoleGrantCreate.assertMissPerms(interaction.guild.members.me!, channel)
+            const bot = await getBot(interaction.guild)
+            RoleGrantCreate.assertMissPerms(bot, channel)
 
             const buttonName = interaction.options.getString('button-name', true)
             const role = interaction.options.getRole('role', true)

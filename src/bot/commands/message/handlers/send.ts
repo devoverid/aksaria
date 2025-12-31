@@ -3,7 +3,7 @@ import { registerCommand } from '@commands/registry'
 import { MESSAGE_SEND_ID } from '@events/interaction-create/message/handlers/send-modal'
 import { Send } from '@events/interaction-create/message/validators/send'
 import { encodeSnowflake, getCustomId } from '@utils/component'
-import { getAttachments, sendReply } from '@utils/discord'
+import { getAttachments, getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { DUMMY } from '@utils/placeholder'
@@ -37,7 +37,8 @@ registerCommand({
                 throw new SendError(Send.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Send.assertMissPerms(interaction.guild.members.me!, channel)
+            const bot = await getBot(interaction.guild)
+            Send.assertMissPerms(bot, channel)
 
             const attachments = getAttachments(interaction, Send.ATTACHMENT_COUNT)
             const tempToken = Send.setTempItem(attachments)

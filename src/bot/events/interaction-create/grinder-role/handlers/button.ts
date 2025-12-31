@@ -3,7 +3,7 @@ import { GrinderRole } from '@events/guild-member-update/grinder-role/validators
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
-import { sendReply } from '@utils/discord'
+import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 
@@ -29,7 +29,8 @@ registerInteractionHandler({
                 throw new GrinderRoleButtonError(GrinderRole.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            GrinderRole.assertMissPerms(interaction.guild.members.me!, channel)
+            const bot = await getBot(interaction.guild)
+            GrinderRole.assertMissPerms(bot, channel)
 
             await sendReply(interaction, GrinderRole.MSG.WelcomeNotes)
         }

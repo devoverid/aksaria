@@ -1,6 +1,6 @@
 import type { ChatInputCommandInteraction, TextChannel } from 'discord.js'
 import { registerCommand } from '@commands/registry'
-import { sendReply } from '@utils/discord'
+import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { SlashCommandBuilder } from 'discord.js'
@@ -23,7 +23,8 @@ registerCommand({
                 throw new PingError(Ping.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Ping.assertMissPerms(interaction.guild.members.me!, channel)
+            const bot = await getBot(interaction.guild)
+            Ping.assertMissPerms(bot, channel)
 
             await sendReply(interaction, 'Pong!')
         }
