@@ -26,6 +26,7 @@ registerCommand({
                 throw new CheckinAuditError(CheckinAudit.ERR.NotGuild)
 
             const channel = await getChannel(interaction.guild, AUDIT_FLAME_CHANNEL) as TextChannel
+            CheckinAudit.assertTextChannel(channel)
             const bot = await getBot(interaction.guild)
             CheckinAudit.assertMissPerms(bot, channel)
             const thread = await CheckinAudit.assertThreadUnderChannel(interaction.guild, interaction.channelId, channel)

@@ -2,7 +2,7 @@ import type { TextChannel } from 'discord.js'
 import { AURA_FARMING_CHANNEL, GRINDER_ROLE } from '@config/discord'
 import { registerGuildMemberUpdateHandler } from '@events/guild-member-update/registry'
 import { EVENT_PATH } from '@events/index'
-import { getChannel, sendAsBot } from '@utils/discord'
+import { getBot, getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { GrinderRole } from '../validators'
@@ -28,6 +28,8 @@ registerGuildMemberUpdateHandler({
             if (newHasGrinderRole && !oldHasGrinderRole) {
                 const channel = await getChannel(newMember.guild, AURA_FARMING_CHANNEL) as TextChannel
                 GrinderRole.assertTextChannel(channel)
+                const bot = await getBot(newMember.guild)
+                GrinderRole.assertMissPerms(bot, channel)
                 const button = GrinderRole.generateButton(newMember.guild.id)
 
                 await sendAsBot(

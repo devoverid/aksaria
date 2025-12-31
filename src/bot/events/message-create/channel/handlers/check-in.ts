@@ -27,6 +27,7 @@ registerMessageHandler({
                 throw new CheckInError(CheckIn.ERR.NotGuild)
 
             const channel = msg.channel as TextChannel
+            CheckIn.assertTextChannel(channel)
             const bot = await getBot(msg.guild)
             CheckIn.assertMissPerms(bot, channel)
 

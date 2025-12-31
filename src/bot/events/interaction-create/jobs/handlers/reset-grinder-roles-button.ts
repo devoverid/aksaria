@@ -29,6 +29,7 @@ registerInteractionHandler({
                 throw new ResetGrinderRolesButtonError(ResetGrinderRoles.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
+            ResetGrinderRoles.assertTextChannel(channel)
             const bot = await getBot(interaction.guild)
             ResetGrinderRoles.assertMissPerms(bot, channel)
 

@@ -29,6 +29,7 @@ registerInteractionHandler({
                 throw new GrinderRoleButtonError(GrinderRole.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
+            GrinderRole.assertTextChannel(channel)
             const bot = await getBot(interaction.guild)
             GrinderRole.assertMissPerms(bot, channel)
 

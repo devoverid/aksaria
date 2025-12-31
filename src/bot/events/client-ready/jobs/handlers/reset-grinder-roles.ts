@@ -3,7 +3,7 @@ import process from 'node:process'
 import { AUDIT_FLAME_CHANNEL, GRIND_ASHES_CHANNEL } from '@config/discord'
 import { registerClientReadyHandler } from '@events/client-ready/registry'
 import { EVENT_PATH } from '@events/index'
-import { getChannel } from '@utils/discord'
+import { getBot, getChannel } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { log } from '@utils/logger'
@@ -31,6 +31,9 @@ registerClientReadyHandler({
                 ResetGrinderRoles.assertTextChannel(grindAshesChannel)
                 const auditFlameChannel = await getChannel(guild, AUDIT_FLAME_CHANNEL) as TextChannel
                 ResetGrinderRoles.assertTextChannel(auditFlameChannel)
+                const bot = await getBot(guild)
+                ResetGrinderRoles.assertMissPerms(bot, grindAshesChannel)
+                ResetGrinderRoles.assertMissPerms(bot, auditFlameChannel)
                 const users = await ResetGrinderRoles.getUsersWithLatestStreak(client.prisma)
 
                 await ResetGrinderRoles.validateUsers(client.prisma, guild, grindAshesChannel, auditFlameChannel, users)
