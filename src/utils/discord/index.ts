@@ -20,7 +20,7 @@ export async function getBot(guild: Guild): Promise<GuildMember> {
     return guild!.members.me as GuildMember ?? await guild!.members.fetchMe()
 }
 
-export const getBotPerms = (user: ClientUser | GuildMember, channel: TextChannel): Readonly<PermissionsBitField> => channel.permissionsFor(user!)!
+export const getPerms = (user: ClientUser | GuildMember, channel: TextChannel): Readonly<PermissionsBitField> => channel.permissionsFor(user!)!
 
 export function getAttachments(interaction: ChatInputCommandInteraction, fileCount: number): Attachment[] {
     const files: Attachment[] = []
