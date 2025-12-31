@@ -29,7 +29,7 @@ registerInteractionHandler({
                 throw new ResetGrinderRolesButtonError(ResetGrinderRoles.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            ResetGrinderRoles.assertMissPerms(interaction.client.user, channel)
+            ResetGrinderRoles.assertMissPerms(interaction.guild.members.me!, channel)
 
             const { thread } = await ResetGrinderRoles.getButtonId(interaction, interaction.customId)
 

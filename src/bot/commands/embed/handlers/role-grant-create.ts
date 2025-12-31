@@ -30,7 +30,7 @@ registerCommand({
                 throw new EmbedRoleGrantError(RoleGrantCreate.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
+            RoleGrantCreate.assertMissPerms(interaction.guild.members.me!, channel)
 
             const buttonName = interaction.options.getString('button-name', true)
             const role = interaction.options.getRole('role', true)

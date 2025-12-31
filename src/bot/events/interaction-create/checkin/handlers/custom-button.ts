@@ -31,7 +31,7 @@ registerInteractionHandler({
                 throw new CheckinCustomButtonError(Checkin.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Checkin.assertMissPerms(interaction.client.user, channel)
+            Checkin.assertMissPerms(interaction.guild.members.me!, channel)
             const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)

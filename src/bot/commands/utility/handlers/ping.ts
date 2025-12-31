@@ -23,7 +23,7 @@ registerCommand({
                 throw new PingError(Ping.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Ping.assertMissPerms(interaction.client.user, channel)
+            Ping.assertMissPerms(interaction.guild.members.me!, channel)
 
             await sendReply(interaction, 'Pong!')
         }

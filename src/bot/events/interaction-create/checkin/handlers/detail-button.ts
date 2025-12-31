@@ -32,7 +32,7 @@ registerInteractionHandler({
 
             const channel = interaction.channel as TextChannel
             const member = interaction.member as GuildMember
-            Checkin.assertMissPerms(interaction.client.user, channel)
+            Checkin.assertMissPerms(interaction.guild.members.me!, channel)
             Checkin.assertMember(member)
             Checkin.assertMemberGrindRoles(member)
 

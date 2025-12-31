@@ -29,7 +29,7 @@ registerInteractionHandler({
                 throw new EmbedRoleGrantButtonError(RoleGrantCreate.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
+            RoleGrantCreate.assertMissPerms(interaction.guild.members.me!, channel)
 
             const { roleId } = RoleGrantCreate.getButtonId(interaction, interaction.customId)
             const member = interaction.member as GuildMember

@@ -31,7 +31,7 @@ registerInteractionHandler({
             const { channelId, tempToken } = Send.getModalId(interaction, interaction.customId)
             const channel = await getChannel(interaction.guild, channelId) as TextChannel
             Send.assertChannel(channel)
-            Send.assertMissPerms(interaction.client.user, channel)
+            Send.assertMissPerms(interaction.guild.members.me!, channel)
             const attachments = tempStore.get(tempToken) as Attachment[]
             Send.delTempItem(attachments, tempToken)
 

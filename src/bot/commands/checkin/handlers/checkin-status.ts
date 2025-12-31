@@ -24,7 +24,7 @@ registerCommand({
                 throw new CheckinStatusError(CheckinStatus.ERR.NotGuild)
 
             const channel = await CheckinStatus.assertAllowedChannel(interaction.guild, interaction.channelId, AUDIT_FLAME_CHANNEL)
-            CheckinStatus.assertMissPerms(interaction.client.user, channel)
+            CheckinStatus.assertMissPerms(interaction.guild.members.me!, channel)
             const member = interaction.member as GuildMember
             CheckinStatus.assertMember(member)
 

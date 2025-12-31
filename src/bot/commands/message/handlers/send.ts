@@ -37,7 +37,7 @@ registerCommand({
                 throw new SendError(Send.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            Send.assertMissPerms(interaction.client.user, channel)
+            Send.assertMissPerms(interaction.guild.members.me!, channel)
 
             const attachments = getAttachments(interaction, Send.ATTACHMENT_COUNT)
             const tempToken = Send.setTempItem(attachments)

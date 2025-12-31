@@ -26,7 +26,7 @@ registerCommand({
                 throw new CheckinAuditError(CheckinAudit.ERR.NotGuild)
 
             const channel = await getChannel(interaction.guild, AUDIT_FLAME_CHANNEL) as TextChannel
-            CheckinAudit.assertMissPerms(interaction.client.user, channel)
+            CheckinAudit.assertMissPerms(interaction.guild.members.me!, channel)
             const thread = await CheckinAudit.assertThreadUnderChannel(interaction.guild, interaction.channelId, channel)
             CheckinAudit.assertNotArchivedThread(thread)
             CheckinAudit.assertNotPrivateThread(thread)

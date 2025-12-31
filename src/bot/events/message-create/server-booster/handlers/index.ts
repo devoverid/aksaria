@@ -26,7 +26,7 @@ registerMessageHandler({
 
             const auraFarmingChannel = await getChannel(msg.guild, AURA_FARMING_CHANNEL) as TextChannel
             ServerBooster.assertChannel(auraFarmingChannel)
-            ServerBooster.assertMissPerms(msg.client.user, auraFarmingChannel)
+            ServerBooster.assertMissPerms(msg.guild.members.me!, auraFarmingChannel)
             const member = msg.member!
             ServerBooster.assertMember(member)
 
