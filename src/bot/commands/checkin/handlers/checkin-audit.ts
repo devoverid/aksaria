@@ -3,7 +3,7 @@ import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { CHECKIN_AUDIT_ID } from '@events/interaction-create/checkin/handlers/audit-modal'
 import { createCheckinReviewModal, encodeSnowflake, getCustomId } from '@utils/component'
-import { getChannel, sendReply } from '@utils/discord'
+import { getChannel, getMember, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { SlashCommandBuilder } from 'discord.js'
@@ -32,7 +32,7 @@ registerCommand({
             CheckinAudit.assertNotPrivateThread(thread)
             const threadMsg = await CheckinAudit.getThreadMessage(thread)
             CheckinAudit.assertThreadMessageSendBy(threadMsg, interaction.client.user.id)
-            const flamewarden = await interaction.guild.members.fetch(interaction.member.id)
+            const flamewarden = await getMember(interaction.guild, interaction.member.id)
             CheckinAudit.assertMember(flamewarden)
             CheckinAudit.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
 
