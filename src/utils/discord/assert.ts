@@ -1,7 +1,7 @@
 import type { ClientUser, Guild, GuildMember, Message, Role, TextChannel, ThreadAutoArchiveDuration, ThreadChannel } from 'discord.js'
 import { getTempToken, parseMessageLink, tempStore } from '@utils/component'
 import { ChannelType, PermissionsBitField } from 'discord.js'
-import { getBotPerms, getChannel, getMissPerms } from '.'
+import { getChannel, getMissPerms, getPerms } from '.'
 import { DiscordBaseError } from './error'
 import { DiscordMessage } from './message'
 
@@ -75,7 +75,7 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.MemberAboveMe)
     }
 
-    static assertChannel(channel: TextChannel) {
+    static assertTextChannel(channel: TextChannel) {
         if (!channel || channel.type !== ChannelType.GuildText)
             throw new DiscordAssertError(this.ERR.ChannelNotFound)
     }
@@ -97,19 +97,19 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.RoleMissing(roleId))
     }
 
-    static async assertAllowedChannel(guild: Guild, currentChannelId: string, channelId: string) {
+    static async assertAllowedTextChannel(guild: Guild, currentChannelId: string, channelId: string) {
         if (currentChannelId !== channelId) {
             throw new DiscordAssertError(this.ERR.AllowedChannel(channelId))
         }
 
         const channel = await getChannel(guild, channelId) as TextChannel
-        this.assertChannel(channel)
+        this.assertTextChannel(channel)
 
         return channel
     }
 
     static assertMissPerms(user: ClientUser | GuildMember, channel: TextChannel) {
-        const channelPerms = getBotPerms(user, channel)
+        const channelPerms = getPerms(user, channel)
         const missedPerms = getMissPerms(channelPerms, this.BASE_PERMS)
 
         if (missedPerms.length) {

@@ -2,7 +2,7 @@ import type { Attachment, TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId, tempStore } from '@utils/component'
-import { getChannel, sendAsBot, sendReply } from '@utils/discord'
+import { getBot, getChannel, sendAsBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { Send } from '../validators/send'
@@ -30,8 +30,8 @@ registerInteractionHandler({
 
             const { channelId, tempToken } = Send.getModalId(interaction, interaction.customId)
             const channel = await getChannel(interaction.guild, channelId) as TextChannel
-            Send.assertChannel(channel)
-            Send.assertMissPerms(interaction.client.user, channel)
+            const bot = await getBot(interaction.guild)
+            Send.assertMissPerms(bot, channel)
             const attachments = tempStore.get(tempToken) as Attachment[]
             Send.delTempItem(attachments, tempToken)
 

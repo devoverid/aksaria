@@ -3,7 +3,7 @@ import process from 'node:process'
 import { WARDEN_DUTY_CHANNEL } from '@config/discord'
 import { registerClientReadyHandler } from '@events/client-ready/registry'
 import { EVENT_PATH } from '@events/index'
-import { getChannel } from '@utils/discord'
+import { getBot, getChannel } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { log } from '@utils/logger'
@@ -28,7 +28,9 @@ registerClientReadyHandler({
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
                 const wardenDutyChannel = await getChannel(guild, WARDEN_DUTY_CHANNEL) as TextChannel
-                NotifyWaitingCheckin.assertChannel(wardenDutyChannel)
+                NotifyWaitingCheckin.assertTextChannel(wardenDutyChannel)
+                const bot = await getBot(guild)
+                NotifyWaitingCheckin.assertMissPerms(bot, wardenDutyChannel)
                 const checkins = await NotifyWaitingCheckin.getTodayWaitingCheckins(client.prisma)
 
                 await NotifyWaitingCheckin.sendOpening(guild.name, wardenDutyChannel)

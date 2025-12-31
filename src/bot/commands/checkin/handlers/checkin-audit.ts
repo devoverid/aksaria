@@ -3,7 +3,7 @@ import { registerCommand } from '@commands/registry'
 import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { CHECKIN_AUDIT_ID } from '@events/interaction-create/checkin/handlers/audit-modal'
 import { createCheckinReviewModal, encodeSnowflake, getCustomId } from '@utils/component'
-import { getChannel, getMember, sendReply } from '@utils/discord'
+import { getBot, getChannel, getMember, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { SlashCommandBuilder } from 'discord.js'
@@ -26,7 +26,9 @@ registerCommand({
                 throw new CheckinAuditError(CheckinAudit.ERR.NotGuild)
 
             const channel = await getChannel(interaction.guild, AUDIT_FLAME_CHANNEL) as TextChannel
-            CheckinAudit.assertMissPerms(interaction.client.user, channel)
+            CheckinAudit.assertTextChannel(channel)
+            const bot = await getBot(interaction.guild)
+            CheckinAudit.assertMissPerms(bot, channel)
             const thread = await CheckinAudit.assertThreadUnderChannel(interaction.guild, interaction.channelId, channel)
             CheckinAudit.assertNotArchivedThread(thread)
             CheckinAudit.assertNotPrivateThread(thread)

@@ -4,7 +4,7 @@ import { CHECKIN_CHANNEL } from '@config/discord'
 import { CHECKIN_ID } from '@events/interaction-create/checkin/handlers/modal'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { encodeSnowflake, getCustomId } from '@utils/component'
-import { getAttachments, sendReply } from '@utils/discord'
+import { getAttachments, getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
 import { DUMMY } from '@utils/placeholder'
@@ -31,8 +31,10 @@ registerCommand({
             if (!interaction.inCachedGuild())
                 throw new CheckinError(Checkin.ERR.NotGuild)
 
-            const channel = await Checkin.assertAllowedChannel(interaction.guild, interaction.channelId, CHECKIN_CHANNEL)
-            Checkin.assertMissPerms(interaction.client.user, channel)
+            const channel = await Checkin.assertAllowedTextChannel(interaction.guild, interaction.channelId, CHECKIN_CHANNEL)
+            Checkin.assertTextChannel(channel)
+            const bot = await getBot(interaction.guild)
+            Checkin.assertMissPerms(bot, channel)
 
             const attachments = getAttachments(interaction, Checkin.ATTACHMENT_COUNT)
             const tempToken = Checkin.setTempItem(attachments)

@@ -3,7 +3,7 @@ import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
-import { getMember, sendReply } from '@utils/discord'
+import { getBot, getMember, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { Checkin } from '../validators'
@@ -34,7 +34,8 @@ registerInteractionHandler({
             const { checkinId, checkinCreatedAt } = Checkin.getButtonId(interaction, interaction.customId)
 
             const channel = interaction.channel as TextChannel
-            Checkin.assertMissPerms(interaction.client.user, channel)
+            const bot = await getBot(interaction.guild)
+            Checkin.assertMissPerms(bot, channel)
             const flamewarden = await getMember(interaction.guild, interaction.member.id)
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)

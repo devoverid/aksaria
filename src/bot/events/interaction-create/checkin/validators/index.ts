@@ -166,7 +166,6 @@ export class Checkin extends CheckinMessage {
 
         const hasGrindRole = this.isMemberHasRole(member, newRole.id)
         const channel = await getChannel(guild, AURA_FARMING_CHANNEL) as TextChannel
-        this.assertChannel(channel)
 
         if (!hasGrindRole) {
             await attachNewGrindRole(member, newRole)
@@ -433,7 +432,7 @@ export class Checkin extends CheckinMessage {
             await this.assertSubmittedCheckinToday(client.prisma, opt)
         const updatedCheckin = await this.updateCheckinStatus(client.prisma, flamewarden, opt, checkinCreatedAt, checkinStatus, comment, isAudit) as CheckinType
 
-        const checkinChannel = await client.channels.fetch(CHECKIN_CHANNEL) as TextChannel
+        const checkinChannel = await getChannel(guild, CHECKIN_CHANNEL) as TextChannel
         const { messageId } = this.getMessageFromLink(updatedCheckin.link!)
         const message = await checkinChannel.messages.fetch(messageId)
 

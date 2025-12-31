@@ -2,7 +2,7 @@ import type { TextChannel } from 'discord.js'
 import { AURA_FARMING_CHANNEL, SYSTEM_ASHES_CHANNEL } from '@config/discord'
 import { EVENT_PATH } from '@events/index'
 import { registerMessageHandler } from '@events/message-create/registry'
-import { getChannel, sendAsBot } from '@utils/discord'
+import { getBot, getChannel, sendAsBot } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { ServerBooster } from '../validators'
@@ -25,8 +25,9 @@ registerMessageHandler({
                 throw new ServerBoosterError(ServerBooster.ERR.NotGuild)
 
             const auraFarmingChannel = await getChannel(msg.guild, AURA_FARMING_CHANNEL) as TextChannel
-            ServerBooster.assertChannel(auraFarmingChannel)
-            ServerBooster.assertMissPerms(msg.guild.members.me!, auraFarmingChannel)
+            ServerBooster.assertTextChannel(auraFarmingChannel)
+            const bot = await getBot(msg.guild)
+            ServerBooster.assertMissPerms(bot, auraFarmingChannel)
             const member = msg.member!
             ServerBooster.assertMember(member)
 

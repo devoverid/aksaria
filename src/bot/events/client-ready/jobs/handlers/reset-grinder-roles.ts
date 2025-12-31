@@ -3,7 +3,7 @@ import process from 'node:process'
 import { AUDIT_FLAME_CHANNEL, GRIND_ASHES_CHANNEL } from '@config/discord'
 import { registerClientReadyHandler } from '@events/client-ready/registry'
 import { EVENT_PATH } from '@events/index'
-import { getChannel } from '@utils/discord'
+import { getBot, getChannel } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { log } from '@utils/logger'
@@ -23,14 +23,17 @@ registerClientReadyHandler({
     errorTag: () => `${moduleName}: ${ResetGrinderRoles.ERR.UnexpectedResetGrinderRoles}`,
     exec(client: Client) {
         try {
-            cron.schedule('0 0 * * *', async () => {
+            cron.schedule('*/1 * * * *', async () => {
                 log.check(ResetGrinderRoles.MSG.JobRunning)
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
                 const grindAshesChannel = await getChannel(guild, GRIND_ASHES_CHANNEL) as TextChannel
-                ResetGrinderRoles.assertChannel(grindAshesChannel)
+                ResetGrinderRoles.assertTextChannel(grindAshesChannel)
                 const auditFlameChannel = await getChannel(guild, AUDIT_FLAME_CHANNEL) as TextChannel
-                ResetGrinderRoles.assertChannel(auditFlameChannel)
+                ResetGrinderRoles.assertTextChannel(auditFlameChannel)
+                const bot = await getBot(guild)
+                ResetGrinderRoles.assertMissPerms(bot, grindAshesChannel)
+                ResetGrinderRoles.assertMissPerms(bot, auditFlameChannel)
                 const users = await ResetGrinderRoles.getUsersWithLatestStreak(client.prisma)
 
                 await ResetGrinderRoles.validateUsers(client.prisma, guild, grindAshesChannel, auditFlameChannel, users)

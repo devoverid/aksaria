@@ -2,7 +2,7 @@ import type { GuildMember, TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
-import { getRole, sendReply } from '@utils/discord'
+import { getBot, getRole, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { RoleGrantCreate } from '../validators/role-grant-create'
@@ -29,7 +29,8 @@ registerInteractionHandler({
                 throw new EmbedRoleGrantButtonError(RoleGrantCreate.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            RoleGrantCreate.assertMissPerms(interaction.client.user, channel)
+            const bot = await getBot(interaction.guild)
+            RoleGrantCreate.assertMissPerms(bot, channel)
 
             const { roleId } = RoleGrantCreate.getButtonId(interaction, interaction.customId)
             const member = interaction.member as GuildMember

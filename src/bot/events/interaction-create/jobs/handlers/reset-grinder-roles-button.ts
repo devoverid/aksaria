@@ -3,7 +3,7 @@ import { ResetGrinderRoles } from '@events/client-ready/jobs/validators/reset-gr
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
-import { sendReply } from '@utils/discord'
+import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 
@@ -29,7 +29,9 @@ registerInteractionHandler({
                 throw new ResetGrinderRolesButtonError(ResetGrinderRoles.ERR.NotGuild)
 
             const channel = interaction.channel as TextChannel
-            ResetGrinderRoles.assertMissPerms(interaction.client.user, channel)
+            ResetGrinderRoles.assertTextChannel(channel)
+            const bot = await getBot(interaction.guild)
+            ResetGrinderRoles.assertMissPerms(bot, channel)
 
             const { thread } = await ResetGrinderRoles.getButtonId(interaction, interaction.customId)
 

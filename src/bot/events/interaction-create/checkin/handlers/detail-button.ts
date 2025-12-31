@@ -2,7 +2,7 @@ import type { GuildMember, TextChannel } from 'discord.js'
 import { EVENT_PATH } from '@events/index'
 import { registerInteractionHandler } from '@events/interaction-create/registry'
 import { generateCustomId } from '@utils/component'
-import { sendReply } from '@utils/discord'
+import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { getModuleName } from '@utils/io'
 import { Checkin } from '../validators'
@@ -32,7 +32,8 @@ registerInteractionHandler({
 
             const channel = interaction.channel as TextChannel
             const member = interaction.member as GuildMember
-            Checkin.assertMissPerms(interaction.client.user, channel)
+            const bot = await getBot(interaction.guild)
+            Checkin.assertMissPerms(bot, channel)
             Checkin.assertMember(member)
             Checkin.assertMemberGrindRoles(member)
 
