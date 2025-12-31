@@ -14,6 +14,10 @@ export async function getRole(guild: Guild, id: string): Promise<Role> {
     return guild!.roles.cache.get(id) as Role ?? await guild!.roles.fetch(id)
 }
 
+export async function getMember(guild: Guild, discordId: string) {
+    return guild.members.cache.get(discordId) as GuildMember ?? await guild.members.fetch(discordId)
+}
+
 export const getMissPerms = (channelPerms: Readonly<PermissionsBitField>, requiredPerms: bigint[]): bigint[] => requiredPerms.filter(p => !channelPerms.has(p))
 
 export async function getBot(guild: Guild): Promise<GuildMember> {

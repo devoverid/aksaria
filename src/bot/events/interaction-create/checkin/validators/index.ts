@@ -11,7 +11,7 @@ import { AURA_FARMING_CHANNEL, CHECKIN_CHANNEL, GRINDER_ROLE } from '@config/dis
 import { SubmittedCheckinError } from '@events/message-reaction-add/checkin/handlers/submitted'
 import { createEmbed, decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
-import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
+import { DiscordAssert, getChannel, getMember, sendAsBot } from '@utils/discord'
 import { attachNewGrindRole, getGrindRoleByStreakCount } from '@utils/discord/roles'
 import { DUMMY } from '@utils/placeholder'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, messageLink, PermissionsBitField } from 'discord.js'
@@ -443,7 +443,7 @@ export class Checkin extends CheckinMessage {
     }
 
     static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
-        const member = await guild.members.fetch(userDiscordId)
+        const member = await getMember(guild, userDiscordId)
         this.assertMember(member)
 
         const hasGrinderRole = this.isMemberHasRole(member, GRINDER_ROLE)

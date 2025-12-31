@@ -8,7 +8,7 @@ import { FLAMEWARDEN_ROLE, getGrindRoles, GRINDER_ROLE } from '@config/discord'
 import { GOODBYE_NOTE_BUTTON_ID, ResetGrinderRolesButtonError } from '@events/interaction-create/jobs/handlers/reset-grinder-roles-button'
 import { decodeSnowflakes, encodeSnowflake, getCustomId } from '@utils/component'
 import { isDateToday, isDateYesterday } from '@utils/date'
-import { DiscordAssert, getChannel, sendAsBot } from '@utils/discord'
+import { DiscordAssert, getChannel, getMember, sendAsBot } from '@utils/discord'
 import { log } from '@utils/logger'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { ResetGrinderRolesMessage } from '../messages/reset-grinder-roles'
@@ -91,6 +91,8 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
     }
 
     static async validateUsers(prisma: PrismaClient, guild: Guild, grindAshesChannel: TextChannel, auditFlameChannel: TextChannel, users: User[]) {
+        await guild.members.fetch({ withPresences: false })
+
         for (const user of users) {
             const checkinStreak = user.checkin_streaks?.[0]
             if (!checkinStreak)
@@ -100,7 +102,7 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
             if (this.hasValidCheckin(lastCheckin))
                 continue
 
-            const member = await guild.members.fetch(user.discord_id)
+            const member = await getMember(guild, user.discord_id)
             await this.removeGrinderRoles(member)
             await this.breakCheckinStreakAt(prisma, checkinStreak, lastCheckin!)
             const thread = await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
