@@ -75,7 +75,7 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.MemberAboveMe)
     }
 
-    static assertChannel(channel: TextChannel) {
+    static assertTextChannel(channel: TextChannel) {
         if (!channel || channel.type !== ChannelType.GuildText)
             throw new DiscordAssertError(this.ERR.ChannelNotFound)
     }
@@ -103,7 +103,7 @@ export class DiscordAssert extends DiscordMessage {
         }
 
         const channel = await getChannel(guild, channelId) as TextChannel
-        this.assertChannel(channel)
+        this.assertTextChannel(channel)
 
         return channel
     }

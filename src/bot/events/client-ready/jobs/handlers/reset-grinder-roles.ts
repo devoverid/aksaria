@@ -28,9 +28,9 @@ registerClientReadyHandler({
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
                 const grindAshesChannel = await getChannel(guild, GRIND_ASHES_CHANNEL) as TextChannel
-                ResetGrinderRoles.assertChannel(grindAshesChannel)
+                ResetGrinderRoles.assertTextChannel(grindAshesChannel)
                 const auditFlameChannel = await getChannel(guild, AUDIT_FLAME_CHANNEL) as TextChannel
-                ResetGrinderRoles.assertChannel(auditFlameChannel)
+                ResetGrinderRoles.assertTextChannel(auditFlameChannel)
                 const users = await ResetGrinderRoles.getUsersWithLatestStreak(client.prisma)
 
                 await ResetGrinderRoles.validateUsers(client.prisma, guild, grindAshesChannel, auditFlameChannel, users)

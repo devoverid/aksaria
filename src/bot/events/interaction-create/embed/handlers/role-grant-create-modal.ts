@@ -32,7 +32,7 @@ registerInteractionHandler({
 
             const { channelId, roleId, buttonName } = RoleGrantCreate.getModalId(interaction, interaction.customId)
             const channel = await getChannel(interaction.guild, channelId) as TextChannel
-            RoleGrantCreate.assertChannel(channel)
+            RoleGrantCreate.assertTextChannel(channel)
             const bot = await getBot(interaction.guild)
             RoleGrantCreate.assertMissPerms(bot, channel)
             const role = await getRole(interaction.guild, roleId)

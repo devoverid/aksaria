@@ -166,7 +166,7 @@ export class Checkin extends CheckinMessage {
 
         const hasGrindRole = this.isMemberHasRole(member, newRole.id)
         const channel = await getChannel(guild, AURA_FARMING_CHANNEL) as TextChannel
-        this.assertChannel(channel)
+        this.assertTextChannel(channel)
 
         if (!hasGrindRole) {
             await attachNewGrindRole(member, newRole)

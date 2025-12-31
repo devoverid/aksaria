@@ -28,7 +28,7 @@ registerClientReadyHandler({
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)
                 const wardenDutyChannel = await getChannel(guild, WARDEN_DUTY_CHANNEL) as TextChannel
-                NotifyWaitingCheckin.assertChannel(wardenDutyChannel)
+                NotifyWaitingCheckin.assertTextChannel(wardenDutyChannel)
                 const checkins = await NotifyWaitingCheckin.getTodayWaitingCheckins(client.prisma)
 
                 await NotifyWaitingCheckin.sendOpening(guild.name, wardenDutyChannel)

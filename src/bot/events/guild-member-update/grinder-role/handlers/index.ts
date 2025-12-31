@@ -27,7 +27,7 @@ registerGuildMemberUpdateHandler({
             const oldHasGrinderRole = GrinderRole.isMemberHasRole(oldMember, GRINDER_ROLE)
             if (newHasGrinderRole && !oldHasGrinderRole) {
                 const channel = await getChannel(newMember.guild, AURA_FARMING_CHANNEL) as TextChannel
-                GrinderRole.assertChannel(channel)
+                GrinderRole.assertTextChannel(channel)
                 const button = GrinderRole.generateButton(newMember.guild.id)
 
                 await sendAsBot(
