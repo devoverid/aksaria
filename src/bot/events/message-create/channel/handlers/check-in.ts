@@ -26,7 +26,7 @@ registerMessageHandler({
                 throw new CheckInError(CheckIn.ERR.NotGuild)
 
             const channel = msg.channel as TextChannel
-            CheckIn.assertMissPerms(msg.guild.members.me!, channel)
+            CheckIn.assertMissPerms(msg.client.user!, channel)
 
             await msg.delete()
             log.warn(`${channel.name}: deleted unauthorized message from '${msg.author.tag}'`)
