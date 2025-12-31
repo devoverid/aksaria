@@ -23,7 +23,7 @@ registerClientReadyHandler({
     errorTag: () => `${moduleName}: ${ResetGrinderRoles.ERR.UnexpectedResetGrinderRoles}`,
     exec(client: Client) {
         try {
-            cron.schedule('0 0 * * *', async () => {
+            cron.schedule('*/1 * * * *', async () => {
                 log.check(ResetGrinderRoles.MSG.JobRunning)
 
                 const guild = await client.guilds.fetch(process.env.GUILD_ID!)

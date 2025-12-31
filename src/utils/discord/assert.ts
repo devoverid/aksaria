@@ -97,7 +97,7 @@ export class DiscordAssert extends DiscordMessage {
             throw new DiscordAssertError(this.ERR.RoleMissing(roleId))
     }
 
-    static async assertAllowedChannel(guild: Guild, currentChannelId: string, channelId: string) {
+    static async assertAllowedTextChannel(guild: Guild, currentChannelId: string, channelId: string) {
         if (currentChannelId !== channelId) {
             throw new DiscordAssertError(this.ERR.AllowedChannel(channelId))
         }

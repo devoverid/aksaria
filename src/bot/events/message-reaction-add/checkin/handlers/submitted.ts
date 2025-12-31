@@ -33,7 +33,7 @@ registerReactionHandler({
             const emoji = Checkin.assertEmojis(reaction.emoji.name)
             Checkin.assertMember(flamewarden)
             Checkin.assertMemberHasRole(flamewarden, FLAMEWARDEN_ROLE)
-            await Checkin.assertAllowedChannel(guild, message.channel.id, CHECKIN_CHANNEL)
+            await Checkin.assertAllowedTextChannel(guild, message.channel.id, CHECKIN_CHANNEL)
 
             await Checkin.validateCheckin(
                 client,

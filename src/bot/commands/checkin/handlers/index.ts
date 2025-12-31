@@ -31,7 +31,7 @@ registerCommand({
             if (!interaction.inCachedGuild())
                 throw new CheckinError(Checkin.ERR.NotGuild)
 
-            const channel = await Checkin.assertAllowedChannel(interaction.guild, interaction.channelId, CHECKIN_CHANNEL)
+            const channel = await Checkin.assertAllowedTextChannel(interaction.guild, interaction.channelId, CHECKIN_CHANNEL)
             const bot = await getBot(interaction.guild)
             Checkin.assertMissPerms(bot, channel)
 
