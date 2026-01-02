@@ -1,6 +1,6 @@
-import type { ChatInputCommandInteraction, Client, GuildMember } from 'discord.js'
+import type { ChatInputCommandInteraction, Client, GuildMember, TextChannel } from 'discord.js'
 import { registerCommand } from '@commands/registry'
-import { AUDIT_FLAME_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
+import { FLAMEWARDEN_ROLE } from '@config/discord'
 import { getBot, sendReply } from '@utils/discord'
 import { DiscordBaseError } from '@utils/discord/error'
 import { log } from '@utils/logger'
@@ -23,7 +23,7 @@ registerCommand({
             if (!interaction.inCachedGuild())
                 throw new CheckinStatusError(CheckinStatus.ERR.NotGuild)
 
-            const channel = await CheckinStatus.assertAllowedTextChannel(interaction.guild, interaction.channelId, AUDIT_FLAME_CHANNEL)
+            const channel = interaction.channel as TextChannel
             CheckinStatus.assertTextChannel(channel)
             const bot = await getBot(interaction.guild)
             CheckinStatus.assertMissPerms(bot, channel)
