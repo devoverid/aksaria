@@ -91,8 +91,6 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
     }
 
     static async validateUsers(prisma: PrismaClient, guild: Guild, grindAshesChannel: TextChannel, auditFlameChannel: TextChannel, users: User[]) {
-        await guild.members.fetch({ withPresences: false })
-
         for (const user of users) {
             const checkinStreak = user.checkin_streaks?.[0]
             if (!checkinStreak)
