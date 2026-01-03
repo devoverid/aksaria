@@ -50,7 +50,7 @@ export function getAttachments(interaction: ChatInputCommandInteraction, fileCou
 
 export async function sendReply(
     interaction: Interaction,
-    content: string,
+    content?: string,
     ephemeral = true,
     payloads?: InteractionReplyOptions,
     isDeferred = false,
