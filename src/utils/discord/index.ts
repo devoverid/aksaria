@@ -1,4 +1,4 @@
-import type { Attachment, ChatInputCommandInteraction, ClientUser, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel, ThreadChannel } from 'discord.js'
+import type { Attachment, ChatInputCommandInteraction, ClientUser, FetchMembersOptions, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel, ThreadChannel } from 'discord.js'
 import { MessageFlags } from 'discord.js'
 
 export async function getChannel(guild: Guild, id: string, isThread: boolean = false): Promise<TextChannel | ThreadChannel> {
@@ -22,6 +22,10 @@ export async function getMember(guild: Guild, discordId: string) {
     const cached = guild.members.cache.get(discordId)
 
     return cached as GuildMember ?? await guild.members.fetch(discordId)
+}
+
+export async function getMembers(guild: Guild, userIds: string[], opts?: FetchMembersOptions) {
+    return await guild.members.fetch({ user: userIds, ...opts })
 }
 
 export const getMissPerms = (channelPerms: Readonly<PermissionsBitField>, requiredPerms: bigint[]): bigint[] => requiredPerms.filter(p => !channelPerms.has(p))
