@@ -5,6 +5,11 @@ import type { User } from './user'
 
 export type CheckinStatusType = 'WAITING' | 'APPROVED' | 'REJECTED'
 export type CheckinAllowedEmojiType = '❌' | '🔥'
+export type ResolvedCheckinState = | { type: 'NO_CHECKIN' }
+    | { type: 'WAITING' }
+    | { type: 'APPROVED' }
+    | { type: 'REJECTED' }
+    | { type: 'LAST_CHECKIN' }
 
 export interface Checkin {
     id: number
@@ -27,4 +32,9 @@ export interface Checkin {
 export interface CheckinColumn<T extends keyof Prisma.CheckinWhereInput> {
     key: T
     value: Prisma.CheckinWhereInput[T] | Prisma.CheckinWhereUniqueInput[K]
+}
+
+export interface CheckinStatusEmbedContent {
+    content?: string
+    embed: EmbedBuilder
 }

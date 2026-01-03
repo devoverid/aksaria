@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@generatedDB/client'
-import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
+import type { CheckinStatusEmbedContent, Checkin as CheckinType, ResolvedCheckinState } from '@type/checkin'
 import type { User } from '@type/user'
-import type { EmbedBuilder, Guild, Interaction, ThreadAutoArchiveDuration } from 'discord.js'
+import type { Guild, GuildMember, Interaction, ThreadAutoArchiveDuration } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
 import { Checkin } from '@events/interaction-create/checkin/validators'
 import { createEmbed, decodeSnowflakes } from '@utils/component'
 import { isDateYesterday } from '@utils/date'
-import { DiscordAssert, getMember } from '@utils/discord'
+import { DiscordAssert } from '@utils/discord'
 import { DUMMY } from '@utils/placeholder'
 import { messageLink, PermissionsBitField } from 'discord.js'
 import { CheckinStatusError } from '../handlers/checkin-status'
@@ -37,73 +37,86 @@ export class CheckinStatus extends CheckinStatusMessage {
         return { prefix, guildId, checkinLink }
     }
 
-    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin?: CheckinType) {
-        let content = ''
-        let embed: EmbedBuilder
+    static resolveCheckinState(checkin?: CheckinType): ResolvedCheckinState {
+        if (!checkin)
+            return { type: 'NO_CHECKIN' }
 
-        const checkinStreak = checkin?.checkin_streak
-        const hasCheckedInToday = Checkin.hasCheckinToday(checkinStreak, checkin)
-
-        if (checkin && hasCheckedInToday) {
-            const flamewarden = await getMember(guild, checkin.reviewed_by!)
-
-            switch (checkin.status as CheckinStatusType) {
-                case 'WAITING': {
-                    content = `<@&${FLAMEWARDEN_ROLE}>`
-                    embed = createEmbed(
-                        `🧭 Check-In #${checkin.public_id}`,
-                        CheckinStatus.MSG.WaitingCheckin(userDiscordId, checkin),
-                        DUMMY.COLOR,
-                        { text: DUMMY.FOOTER(guild.name) },
-                    )
-                    break
-                }
-
-                case 'APPROVED': {
-                    embed = createEmbed(
-                        `🔥 Check-In #${checkin.public_id}`,
-                        CheckinStatus.MSG.ApprovedCheckin(userDiscordId, flamewarden, checkin),
-                        DUMMY.COLOR,
-                        { text: DUMMY.FOOTER(guild.name) },
-                    )
-                    break
-                }
-
-                default: {
-                    embed = createEmbed(
-                        `❌ Check-In #${checkin.public_id}`,
-                        CheckinStatus.MSG.RejectedCheckin(userDiscordId, flamewarden, checkin),
-                        DUMMY.COLOR,
-                        { text: DUMMY.FOOTER(guild.name) },
-                    )
-                    break
-                }
+        const hasToday = Checkin.hasCheckinToday(checkin.checkin_streak, checkin)
+        if (hasToday) {
+            switch (checkin.status) {
+                case 'WAITING': return { type: 'WAITING' }
+                case 'APPROVED': return { type: 'APPROVED' }
+                default: return { type: 'REJECTED' }
             }
-
-            return { content, embed }
         }
 
-        const shouldShowNoCheckin = !checkin || (checkin.status === 'APPROVED' && isDateYesterday(checkin.created_at))
-        if (shouldShowNoCheckin) {
-            embed = createEmbed(
-                `🧐 Check-In`,
-                CheckinStatus.MSG.NoCheckin(userDiscordId, checkinStreak),
-                DUMMY.COLOR,
-                { text: DUMMY.FOOTER(guild.name) },
-            )
+        if (checkin.status === 'APPROVED' && isDateYesterday(checkin.created_at))
+            return { type: 'NO_CHECKIN' }
 
-            return { content, embed }
+        return { type: 'LAST_CHECKIN' }
+    }
+
+    static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin?: CheckinType, reviewer?: GuildMember | null): Promise<CheckinStatusEmbedContent> {
+        const state = this.resolveCheckinState(checkin)
+        const footer = { text: DUMMY.FOOTER(guild.name) }
+
+        switch (state.type) {
+            case 'WAITING':
+                return {
+                    content: `<@&${FLAMEWARDEN_ROLE}>`,
+                    embed: createEmbed(
+                        `🧭 Check-In #${checkin!.public_id}`,
+                        this.MSG.WaitingCheckin(userDiscordId, checkin!),
+                        DUMMY.COLOR,
+                        footer,
+                    ),
+                }
+
+            case 'APPROVED':
+                return {
+                    embed: createEmbed(
+                        `🔥 Check-In #${checkin!.public_id}`,
+                        this.MSG.ApprovedCheckin(userDiscordId, reviewer!, checkin!),
+                        DUMMY.COLOR,
+                        footer,
+                    ),
+                }
+
+            case 'REJECTED':
+                return {
+                    embed: createEmbed(
+                        `❌ Check-In #${checkin!.public_id}`,
+                        this.MSG.RejectedCheckin(userDiscordId, reviewer!, checkin!),
+                        DUMMY.COLOR,
+                        footer,
+                    ),
+                }
+
+            case 'LAST_CHECKIN':
+                return {
+                    embed: createEmbed(
+                        `🕯️ Check-In #${checkin!.public_id}`,
+                        this.MSG.LastCheckin(
+                            guild.name,
+                            userDiscordId,
+                            checkin!,
+                            reviewer,
+                        ),
+                        DUMMY.COLOR,
+                        footer,
+                    ),
+                }
+
+            case 'NO_CHECKIN':
+                return {
+                    embed: createEmbed(
+                        `🧐 Check-In`,
+                        this.MSG.NoCheckin(userDiscordId, checkin?.checkin_streak),
+                        DUMMY.COLOR,
+                        footer,
+                    ),
+                }
         }
-
-        const flamewarden = checkin.reviewed_by ? await getMember(guild, checkin.reviewed_by) : undefined
-        embed = createEmbed(
-            `🕯️ Check-In #${checkin.public_id}`,
-            CheckinStatus.MSG.LastCheckin(guild.name, userDiscordId, checkin, flamewarden),
-            DUMMY.COLOR,
-            { text: DUMMY.FOOTER(guild.name) },
-        )
-
-        return { content, embed }
     }
 
     static async getUser(prisma: PrismaClient, userDiscordId: string): Promise<User> {
