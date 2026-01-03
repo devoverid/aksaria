@@ -28,3 +28,9 @@ export interface CheckinColumn<T extends keyof Prisma.CheckinWhereInput> {
     key: T
     value: Prisma.CheckinWhereInput[T] | Prisma.CheckinWhereUniqueInput[K]
 }
+
+export type ResolvedCheckinState = | { type: 'NO_CHECKIN' }
+    | { type: 'WAITING' }
+    | { type: 'APPROVED' }
+    | { type: 'REJECTED' }
+    | { type: 'LAST_CHECKIN' }

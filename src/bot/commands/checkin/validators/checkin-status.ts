@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@generatedDB/client'
-import type { CheckinStatusType, Checkin as CheckinType } from '@type/checkin'
+import type { CheckinStatusType, Checkin as CheckinType, ResolvedCheckinState } from '@type/checkin'
 import type { User } from '@type/user'
 import type { EmbedBuilder, Guild, Interaction, ThreadAutoArchiveDuration } from 'discord.js'
 import { CHECKIN_CHANNEL, FLAMEWARDEN_ROLE } from '@config/discord'
@@ -35,6 +35,25 @@ export class CheckinStatus extends CheckinStatusMessage {
         const checkinLink = messageLink(CHECKIN_CHANNEL, checkinMessageId, interaction.guildId)
 
         return { prefix, guildId, checkinLink }
+    }
+
+    static resolveCheckinState(checkin?: CheckinType): ResolvedCheckinState {
+        if (!checkin)
+            return { type: 'NO_CHECKIN' }
+
+        const hasToday = Checkin.hasCheckinToday(checkin.checkin_streak, checkin)
+        if (hasToday) {
+            switch (checkin.status) {
+                case 'WAITING': return { type: 'WAITING' }
+                case 'APPROVED': return { type: 'APPROVED' }
+                default: return { type: 'REJECTED' }
+            }
+        }
+
+        if (checkin.status === 'APPROVED' && isDateYesterday(checkin.created_at))
+            return { type: 'NO_CHECKIN' }
+
+        return { type: 'LAST_CHECKIN' }
     }
 
     static async getEmbedStatusContent(guild: Guild, userDiscordId: string, checkin?: CheckinType) {
