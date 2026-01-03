@@ -421,7 +421,7 @@ export class Checkin extends CheckinMessage {
     static async validateCheckin<K extends keyof Prisma.CheckinWhereInput>(
         client: Client,
         guild: Guild,
-        flamewarden: GuildMember,
+        reviewer: GuildMember,
         opt: CheckinColumn<K>,
         checkinCreatedAt: Date,
         checkinStatus: CheckinStatusType,
@@ -430,19 +430,19 @@ export class Checkin extends CheckinMessage {
     ): Promise<CheckinType> {
         if (!isAudit)
             await this.assertSubmittedCheckinToday(client.prisma, opt)
-        const updatedCheckin = await this.updateCheckinStatus(client.prisma, flamewarden, opt, checkinCreatedAt, checkinStatus, comment, isAudit) as CheckinType
+        const updatedCheckin = await this.updateCheckinStatus(client.prisma, reviewer, opt, checkinCreatedAt, checkinStatus, comment, isAudit) as CheckinType
 
         const checkinChannel = await getChannel(guild, CHECKIN_CHANNEL) as TextChannel
         const { messageId } = this.getMessageFromLink(updatedCheckin.link!)
         const message = await checkinChannel.messages.fetch(messageId)
 
-        await this.validateCheckinHandleToUser(guild, flamewarden, updatedCheckin.user!.discord_id, updatedCheckin)
+        await this.validateCheckinHandleToUser(guild, reviewer, updatedCheckin.user!.discord_id, updatedCheckin)
         await this.editSubmittedCheckinMessage(message, checkinStatus)
 
         return updatedCheckin
     }
 
-    static async validateCheckinHandleToUser(guild: Guild, flamewarden: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
+    static async validateCheckinHandleToUser(guild: Guild, reviewer: GuildMember, userDiscordId: string, updatedCheckin: CheckinType) {
         const member = await getMember(guild, userDiscordId)
         this.assertMember(member)
 
@@ -452,7 +452,7 @@ export class Checkin extends CheckinMessage {
 
         const newGrindRole = this.getNewGrindRole(guild, updatedCheckin.checkin_streak!.streak)
         await this.setMemberNewGrindRole(guild, member, newGrindRole)
-        await this.sendCheckinStatusToMember(flamewarden, member, updatedCheckin)
+        await this.sendCheckinStatusToMember(reviewer, member, updatedCheckin)
     }
 
     static async editSubmittedCheckinMessage(message: Message, checkinStatus: CheckinStatusType) {
@@ -532,14 +532,14 @@ export class Checkin extends CheckinMessage {
         await member.send({ embeds: [embed] })
     }
 
-    static async sendCheckinStatusToMember(flamewarden: GuildMember, member: GuildMember, checkin: CheckinType) {
+    static async sendCheckinStatusToMember(reviewer: GuildMember, member: GuildMember, checkin: CheckinType) {
         let embed: EmbedBuilder
 
         switch (checkin.status) {
             case 'REJECTED':
                 embed = createEmbed(
                     `⚠️ *Check-In* Ditolak`,
-                    this.MSG.CheckinRejected(flamewarden, checkin),
+                    this.MSG.CheckinRejected(reviewer, checkin),
                     '#D9534F',
                     { text: DUMMY.FOOTER(member.guild.name) },
                 )
@@ -548,7 +548,7 @@ export class Checkin extends CheckinMessage {
             case 'APPROVED':
                 embed = createEmbed(
                     `🔥 *Check-In* Disetujui`,
-                    this.MSG.CheckinApproved(flamewarden, checkin),
+                    this.MSG.CheckinApproved(reviewer, checkin),
                     '#4CAF50',
                     { text: DUMMY.FOOTER(member.guild.name) },
                 )

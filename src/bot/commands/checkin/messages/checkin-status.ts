@@ -48,7 +48,7 @@ ${checkin.public_id}
 🔎 **Status**: Menunggu peninjauan <@&${FLAMEWARDEN_ROLE}>
 > *"Percikan telah Tuan/Nona <@${userDiscordId}> titipkan. Mohon menanti sesaat, <@&${FLAMEWARDEN_ROLE}> tengah menakar apakah [nyala tersebut](${checkin.link}) layak menjadi bagian dari perjalanan Tuan/Nona."*
         `,
-        ApprovedCheckin: (userDiscordId: string, flamewarden: GuildMember, checkin: Checkin) => `
+        ApprovedCheckin: (userDiscordId: string, reviewer: GuildMember, checkin: Checkin) => `
 🆔 **Check-In ID**:
 \`\`\`bash
 ${checkin.public_id}
@@ -58,11 +58,11 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Disetujui; api Tuan/Nona kian terang
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Approved By**: <@${flamewarden.id}>
-✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
+👀 **Approved By**: <@${reviewer.id}>
+✍🏻 **${reviewer.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Nyala hari ini](${checkin.link}) diterima. Teruslah menenun aksara disiplin, satu hari demi satu hari."*
         `,
-        RejectedCheckin: (userDiscordId: string, flamewarden: GuildMember, checkin: Checkin) => `
+        RejectedCheckin: (userDiscordId: string, reviewer: GuildMember, checkin: Checkin) => `
 🆔 **Check-In ID**:
 \`\`\`bash
 ${checkin.public_id}
@@ -72,11 +72,11 @@ ${checkin.public_id}
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak} day(s)
 🔎 **Status**: Ditolak; percikan tak cukup kuat
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: <@${flamewarden.id}>
-✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
+👀 **Reviewed By**: <@${reviewer.id}>
+✍🏻 **${reviewer.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 > *"[Api Tuan/Nona](${checkin.link}) <@${userDiscordId}> meredup hari ini, namun belum padam sepenuhnya. Perbaiki, dan nyalakan kembali percikan yang benar."*
         `,
-        LastCheckin: (guildName: string, userDiscordId: string, checkin: Checkin, flamewarden?: GuildMember) => `
+        LastCheckin: (guildName: string, userDiscordId: string, checkin: Checkin, reviewer?: GuildMember | null) => `
 Wahai Tuan/Nona <@${userDiscordId}>,
 tercatat bahwa rangkaian nyala api Tuan/Nona telah terputus pada pergantian hari sebelumnya.
 Namun demikian, percikan terakhir masih tersimpan dalam arsip ${guildName} dan dapat ditinjau kembali.
@@ -92,10 +92,10 @@ ${checkin.public_id}
 🔥 **Last Streak**: ${checkin.checkin_streak!.streak} day(s)
 💥 **Broken Streak**: ${checkin.checkin_streak!.streak_broken_at ? '✅' : '❌'}
 🔎 **Status**: ${checkin.status}
-${flamewarden?.displayName
+${reviewer?.displayName
     ? `🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: ${flamewarden.displayName} (@${flamewarden.user.username})
-✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}`
+👀 **Reviewed By**: ${reviewer.displayName} (@${reviewer.user.username})
+✍🏻 **${reviewer.displayName}'(s) Comment**: ${checkin.comment ?? '-'}`
     : ''}
 > *"[Percikan ini](${checkin.link}) pernah kamu titipkan pada api, namun belum sempat ditakar oleh penjaga nyala."*
         `,

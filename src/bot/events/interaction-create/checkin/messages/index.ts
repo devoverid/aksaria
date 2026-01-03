@@ -47,7 +47,7 @@ ${checkin.public_id}
 
 > 🔎 Sedang menunggu peninjauan Flamewarden; mohon Tuan/Nona bersabar`,
 
-        CheckinApproved: (flamewarden: GuildMember, checkin: Checkin) => `
+        CheckinApproved: (reviewer: GuildMember, checkin: Checkin) => `
 [Nyala api](${checkin.link}) Tuan/Nona berkobar lebih terang pada hari ini.
 🆔 **Check-In ID**:
 \`\`\`bash
@@ -55,12 +55,12 @@ ${checkin.public_id}
 \`\`\`
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Approved At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Approved By**: <@${flamewarden.id}>
-✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
+👀 **Approved By**: <@${reviewer.id}>
+✍🏻 **${reviewer.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
 > 🔥 Konsistensi ialah bahan bakar nyala api; teruskan langkah Tuan/Nona`,
 
-        CheckinRejected: (flamewarden: GuildMember, checkin: Checkin) => `
+        CheckinRejected: (reviewer: GuildMember, checkin: Checkin) => `
 [Check-in ini](${checkin.link}) tidak memenuhi syarat dan dengan demikian telah ditolak.
 🆔 **Check-In ID**:
 \`\`\`bash
@@ -68,8 +68,8 @@ ${checkin.public_id}
 \`\`\`
 🔥 **Current Streak**: ${checkin.checkin_streak!.streak}
 🗓 **Reviewed At**: ${getParsedNow(getNow(checkin.updated_at!))}
-👀 **Reviewed By**: <@${flamewarden.id}>
-✍🏻 **${flamewarden.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
+👀 **Reviewed By**: <@${reviewer.id}>
+✍🏻 **${reviewer.displayName}'(s) Comment**: ${checkin.comment ?? '-'}
 
 > 🧯 Nyala api Tuan/Nona meredup, namun belum padam; silakan mencuba kembali`,
     }
