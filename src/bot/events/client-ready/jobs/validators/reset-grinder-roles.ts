@@ -92,10 +92,11 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
 
         for (const user of users) {
             const checkinStreak = user.checkin_streaks?.[0]
+            const lastCheckin = checkinStreak?.checkins?.[0]
+
             if (!checkinStreak)
                 continue
 
-            const lastCheckin = checkinStreak.checkins?.[0]
             if (this.hasValidCheckin(lastCheckin))
                 continue
 
@@ -103,25 +104,47 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
             if (!member)
                 continue
 
-            await this.removeGrinderRoles(member)
-            await this.breakCheckinStreakAt(prisma, checkinStreak, lastCheckin!)
-            const thread = await this.notifyWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
-
-            const payloads: InteractionReplyOptions = {
-                content: ResetGrinderRoles.MSG.GoodBye(guild.name, member),
-                allowedMentions: { users: [member.id], roles: [] },
-            }
-            if (thread)
-                payloads.components = [this.generateButton(guild.id, thread)]
-
-            await sendAsBot(
-                null,
+            await this.processUser(
+                prisma,
+                guild,
+                member,
+                user,
+                checkinStreak,
+                lastCheckin!,
                 grindAshesChannel,
-                payloads,
+                auditFlameChannel,
             )
-
-            log.info(this.MSG.RemoveGrinderRoleFrom(member))
         }
+    }
+
+    static async processUser(
+        prisma: PrismaClient,
+        guild: Guild,
+        member: GuildMember,
+        user: User,
+        checkinStreak: CheckinStreak,
+        lastCheckin: CheckinType,
+        grindAshesChannel: TextChannel,
+        auditFlameChannel: TextChannel,
+    ) {
+        await this.removeGrinderRoles(member)
+        await this.breakCheckinStreakAt(prisma, checkinStreak, lastCheckin!)
+        const thread = await this.notifyWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
+
+        const payloads: InteractionReplyOptions = {
+            content: ResetGrinderRoles.MSG.GoodBye(guild.name, member),
+            allowedMentions: { users: [member.id], roles: [] },
+        }
+        if (thread)
+            payloads.components = [this.generateButton(guild.id, thread)]
+
+        await sendAsBot(
+            null,
+            grindAshesChannel,
+            payloads,
+        )
+
+        log.info(this.MSG.RemoveGrinderRoleFrom(member))
     }
 
     static async getUsersWithLatestStreak(prisma: PrismaClient): Promise<User[]> {
