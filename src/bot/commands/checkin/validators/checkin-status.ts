@@ -95,7 +95,7 @@ export class CheckinStatus extends CheckinStatusMessage {
             return { content, embed }
         }
 
-        const flamewarden = await getMember(guild, checkin.reviewed_by!)
+        const flamewarden = checkin.reviewed_by ? await getMember(guild, checkin.reviewed_by) : undefined
         embed = createEmbed(
             `🕯️ Check-In #${checkin.public_id}`,
             CheckinStatus.MSG.LastCheckin(guild.name, userDiscordId, checkin, flamewarden),

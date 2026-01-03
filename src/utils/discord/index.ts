@@ -1,21 +1,31 @@
-import type { Attachment, ChatInputCommandInteraction, ClientUser, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel, ThreadChannel } from 'discord.js'
+import type { Attachment, ChatInputCommandInteraction, ClientUser, FetchMembersOptions, Guild, GuildMember, Interaction, InteractionDeferReplyOptions, InteractionReplyOptions, MessageCreateOptions, PermissionsBitField, Role, TextChannel, ThreadChannel } from 'discord.js'
 import { MessageFlags } from 'discord.js'
 
 export async function getChannel(guild: Guild, id: string, isThread: boolean = false): Promise<TextChannel | ThreadChannel> {
+    const cached = guild!.channels.cache.get(id)
+
     if (isThread) {
-        return guild!.channels.cache.get(id) as TextChannel ?? await guild!.channels.fetch(id).then(channel => channel as TextChannel)
+        return cached as TextChannel ?? await guild!.channels.fetch(id).then(channel => channel as TextChannel)
     }
     else {
-        return guild!.channels.cache.get(id) as ThreadChannel ?? await guild!.channels.fetch(id).then(channel => channel as ThreadChannel)
+        return cached as ThreadChannel ?? await guild!.channels.fetch(id).then(channel => channel as ThreadChannel)
     }
 }
 
 export async function getRole(guild: Guild, id: string): Promise<Role> {
-    return guild!.roles.cache.get(id) as Role ?? await guild!.roles.fetch(id)
+    const cached = guild!.roles.cache.get(id)
+
+    return cached as Role ?? await guild!.roles.fetch(id)
 }
 
 export async function getMember(guild: Guild, discordId: string) {
-    return guild.members.cache.get(discordId) as GuildMember ?? await guild.members.fetch(discordId)
+    const cached = guild.members.cache.get(discordId)
+
+    return cached as GuildMember ?? await guild.members.fetch(discordId)
+}
+
+export async function getMembers(guild: Guild, userIds: string[], opts?: FetchMembersOptions) {
+    return await guild.members.fetch({ user: userIds, ...opts })
 }
 
 export const getMissPerms = (channelPerms: Readonly<PermissionsBitField>, requiredPerms: bigint[]): bigint[] => requiredPerms.filter(p => !channelPerms.has(p))
