@@ -3,7 +3,7 @@ import { formatList } from '@utils/text'
 
 export class DiscordMessage {
     static readonly ERR = {
-        NoMember: '❌ Couldn’t resolve your member record',
+        NoMember: '❌ Couldn’t resolve the member',
         NotGuild: '❌ This action must be used in a server',
         ChannelNotFound: '❌ Channel not found',
         RoleUneditable: '❌ I can’t manage that role (check role hierarchy/managed role/@everyone)',

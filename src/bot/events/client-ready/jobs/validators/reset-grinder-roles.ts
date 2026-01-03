@@ -71,20 +71,16 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
 
     static async validateWaitingCheckin(guild: Guild, auditFlameChannel: TextChannel, member: GuildMember, user: User, checkin: CheckinType): Promise<PublicThreadChannel | undefined> {
         if (checkin && checkin.status as CheckinStatusType === 'WAITING') {
-            const { content, embed } = await CheckinStatus.getEmbedStatusContent(
-                guild,
-                user.discord_id,
-                checkin,
-            )
+            const { content, embed } = await CheckinStatus.getEmbedStatusContent(guild, user.discord_id, checkin)
             const message = await sendAsBot(null, auditFlameChannel, { embeds: [embed], allowedMentions: { roles: [FLAMEWARDEN_ROLE] }, content }) as Message
+            await message.react(CheckinStatus.CLARIFICATION_EMOJI)
+
             const thread = await message.startThread({
                 name: CheckinStatus.MSG.ThreadName(checkin.public_id),
                 reason: CheckinStatus.MSG.ThreadReason(member.user.tag),
                 autoArchiveDuration: CheckinStatus.THREAD_ARCHIVE_DURATION,
             })
-
             await thread.send({ content: CheckinStatus.MSG.ThreadContent(user.discord_id, checkin) })
-            await message.react(CheckinStatus.CLARIFICATION_EMOJI)
 
             return thread
         }
@@ -104,6 +100,9 @@ export class ResetGrinderRoles extends ResetGrinderRolesMessage {
                 continue
 
             const member = members.get(user.discord_id) as GuildMember
+            if (!member)
+                continue
+
             await this.removeGrinderRoles(member)
             await this.breakCheckinStreakAt(prisma, checkinStreak, lastCheckin!)
             const thread = await this.validateWaitingCheckin(guild, auditFlameChannel, member, user, lastCheckin!)
