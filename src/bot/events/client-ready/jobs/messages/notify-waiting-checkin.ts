@@ -13,6 +13,7 @@ export class NotifyWaitingCheckinMessage extends DiscordAssert {
         ...DiscordAssert.MSG,
         JobRunning: '[JOB] Running notify waiting checkin...',
         JobSuccess: '[JOB] Notify waiting checkin finished successfully',
+        NoWaitingCheckins: 'There are no check-ins currently waiting for review',
         Opening: (guildName: string) => `
 Wahai para <@&${FLAMEWARDEN_ROLE}>,
 tatkala malam kian mendekat dan waktu hampir beralih hari, ${guildName} mencatat bahwa masih terdapat percikan api yang belum ditakar.
