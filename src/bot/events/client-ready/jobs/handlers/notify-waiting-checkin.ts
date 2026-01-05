@@ -33,11 +33,16 @@ registerClientReadyHandler({
                 NotifyWaitingCheckin.assertMissPerms(bot, wardenDutyChannel)
                 const checkins = await NotifyWaitingCheckin.getTodayWaitingCheckins(client.prisma)
 
-                await NotifyWaitingCheckin.sendOpening(guild.name, wardenDutyChannel)
-                await NotifyWaitingCheckin.sendList(checkins, wardenDutyChannel)
-                await NotifyWaitingCheckin.sendClosing(guild.name, wardenDutyChannel)
+                if (checkins.length) {
+                    await NotifyWaitingCheckin.sendOpening(guild.name, wardenDutyChannel)
+                    await NotifyWaitingCheckin.sendList(checkins, wardenDutyChannel)
+                    await NotifyWaitingCheckin.sendClosing(guild.name, wardenDutyChannel)
 
-                log.success(NotifyWaitingCheckin.MSG.JobSuccess)
+                    log.success(NotifyWaitingCheckin.MSG.JobSuccess)
+                }
+                else {
+                    log.success(NotifyWaitingCheckin.MSG.NoWaitingCheckins)
+                }
             })
         }
         catch (err) {
