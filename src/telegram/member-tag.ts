@@ -4,11 +4,11 @@ import { fetchChatMember, currentMemberTag, isModerator } from './auth'
 import { InlineKeyboard } from 'grammy'
 
 export function tagPostText(tag: string): string {
-    return `Claim member tag: ${tag}`
+    return `🎟️ Claim your member tag: ${tag}`
 }
 
 function tagKeyboard(): InlineKeyboard {
-    return new InlineKeyboard().text('Claim tag', 'tag:claim')
+    return new InlineKeyboard().text('🎟️ Claim tag', 'tag:claim')
 }
 
 export async function handlePostTag(ctx: Context, deps: TelegramDeps): Promise<void> {
@@ -19,7 +19,7 @@ export async function handlePostTag(ctx: Context, deps: TelegramDeps): Promise<v
 
     const member = await fetchChatMember(ctx.api, deps.chatId, from.id)
     if (!isModerator(member)) {
-        await ctx.reply('You are not allowed to post the member tag claim.')
+        await ctx.reply('🛡️ Mods only — not allowed for this one!')
         return
     }
 
@@ -38,7 +38,7 @@ function isCurrentTagPost(ctx: Context, deps: TelegramDeps): boolean {
         return false
 
     return message.reply_markup?.inline_keyboard.some(row =>
-        row.some(button => button.text === 'Claim tag' && 'callback_data' in button && button.callback_data === 'tag:claim'),
+        row.some(button => button.text === '🎟️ Claim tag' && 'callback_data' in button && button.callback_data === 'tag:claim'),
     ) ?? false
 }
 
@@ -54,36 +54,36 @@ async function alert(ctx: Context, text: string): Promise<void> {
 export async function handleTagClaim(ctx: Context, deps: TelegramDeps): Promise<void> {
     const from = ctx.from
     if (!from || from.is_bot || !ctx.callbackQuery) {
-        await alert(ctx, 'This member tag post is no longer available.')
+        await alert(ctx, '⌛ This member tag post is no longer available.')
         return
     }
 
     if (!isCurrentTagPost(ctx, deps)) {
-        await alert(ctx, 'This member tag post is stale.')
+        await alert(ctx, '⌛ That tag post is stale. Ask a mod for a fresh one!')
         return
     }
 
     const member = await fetchChatMember(ctx.api, deps.chatId, from.id)
     if (!member || member.status !== 'member') {
-        await alert(ctx, 'Only regular members can claim this tag.')
+        await alert(ctx, '🙅 Regular members only for this tag.')
         return
     }
 
     const existingTag = currentMemberTag(member)
     if (existingTag === deps.memberTag) {
-        await alert(ctx, 'You already have this tag.')
+        await alert(ctx, '😎 You already rock this tag!')
         return
     }
     if (existingTag) {
-        await alert(ctx, 'You already have another tag.')
+        await alert(ctx, '🎭 One tag at a time — you’ve already got another!')
         return
     }
 
     try {
         await ctx.api.setChatMemberTag(deps.chatId, from.id, deps.memberTag)
-        await ctx.answerCallbackQuery({ text: 'Member tag updated.' })
+        await ctx.answerCallbackQuery({ text: `🎉 Tag unlocked: ${deps.memberTag}!` })
     }
     catch {
-        await alert(ctx, 'No tag could be confirmed.')
+        await alert(ctx, '😬 Couldn’t confirm the tag. Try again in a bit!')
     }
 }

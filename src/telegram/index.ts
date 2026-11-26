@@ -98,39 +98,37 @@ function parseCommand(message: Message, botUsername: string): ParsedCommand | nu
 
 function groupHelpText(botUsername: string, moderator: boolean): string {
     const lines = [
-        'Aksaria check-ins',
+        '⚡ Aksaria check-ins',
         '',
-        'Submit with:',
-        '/checkin <description> and attach one photo or document, or reply to your own photo or document.',
+        'Drop your daily win:',
+        '/checkin <your win> + one photo/doc (or reply to your own)',
         '',
-        `Status and details are private. Open https://t.me/${botUsername} and /start.`,
+        `🔒 Status & details: https://t.me/${botUsername} → /start`,
         '',
-        'Peer review other members\' check-ins privately:',
+        '👀 Peer review (not your own):',
         '/checkin_review [ID] [approve|reject] [comment]',
         '/checkin_audit <ID> approve [comment]',
-        'You cannot review your own check-in.',
     ]
 
     if (moderator)
-        lines.push('', 'Moderators: /post_grinder_tag posts the member tag button.')
+        lines.push('', '🛡️ Mods: /post_grinder_tag drops the tag button.')
 
     return lines.join('\n')
 }
 
 function privateHelpText(moderator: boolean): string {
     const lines = [
-        'Private check-in commands:',
-        '/checkin_status - current state and streak',
-        '/checkin_details <ID> - one of your check-ins',
+        '⚡ Your private check-in HQ',
+        '/checkin_status — state + streak',
+        '/checkin_details <ID> — proof + history',
         '',
-        'Peer review other members\' check-ins:',
-        '/checkin_review [ID] [approve|reject] [comment] - review today\'s queue',
-        '/checkin_audit <ID> approve [comment] - approve an older waiting check-in',
-        'You cannot review your own check-in.',
+        '👀 Review others (not your own):',
+        '/checkin_review [ID] [approve|reject] [comment]',
+        '/checkin_audit <ID> approve [comment]',
     ]
 
     if (moderator)
-        lines.push('', 'Moderator: /post_grinder_tag in the group posts the member tag button.')
+        lines.push('', '🛡️ Mod: /post_grinder_tag in the group.')
 
     return lines.join('\n')
 }
@@ -197,7 +195,7 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
                 return
 
             if (command.name === 'ping') {
-                await ctx.reply('Pong!')
+                await ctx.reply('🏓 Pong!')
                 return
             }
 
@@ -222,7 +220,7 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
             case 'start':
                 await recordDmOptIn(deps.prisma, deps.chatId, String(from.id), deps.now())
                 await ctx.reply([
-                    'Welcome! Your private check-in access is enabled.',
+                    '🎉 You’re in! Private check-in access unlocked.',
                     '',
                     privateHelpText(isModerator(member)),
                 ].join('\n'))
@@ -258,9 +256,9 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
         const data = ctx.callbackQuery.data
         try {
             if (data?.startsWith('ci:'))
-                await ctx.answerCallbackQuery({ text: 'Invalid check-in action.', show_alert: true })
+                await ctx.answerCallbackQuery({ text: '🤔 Invalid check-in action.', show_alert: true })
             else if (data?.startsWith('tag:'))
-                await ctx.answerCallbackQuery({ text: 'This member tag post is stale.', show_alert: true })
+                await ctx.answerCallbackQuery({ text: '⌛ That tag post is stale. Ask a mod for a fresh one!', show_alert: true })
             else
                 await ctx.answerCallbackQuery()
         }

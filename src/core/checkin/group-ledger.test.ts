@@ -282,7 +282,7 @@ test('reviewer reminder posts once for today count in the configured group only'
     expect(count).toBe(2)
     expect(messages).toHaveLength(1)
     expect(messages[0][0]).toBe(Number(chatId))
-    expect(messages[0][1]).toContain('2 check-ins are waiting for review')
+    expect(messages[0][1]).toContain('2 check-ins need a verdict')
 })
 
 test('loss notices are claimed once and reach only the broken streak', async () => {

@@ -243,7 +243,7 @@ test('ping responds only in the allowlisted group and only when addressed to thi
     const harness = await createHarness()
 
     await harness.sendGroup({ text: '/ping@aksaria_test_bot' }, 2001)
-    expect(harness.groupSends().at(-1)?.payload.text).toBe('Pong!')
+    expect(harness.groupSends().at(-1)?.payload.text).toBe('🏓 Pong!')
 
     await harness.sendGroup({ text: '/checkin_status' }, 2001)
     expect(harness.groupSends().at(-1)?.payload.text).toContain('https://t.me/aksaria_test_bot')
@@ -285,7 +285,7 @@ test('submission stores proof metadata, welcomes the first check-in, not the sec
 
     await harness.sendGroup({ caption: '/checkin Duplicate source' }, userId, { photo: photo('photo-duplicate') })
     expect(harness.groupSends().at(-1)?.payload.text).toContain(checkinReference(firstMessage.message_id))
-    expect(harness.groupSends().at(-1)?.payload.text).toContain('already have a check-in for today')
+    expect(harness.groupSends().at(-1)?.payload.text).toContain('already checked in today')
     expect(harness.groupSends().at(-1)?.payload.reply_markup).toBeUndefined()
 
     harness.setNow(addDays(BASE_DAY, 1))
@@ -335,7 +335,7 @@ test('any member can review another member, never their own check-in', async () 
     const receipt = harness.sentMessages.find(message => message.text?.includes('WAITING'))!
 
     await harness.click(2201, `ci:a:${checkinReference(stored!.sourceMessageId)}`, receipt)
-    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('You cannot review your own check-in.')
+    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('😅 That’s your own check-in — let someone else judge it!')
 
     let row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2201' } })
     expect(row!.status).toBe('WAITING')
@@ -367,7 +367,7 @@ test('private review is peer-only and keeps comments out of the group', async ()
     const reference = checkinReference(stored!.sourceMessageId)
 
     await harness.sendPrivate(`/checkin_review ${reference} approve self`, 2302)
-    expect(harness.methodCalls('sendMessage').at(-1)?.payload.text).toBe('You cannot review your own check-in.')
+    expect(harness.methodCalls('sendMessage').at(-1)?.payload.text).toBe('😅 That’s your own check-in — let someone else judge it!')
 
     let row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2302' } })
     expect(row!.status).toBe('WAITING')
@@ -386,7 +386,7 @@ test('private review is peer-only and keeps comments out of the group', async ()
 
     await harness.sendPrivate('/checkin_review', 2303)
     const queue = harness.methodCalls('sendMessage').at(-1)?.payload.text as string
-    expect(queue).toContain('Waiting check-ins from other members: 1')
+    expect(queue).toContain('👀 1 check-in from others needs a verdict')
     expect(queue).toContain(checkinReference(other.message_id))
     expect(queue).not.toContain(checkinReference(own.message_id))
 })
@@ -400,7 +400,7 @@ test('details are author-or-moderator only and prove privately', async () => {
     const stored = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2401' } })
 
     await harness.sendPrivate(`/checkin_details ${checkinReference(stored!.sourceMessageId)}`, 2402)
-    expect(harness.methodCalls('sendMessage').at(-1)?.payload.text).toBe('Check-in not found.')
+    expect(harness.methodCalls('sendMessage').at(-1)?.payload.text).toBe('🔍 Check-in not found.')
 
     await harness.sendPrivate('/start', 2401)
     await harness.sendPrivate(`/checkin_details ${checkinReference(stored!.sourceMessageId)}`, 2401)
@@ -428,24 +428,24 @@ test('member tag is posted by moderators and claimed only by eligible members', 
 
     await harness.sendGroup({ text: '/post_grinder_tag' }, 2501)
     const post = harness.groupSends().at(-1)!
-    expect(post.payload.text).toBe('Claim member tag: Grinder')
+    expect(post.payload.text).toBe('🎟️ Claim your member tag: Grinder')
 
     const posted = harness.sentMessages.at(-1)!
     await harness.click(2502, 'tag:claim', posted)
     expect(harness.tagUpdates).toEqual([{ chatId: harness.chatId, userId: 2502, tag: 'Grinder' }])
-    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('Member tag updated.')
+    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('🎉 Tag unlocked: Grinder!')
 
     await harness.click(2502, 'tag:claim', posted)
     expect(harness.tagUpdates).toHaveLength(1)
-    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('You already have this tag.')
+    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('😎 You already rock this tag!')
 
     await harness.click(2503, 'tag:claim', posted)
     expect(harness.tagUpdates).toHaveLength(1)
-    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('You already have another tag.')
+    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('🎭 One tag at a time — you’ve already got another!')
 
     await harness.click(2501, 'tag:claim', posted)
     expect(harness.tagUpdates).toHaveLength(1)
-    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('Only regular members can claim this tag.')
+    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('🙅 Regular members only for this tag.')
 })
 
 test('a deleted receipt and a blocked DM do not undo a decision', async () => {

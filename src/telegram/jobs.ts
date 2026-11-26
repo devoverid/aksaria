@@ -21,10 +21,10 @@ export async function runReviewerReminder(api: TelegramJobsApi, deps: TelegramDe
     if (!count)
         return 0
 
-    const noun = count === 1 ? 'check-in is' : 'check-ins are'
+    const noun = count === 1 ? 'check-in needs' : 'check-ins need'
     await api.sendMessage(
         Number(deps.chatId),
-        `${count} ${noun} waiting for review. Moderators can use /checkin_review in private.`,
+        `⚡ ${count} ${noun} a verdict! Peers, hit /checkin_review in DM.`,
     )
 
     return count
@@ -46,7 +46,7 @@ export async function runLossNotices(api: TelegramJobsApi, deps: TelegramDeps, n
         try {
             await api.sendMessage(
                 Number(userId),
-                `Your check-in streak ended on ${addDays(today, -1).toISOString().slice(0, 10)}: there was no approved check-in yesterday. Start again with /checkin in the group.`,
+                `💔 Streak broken on ${addDays(today, -1).toISOString().slice(0, 10)}. No approved check-in yesterday — bounce back with /checkin! 🔥`,
             )
         }
         catch {

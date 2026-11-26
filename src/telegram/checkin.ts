@@ -33,7 +33,7 @@ import { InlineKeyboard } from 'grammy'
 const MAX_DESCRIPTION_LENGTH = 2_000
 const MAX_COMMENT_LENGTH = 500
 const GROUP_PRIVATE_LINK_TEXT = (username: string) =>
-    `Check-in status and details are private. Open https://t.me/${username} and /start.`
+    `🔒 Status & details are DM-only → https://t.me/${username}\nTap /start and see your spark! ⚡`
 
 class ProofError extends Error {}
 
@@ -61,56 +61,52 @@ function proofFromMessage(message: Message): Proof | 'unsupported' | null {
 
 function extractProof(message: Message): Proof | null {
     if (message.media_group_id)
-        throw new ProofError('Albums are not supported; send one photo or document.')
+        throw new ProofError('📸 One at a time! Send a single photo or document.')
 
     const commandProof = proofFromMessage(message)
     if (commandProof === 'unsupported')
-        throw new ProofError('Only a photo or document can be used as proof.')
+        throw new ProofError('📎 Proof is one photo or document. Pick your best!')
 
     const reply = message.reply_to_message
     if (!reply) {
         if (message.has_protected_content && commandProof)
-            throw new ProofError('Protected media cannot be used as proof.')
+            throw new ProofError('🔒 Protected media can’t be proof. Choose something shareable.')
 
         return commandProof
     }
 
     const replyProof = proofFromMessage(reply)
     if (replyProof === 'unsupported')
-        throw new ProofError('Only a photo or document can be used as proof.')
+        throw new ProofError('📎 Proof is one photo or document. Pick your best!')
 
     if (!replyProof)
         return commandProof
 
     if (reply.from?.id !== message.from?.id)
-        throw new ProofError('You can only attach your own media as proof.')
+        throw new ProofError('🫵 Your proof, your glory — use your own media.')
 
     if (reply.media_group_id)
-        throw new ProofError('Albums are not supported; send one photo or document.')
+        throw new ProofError('📸 One at a time! Send a single photo or document.')
 
     if (message.message_thread_id !== undefined && reply.message_thread_id !== undefined
         && message.message_thread_id !== reply.message_thread_id) {
-        throw new ProofError('The proof must be in the same topic as the command.')
+        throw new ProofError('🧵 Keep the proof in the same topic as the command.')
     }
 
     if (message.has_protected_content || reply.has_protected_content)
-        throw new ProofError('Protected media cannot be used as proof.')
+        throw new ProofError('🔒 Protected media can’t be proof. Choose something shareable.')
 
     if (commandProof)
-        throw new ProofError('Attach proof either to the command or reply to one message, not both.')
+        throw new ProofError('☝️ One proof only: attach it to the command or reply to it, not both.')
 
     return replyProof
 }
 
-function usage(): string {
-    return 'Usage: /checkin <description> with one photo or document attached, or reply to your own photo or document.'
-}
-
 function receiptText(checkin: TelegramCheckin, isFirst: boolean, botUsername: string): string {
-    let text = `Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`
+    let text = `⚡ Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`
 
     if (isFirst) {
-        text += `\n\nWelcome! This is your first check-in. A moderator will review it. Approved days build your streak, and a broken streak is reported at midnight WIB. Open https://t.me/${botUsername} and /start for private status and details.`
+        text += `\n\n🎉 Welcome! First check-in locked in. A teammate will review it; approved days build your streak. DM https://t.me/${botUsername} → /start for your private dashboard.`
     }
 
     return text
@@ -118,8 +114,8 @@ function receiptText(checkin: TelegramCheckin, isFirst: boolean, botUsername: st
 
 function reviewKeyboard(reference: string): InlineKeyboard {
     return new InlineKeyboard()
-        .text('Approve', `ci:a:${reference}`)
-        .text('Reject', `ci:r:${reference}`)
+        .text('✅ Approve', `ci:a:${reference}`)
+        .text('❌ Reject', `ci:r:${reference}`)
 }
 
 async function sendWaitingReceipt(ctx: Context, deps: TelegramDeps, checkin: TelegramCheckin, isFirst: boolean): Promise<void> {
@@ -162,11 +158,11 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
 
     const description = args.trim()
     if (!description) {
-        await ctx.reply(usage())
+        await ctx.reply('⚡ /checkin <your win today> + one photo/document (or reply to your own).')
         return
     }
     if ([...description].length > MAX_DESCRIPTION_LENGTH) {
-        await ctx.reply(`The description must be 1-${MAX_DESCRIPTION_LENGTH} characters.`)
+        await ctx.reply(`✍️ Easy there, novelist! Keep it to 1–${MAX_DESCRIPTION_LENGTH} characters.`)
         return
     }
 
@@ -187,7 +183,7 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
     const submitDay = wibDay(createdAt)
 
     if (dayKey(submitDay) !== dayKey(wibDay(now))) {
-        await ctx.reply('This check-in was submitted before midnight WIB and cannot be accepted.')
+        await ctx.reply('🌙 Midnight got it! That one’s too old — fire off today’s check-in instead.')
         return
     }
 
@@ -206,12 +202,12 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
     }
     catch (err) {
         log.error(`Telegram check-in submission failed: ${err instanceof Error ? err.message : 'unknown error'}`)
-        await ctx.reply('Something went wrong while recording the check-in.')
+        await ctx.reply('💥 Oops, the check-in didn’t stick. Give it another shot!')
         return
     }
 
     if (result.type === 'ALREADY_SUBMITTED') {
-        await ctx.reply(`Check-in ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}. You already have a check-in for today.`)
+        await ctx.reply(`✅ ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}. You already checked in today — one spark per day!`)
         return
     }
 
@@ -258,11 +254,11 @@ export async function handlePrivateStatus(ctx: Context, deps: TelegramDeps): Pro
     const milestone = [...STREAK_MILESTONES].filter(value => value <= streak).pop()
 
     const lines = [
-        `Check-in: ${latest?.status ?? 'NO_CHECKIN'}`,
-        latest ? `ID: ${checkinReference(latest.sourceMessageId)}` : null,
-        latest ? `Date: ${latest.day.toISOString().slice(0, 10)}` : null,
-        `Streak: ${streak} day${streak === 1 ? '' : 's'}`,
-        milestone ? `Best milestone: ${milestone} day${milestone === 1 ? '' : 's'}` : null,
+        `⚡ Check-in: ${latest?.status ?? 'NO_CHECKIN'}`,
+        latest ? `🆔 ${checkinReference(latest.sourceMessageId)}` : null,
+        latest ? `📅 ${latest.day.toISOString().slice(0, 10)}` : null,
+        `🔥 Streak: ${streak} day${streak === 1 ? '' : 's'}`,
+        milestone ? `🏆 Best milestone: ${milestone} day${milestone === 1 ? '' : 's'}` : null,
     ].filter((line): line is string => line !== null)
 
     await ctx.reply(lines.join('\n'))
@@ -279,25 +275,25 @@ export async function handlePrivateDetails(ctx: Context, deps: TelegramDeps, arg
 
     const reference = args.trim().split(/\s+/)[0]
     if (!reference) {
-        await ctx.reply('Usage: /checkin_details <ID>')
+        await ctx.reply('⚡ Usage: /checkin_details <ID>')
         return
     }
 
     const checkin = await findCheckinByReference(deps.prisma, deps.chatId, reference)
     const isAuthor = checkin?.userId === String(from.id)
     if (!checkin || (!isAuthor && !isModerator(member))) {
-        await ctx.reply('Check-in not found.')
+        await ctx.reply('🔍 Check-in not found.')
         return
     }
 
     const prior = await getPriorAttempt(deps.prisma, checkin)
     const lines = [
-        `Check-in: ${checkinReference(checkin.sourceMessageId)}`,
-        `Date: ${checkin.day.toISOString().slice(0, 10)}`,
-        `State: ${checkin.status}`,
-        `Description: ${checkin.description}`,
-        `Comment: ${checkin.comment ?? 'None'}`,
-        `Previous check-in: ${prior ? `${checkinReference(prior.sourceMessageId)} (${prior.day.toISOString().slice(0, 10)}, ${prior.status})` : 'None'}`,
+        `🆔 Check-in: ${checkinReference(checkin.sourceMessageId)}`,
+        `📅 Date: ${checkin.day.toISOString().slice(0, 10)}`,
+        `🔎 State: ${checkin.status}`,
+        `📝 Description: ${checkin.description}`,
+        `💬 Comment: ${checkin.comment ?? 'None'}`,
+        `⏮️ Previous: ${prior ? `${checkinReference(prior.sourceMessageId)} (${prior.day.toISOString().slice(0, 10)}, ${prior.status})` : 'None'}`,
     ]
 
     await ctx.reply(lines.join('\n'))
@@ -312,7 +308,7 @@ export async function handlePrivateDetails(ctx: Context, deps: TelegramDeps, arg
             await ctx.api.sendDocument(Number(from.id), checkin.proofFileId)
     }
     catch {
-        await ctx.reply('Proof is unavailable.')
+        await ctx.reply('🖼️ Proof didn’t make it through — the details still count!')
     }
 }
 
@@ -342,9 +338,9 @@ async function notifyAuthor(api: Api, deps: TelegramDeps, checkin: TelegramCheck
         return
 
     const lines = [
-        `Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`,
-        checkin.comment ? `Comment: ${checkin.comment}` : null,
-        milestone ? `Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}` : null,
+        `⚡ Your check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`,
+        checkin.comment ? `💬 ${checkin.comment}` : null,
+        milestone ? `🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!` : null,
     ].filter((line): line is string => line !== null)
 
     try {
@@ -359,9 +355,9 @@ async function editReceipt(api: Api, deps: TelegramDeps, checkin: TelegramChecki
     if (checkin.receiptMessageId === null)
         return
 
-    let text = `Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`
+    let text = `⚡ Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`
     if (milestone)
-        text += `\nStreak milestone: ${milestone} day${milestone === 1 ? '' : 's'}`
+        text += `\n🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!`
 
     try {
         await api.editMessageText(deps.chatId, checkin.receiptMessageId, text)
@@ -379,15 +375,15 @@ async function finalizeDecision(api: Api, deps: TelegramDeps, checkin: TelegramC
 function reviewFailureMessage(result: ReviewCheckinResult, audit: boolean): string {
     switch (result.type) {
         case 'NOT_FOUND':
-            return 'Check-in not found.'
+            return '🔍 Check-in not found.'
         case 'NOT_WAITING':
-            return 'Check-in is no longer waiting for review.'
+            return '⏳ Too late — that one’s already decided!'
         case 'NOT_TODAY':
-            return audit ? 'Only a check-in from before today can be audited.' : 'Only a check-in from today can be reviewed.'
+            return audit ? '🕰️ Audits only cover check-ins before today.' : '📅 Today-only review — pick a fresh one!'
         case 'NOT_OLDEST':
-            return `An earlier check-in (${result.oldestReference}) must be reviewed first.`
+            return `⏳ Oldest first: ${result.oldestReference} needs a verdict.`
         default:
-            return 'Check-in not found.'
+            return '🔍 Check-in not found.'
     }
 }
 
@@ -395,7 +391,7 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
     const from = ctx.from!
     const member = await fetchChatMember(ctx.api, deps.chatId, from.id)
     if (!isGroupMember(member)) {
-        await ctx.reply('You are not allowed to review check-ins.')
+        await ctx.reply('🙅 Only group members can review check-ins.')
         return
     }
 
@@ -406,12 +402,14 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
         const total = await countTodayWaiting(deps.prisma, deps.chatId, today, String(from.id))
 
         if (!total) {
-            await ctx.reply('No check-ins from other members are waiting for review.')
+            await ctx.reply('🎉 All clear! No check-ins from others are waiting.')
             return
         }
 
+        const noun = total === 1 ? 'check-in' : 'check-ins'
+        const verb = total === 1 ? 'needs' : 'need'
         await ctx.reply([
-            `Waiting check-ins from other members: ${total}`,
+            `👀 ${total} ${noun} from others ${verb} a verdict:`,
             ...waiting.map(checkin => checkinReference(checkin.sourceMessageId)),
         ].join('\n'))
         return
@@ -419,13 +417,13 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
 
     const parsed = parseReviewArguments(args)
     if (!parsed || (audit && parsed.decision !== 'APPROVED')) {
-        await ctx.reply(audit ? `Usage: ${command} <ID> approve [comment]` : `Usage: ${command} <ID> <approve|reject> [comment]`)
+        await ctx.reply(audit ? `⚡ Usage: ${command} <ID> approve [comment]` : `⚡ Usage: ${command} <ID> <approve|reject> [comment]`)
         return
     }
 
     const target = await findCheckinByReference(deps.prisma, deps.chatId, parsed.reference)
     if (target?.userId === String(from.id)) {
-        await ctx.reply('You cannot review your own check-in.')
+        await ctx.reply('😅 That’s your own check-in — let someone else judge it!')
         return
     }
 
@@ -446,9 +444,9 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
 
     await finalizeDecision(ctx.api, deps, result.checkin, result.milestone)
 
-    const lines = [`Check-in ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}`]
+    const lines = [`⚡ ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}`]
     if (result.milestone)
-        lines.push(`Streak milestone: ${result.milestone} day${result.milestone === 1 ? '' : 's'}`)
+        lines.push(`🏆 Streak milestone: ${result.milestone} day${result.milestone === 1 ? '' : 's'}!`)
     await ctx.reply(lines.join('\n'))
 }
 
@@ -475,34 +473,34 @@ export async function handleReviewCallback(ctx: Context, deps: TelegramDeps, dec
     const from = ctx.from
 
     if (!query || !message || !from || from.is_bot) {
-        await alert(ctx, 'This check-in is no longer available.')
+        await alert(ctx, '⌛ This check-in is no longer available.')
         return
     }
 
     if (message.chat.id !== Number(deps.chatId) || message.from?.id !== deps.botId) {
-        await alert(ctx, 'This check-in is no longer available.')
+        await alert(ctx, '⌛ This check-in is no longer available.')
         return
     }
 
     const checkin = await findCheckinByReference(deps.prisma, deps.chatId, reference)
     if (!checkin || checkin.receiptMessageId !== message.message_id) {
-        await alert(ctx, 'This check-in is no longer available.')
+        await alert(ctx, '⌛ This check-in is no longer available.')
         return
     }
 
     const member: ChatMember | null = await fetchChatMember(ctx.api, deps.chatId, from.id)
     if (!isGroupMember(member)) {
-        await alert(ctx, 'You are not allowed to review check-ins.')
+        await alert(ctx, '🙅 Only group members can review check-ins.')
         return
     }
 
     if (checkin.userId === String(from.id)) {
-        await alert(ctx, 'You cannot review your own check-in.')
+        await alert(ctx, '😅 That’s your own check-in — let someone else judge it!')
         return
     }
 
     if (checkin.status !== 'WAITING' || dayKey(checkin.day) !== dayKey(wibDay(deps.now()))) {
-        await alert(ctx, 'This check-in is no longer waiting for review.')
+        await alert(ctx, '⏳ Too late — that one’s already decided!')
         return
     }
 
