@@ -386,7 +386,7 @@ test('private review is peer-only and keeps comments out of the group', async ()
 
     await harness.sendPrivate('/checkin_review', 2303)
     const queue = harness.methodCalls('sendMessage').at(-1)?.payload.text as string
-    expect(queue).toContain('👀 1 check-in from others needs a verdict')
+    expect(queue).toContain('1 check-in from others needs a verdict')
     expect(queue).toContain(checkinReference(other.message_id))
     expect(queue).not.toContain(checkinReference(own.message_id))
 })
@@ -396,7 +396,7 @@ test('details are author-or-moderator only and prove privately', async () => {
         members: { '2401': member(2401, 'member') },
     })
 
-    await harness.sendGroup({ caption: '/checkin Details proof' }, 2401, { photo: photo('photo-details') })
+    await harness.sendGroup({ caption: '/checkin Details <b>proof</b>' }, 2401, { photo: photo('photo-details') })
     const stored = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2401' } })
 
     await harness.sendPrivate(`/checkin_details ${checkinReference(stored!.sourceMessageId)}`, 2402)
@@ -406,7 +406,9 @@ test('details are author-or-moderator only and prove privately', async () => {
     await harness.sendPrivate(`/checkin_details ${checkinReference(stored!.sourceMessageId)}`, 2401)
 
     const detail = harness.methodCalls('sendMessage').at(-1)?.payload.text as string
-    expect(detail).toContain('Details proof')
+    expect(detail).toContain('Details &lt;b&gt;proof&lt;/b&gt;')
+    expect(detail).not.toContain('<b>proof</b>')
+    expect(harness.methodCalls('sendMessage').at(-1)?.payload.parse_mode).toBe('HTML')
     expect(harness.methodCalls('sendPhoto').at(-1)?.payload.photo).toBe('photo-details')
     expect(harness.methodCalls('sendPhoto').at(-1)?.payload.chat_id).toBe(2401)
 
@@ -428,7 +430,7 @@ test('member tag is posted by moderators and claimed only by eligible members', 
 
     await harness.sendGroup({ text: '/post_grinder_tag' }, 2501)
     const post = harness.groupSends().at(-1)!
-    expect(post.payload.text).toBe('🎟️ Claim your member tag: Grinder')
+    expect(post.payload.text).toContain('Claim your member tag: Grinder')
 
     const posted = harness.sentMessages.at(-1)!
     await harness.click(2502, 'tag:claim', posted)

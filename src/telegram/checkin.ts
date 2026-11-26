@@ -28,12 +28,16 @@ import {
     type TelegramProofKind,
 } from '@core/checkin/group-ledger'
 import { fetchChatMember, isGroupMember, isModerator } from './auth'
+import { escapeHtml, panel } from './format'
 import { InlineKeyboard } from 'grammy'
 
 const MAX_DESCRIPTION_LENGTH = 2_000
 const MAX_COMMENT_LENGTH = 500
 const GROUP_PRIVATE_LINK_TEXT = (username: string) =>
-    `🔒 Status & details are DM-only → https://t.me/${username}\nTap /start and see your spark! ⚡`
+    panel('🔒 Private check-in', [
+        'Status + details live in DM.',
+        `Open https://t.me/${username} and /start ⚡`,
+    ])
 
 class ProofError extends Error {}
 
@@ -103,13 +107,16 @@ function extractProof(message: Message): Proof | null {
 }
 
 function receiptText(checkin: TelegramCheckin, isFirst: boolean, botUsername: string): string {
-    let text = `⚡ Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`
+    const lines = [`🔎 Status: ${checkin.status}`]
 
     if (isFirst) {
-        text += `\n\n🎉 Welcome! First check-in locked in. A teammate will review it; approved days build your streak. DM https://t.me/${botUsername} → /start for your private dashboard.`
+        lines.push(
+            '',
+            `🎉 Welcome! First check-in locked in. A teammate will review it; approved days build your streak. DM https://t.me/${botUsername} → /start for your private dashboard.`,
+        )
     }
 
-    return text
+    return panel(`⚡ Check-in ${checkinReference(checkin.sourceMessageId)}`, lines)
 }
 
 function reviewKeyboard(reference: string): InlineKeyboard {
@@ -123,6 +130,7 @@ async function sendWaitingReceipt(ctx: Context, deps: TelegramDeps, checkin: Tel
     const keyboard = checkin.status === 'WAITING' ? reviewKeyboard(checkinReference(checkin.sourceMessageId)) : undefined
 
     const sent = await ctx.api.sendMessage(deps.chatId, receiptText(checkin, isFirst, deps.botUsername), {
+        parse_mode: 'HTML',
         message_thread_id: message.message_thread_id,
         reply_parameters: { message_id: message.message_id, allow_sending_without_reply: true },
         reply_markup: keyboard,
@@ -233,7 +241,7 @@ export async function handleGroupPrivateLink(ctx: Context, deps: TelegramDeps): 
     if (!isGroupMember(member))
         return
 
-    await ctx.reply(GROUP_PRIVATE_LINK_TEXT(deps.botUsername))
+    await ctx.reply(GROUP_PRIVATE_LINK_TEXT(deps.botUsername), { parse_mode: 'HTML' })
 }
 
 export async function handlePrivateStatus(ctx: Context, deps: TelegramDeps): Promise<void> {
@@ -261,7 +269,7 @@ export async function handlePrivateStatus(ctx: Context, deps: TelegramDeps): Pro
         milestone ? `🏆 Best milestone: ${milestone} day${milestone === 1 ? '' : 's'}` : null,
     ].filter((line): line is string => line !== null)
 
-    await ctx.reply(lines.join('\n'))
+    await ctx.reply(panel('🔥 Your spark', lines), { parse_mode: 'HTML' })
 }
 
 export async function handlePrivateDetails(ctx: Context, deps: TelegramDeps, args: string): Promise<void> {
@@ -275,7 +283,7 @@ export async function handlePrivateDetails(ctx: Context, deps: TelegramDeps, arg
 
     const reference = args.trim().split(/\s+/)[0]
     if (!reference) {
-        await ctx.reply('⚡ Usage: /checkin_details <ID>')
+        await ctx.reply('⚡ Usage: /checkin_details [ID]')
         return
     }
 
@@ -288,15 +296,14 @@ export async function handlePrivateDetails(ctx: Context, deps: TelegramDeps, arg
 
     const prior = await getPriorAttempt(deps.prisma, checkin)
     const lines = [
-        `🆔 Check-in: ${checkinReference(checkin.sourceMessageId)}`,
         `📅 Date: ${checkin.day.toISOString().slice(0, 10)}`,
         `🔎 State: ${checkin.status}`,
-        `📝 Description: ${checkin.description}`,
-        `💬 Comment: ${checkin.comment ?? 'None'}`,
+        `📝 Description: ${escapeHtml(checkin.description)}`,
+        `💬 Comment: ${checkin.comment ? escapeHtml(checkin.comment) : 'None'}`,
         `⏮️ Previous: ${prior ? `${checkinReference(prior.sourceMessageId)} (${prior.day.toISOString().slice(0, 10)}, ${prior.status})` : 'None'}`,
     ]
 
-    await ctx.reply(lines.join('\n'))
+    await ctx.reply(panel(`🆔 Check-in ${checkinReference(checkin.sourceMessageId)}`, lines), { parse_mode: 'HTML' })
 
     if (!checkin.proofKind || !checkin.proofFileId)
         return
@@ -338,13 +345,13 @@ async function notifyAuthor(api: Api, deps: TelegramDeps, checkin: TelegramCheck
         return
 
     const lines = [
-        `⚡ Your check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`,
-        checkin.comment ? `💬 ${checkin.comment}` : null,
+        `🔎 Status: ${checkin.status}`,
+        checkin.comment ? `💬 ${escapeHtml(checkin.comment)}` : null,
         milestone ? `🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!` : null,
     ].filter((line): line is string => line !== null)
 
     try {
-        await api.sendMessage(Number(checkin.userId), lines.join('\n'))
+        await api.sendMessage(Number(checkin.userId), panel(`⚡ Your check-in ${checkinReference(checkin.sourceMessageId)}`, lines), { parse_mode: 'HTML' })
     }
     catch {
         // Delivery is best-effort; private commands remain the result path.
@@ -355,12 +362,12 @@ async function editReceipt(api: Api, deps: TelegramDeps, checkin: TelegramChecki
     if (checkin.receiptMessageId === null)
         return
 
-    let text = `⚡ Check-in ${checkinReference(checkin.sourceMessageId)}: ${checkin.status}`
+    const lines = [`🔎 Status: ${checkin.status}`]
     if (milestone)
-        text += `\n🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!`
+        lines.push(`🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!`)
 
     try {
-        await api.editMessageText(deps.chatId, checkin.receiptMessageId, text)
+        await api.editMessageText(deps.chatId, checkin.receiptMessageId, panel(`⚡ Check-in ${checkinReference(checkin.sourceMessageId)}`, lines), { parse_mode: 'HTML' })
     }
     catch {
         // The public receipt may have been deleted; durable state stays private.
@@ -408,16 +415,16 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
 
         const noun = total === 1 ? 'check-in' : 'check-ins'
         const verb = total === 1 ? 'needs' : 'need'
-        await ctx.reply([
-            `👀 ${total} ${noun} from others ${verb} a verdict:`,
+        await ctx.reply(panel('👀 Peer review', [
+            `${total} ${noun} from others ${verb} a verdict:`,
             ...waiting.map(checkin => checkinReference(checkin.sourceMessageId)),
-        ].join('\n'))
+        ]), { parse_mode: 'HTML' })
         return
     }
 
     const parsed = parseReviewArguments(args)
     if (!parsed || (audit && parsed.decision !== 'APPROVED')) {
-        await ctx.reply(audit ? `⚡ Usage: ${command} <ID> approve [comment]` : `⚡ Usage: ${command} <ID> <approve|reject> [comment]`)
+        await ctx.reply(audit ? `⚡ Usage: ${command} [ID] approve [comment]` : `⚡ Usage: ${command} [ID] [approve|reject] [comment]`)
         return
     }
 
@@ -444,10 +451,10 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
 
     await finalizeDecision(ctx.api, deps, result.checkin, result.milestone)
 
-    const lines = [`⚡ ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}`]
+    const lines = [`🔎 ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}`]
     if (result.milestone)
         lines.push(`🏆 Streak milestone: ${result.milestone} day${result.milestone === 1 ? '' : 's'}!`)
-    await ctx.reply(lines.join('\n'))
+    await ctx.reply(panel('⚡ Review complete', lines), { parse_mode: 'HTML' })
 }
 
 export function handlePrivateReview(ctx: Context, deps: TelegramDeps, args: string): Promise<void> {

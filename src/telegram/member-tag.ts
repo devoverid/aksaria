@@ -1,10 +1,11 @@
 import type { TelegramDeps } from './deps'
 import type { Context } from 'grammy'
 import { fetchChatMember, currentMemberTag, isModerator } from './auth'
+import { escapeHtml, panel } from './format'
 import { InlineKeyboard } from 'grammy'
 
 export function tagPostText(tag: string): string {
-    return `🎟️ Claim your member tag: ${tag}`
+    return panel('🎟️ Member tag', [`Claim your member tag: ${escapeHtml(tag)}`])
 }
 
 function tagKeyboard(): InlineKeyboard {
@@ -24,6 +25,7 @@ export async function handlePostTag(ctx: Context, deps: TelegramDeps): Promise<v
     }
 
     await ctx.api.sendMessage(deps.chatId, tagPostText(deps.memberTag), {
+        parse_mode: 'HTML',
         message_thread_id: message.message_thread_id,
         reply_parameters: { message_id: message.message_id, allow_sending_without_reply: true },
         reply_markup: tagKeyboard(),

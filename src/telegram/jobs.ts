@@ -6,10 +6,11 @@ import { log } from '@core/logger'
 import { addDays, wibDay } from '@core/checkin/policy'
 import { claimLossNotices, countTodayWaiting, getParticipant } from '@core/checkin/group-ledger'
 import { fetchChatMember, isGroupMember } from './auth'
+import { panel } from './format'
 import cron from 'node-cron'
 
 export interface TelegramJobsApi extends ChatMemberApi {
-    sendMessage: (chatId: number | string, text: string) => Promise<unknown>
+    sendMessage: (chatId: number | string, text: string, other?: { parse_mode?: 'HTML' }) => Promise<unknown>
 }
 
 const tasks = new Set<ScheduledTask>()
@@ -24,7 +25,11 @@ export async function runReviewerReminder(api: TelegramJobsApi, deps: TelegramDe
     const noun = count === 1 ? 'check-in needs' : 'check-ins need'
     await api.sendMessage(
         Number(deps.chatId),
-        `⚡ ${count} ${noun} a verdict! Peers, hit /checkin_review in DM.`,
+        panel('⚡ Review needed', [
+            `${count} ${noun} a verdict!`,
+            'Peers, hit /checkin_review in DM.',
+        ]),
+        { parse_mode: 'HTML' },
     )
 
     return count
@@ -46,7 +51,11 @@ export async function runLossNotices(api: TelegramJobsApi, deps: TelegramDeps, n
         try {
             await api.sendMessage(
                 Number(userId),
-                `💔 Streak broken on ${addDays(today, -1).toISOString().slice(0, 10)}. No approved check-in yesterday — bounce back with /checkin! 🔥`,
+                panel('💔 Streak broken', [
+                    `Date: ${addDays(today, -1).toISOString().slice(0, 10)}`,
+                    'No approved check-in yesterday — bounce back with /checkin! 🔥',
+                ]),
+                { parse_mode: 'HTML' },
             )
         }
         catch {

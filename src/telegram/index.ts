@@ -14,6 +14,7 @@ import {
     handleReviewCallback,
 } from './checkin'
 import { fetchChatMember, isGroupMember, isModerator } from './auth'
+import { panel } from './format'
 import { runLossNotices, startTelegramJobs, stopTelegramJobs } from './jobs'
 import { handlePostTag, handleTagClaim } from './member-tag'
 import { Bot, GrammyError } from 'grammy'
@@ -98,39 +99,40 @@ function parseCommand(message: Message, botUsername: string): ParsedCommand | nu
 
 function groupHelpText(botUsername: string, moderator: boolean): string {
     const lines = [
-        '⚡ Aksaria check-ins',
-        '',
         'Drop your daily win:',
-        '/checkin <your win> + one photo/doc (or reply to your own)',
+        '/checkin [your win] + one photo/doc (or reply to your own)',
         '',
-        `🔒 Status & details: https://t.me/${botUsername} → /start`,
+        `🔒 Status + details: https://t.me/${botUsername} → /start`,
         '',
         '👀 Peer review (not your own):',
         '/checkin_review [ID] [approve|reject] [comment]',
-        '/checkin_audit <ID> approve [comment]',
+        '/checkin_audit [ID] approve [comment]',
     ]
 
     if (moderator)
         lines.push('', '🛡️ Mods: /post_grinder_tag drops the tag button.')
 
-    return lines.join('\n')
+    return panel('⚡ Aksaria check-ins', lines)
 }
 
-function privateHelpText(moderator: boolean): string {
+function privateHelpLines(moderator: boolean): string[] {
     const lines = [
-        '⚡ Your private check-in HQ',
         '/checkin_status — state + streak',
-        '/checkin_details <ID> — proof + history',
+        '/checkin_details [ID] — proof + history',
         '',
         '👀 Review others (not your own):',
         '/checkin_review [ID] [approve|reject] [comment]',
-        '/checkin_audit <ID> approve [comment]',
+        '/checkin_audit [ID] approve [comment]',
     ]
 
     if (moderator)
         lines.push('', '🛡️ Mod: /post_grinder_tag in the group.')
 
-    return lines.join('\n')
+    return lines
+}
+
+function privateHelpText(moderator: boolean): string {
+    return panel('⚡ Your private check-in HQ', privateHelpLines(moderator))
 }
 
 export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: (err: Error) => void): void {
@@ -200,7 +202,7 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
             }
 
             if (command.name === 'start' || command.name === 'help')
-                await ctx.reply(groupHelpText(deps.botUsername, isModerator(member)))
+                await ctx.reply(groupHelpText(deps.botUsername, isModerator(member)), { parse_mode: 'HTML' })
 
             return
         }
@@ -219,14 +221,14 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
         switch (command.name) {
             case 'start':
                 await recordDmOptIn(deps.prisma, deps.chatId, String(from.id), deps.now())
-                await ctx.reply([
-                    '🎉 You’re in! Private check-in access unlocked.',
+                await ctx.reply(panel('🎉 You’re in!', [
+                    'Private check-in access unlocked.',
                     '',
-                    privateHelpText(isModerator(member)),
-                ].join('\n'))
+                    ...privateHelpLines(isModerator(member)),
+                ]), { parse_mode: 'HTML' })
                 return
             case 'help':
-                await ctx.reply(privateHelpText(isModerator(member)))
+                await ctx.reply(privateHelpText(isModerator(member)), { parse_mode: 'HTML' })
                 return
             case 'checkin_status':
                 await handlePrivateStatus(ctx, deps)
