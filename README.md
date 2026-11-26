@@ -186,6 +186,28 @@ bun run prod
 DATABASE_URL="postgresql://postgres:password@localhost:5432/aksaria_test" bun test
 ```
 
+### Reset today's Telegram check-ins
+
+Preview the check-ins recorded for today (WIB) in the configured group:
+
+```sh
+bun run reset-checkins
+```
+
+Delete them so members can submit again:
+
+```sh
+bun run reset-checkins -- --yes
+```
+
+Override the configured group:
+
+```sh
+bun run reset-checkins -- --chat-id -1001234567890 --yes
+```
+
+This deletes only today's `TelegramCheckin` rows for that chat; participants, Discord data, and previously posted receipt messages are untouched. Removing approved rows also removes their credit from the current streak.
+
 <h3 id="develop-docker">🐳 Develop w/ Docker</h3>
 
 1. Clone the repository

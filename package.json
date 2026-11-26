@@ -21,6 +21,7 @@
         "prod": "bun src/index.ts",
         "start": "bun --watch src/index.ts",
         "commands": "bun src/discord/deploy-commands.ts",
+        "reset-checkins": "bun src/scripts/reset-today-checkins.ts",
         "prisma": "bun x prisma generate --schema db/schema.prisma"
     },
     "dependencies": {
