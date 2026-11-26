@@ -1,0 +1,25 @@
+import { EVENT_PATH } from '@discord/events/index'
+import { registerMessageHandler } from '@discord/events/message-create/registry'
+import { DiscordBaseError } from '@discord/utils/discord/error'
+import { getModuleName } from '@discord/utils/io'
+import { ImFine } from '../validators'
+
+export class ImFineError extends DiscordBaseError {
+    constructor(message: string, options?: { cause?: unknown }) {
+        super('ImFineError', message, options)
+    }
+}
+
+const moduleName = getModuleName(EVENT_PATH, __filename)
+
+registerMessageHandler({
+    desc: 'Replying to a user when the user\'s chat contains \'fine\' word.',
+    errorTag: () => `${moduleName}: ${ImFine.ERR.UnexpectedImFine}`,
+    match: msg => !msg.author.bot && msg.content.includes('fine'),
+    async exec(_, msg) {
+        if (!msg.guild || !msg.inGuild())
+            throw new ImFineError(ImFine.ERR.NotGuild)
+
+        await msg.reply('gua I\'m fine😅')
+    },
+})

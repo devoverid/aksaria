@@ -1,11 +1,21 @@
 #!/bin/sh
 set -e
 
+platforms="${BOT_PLATFORMS:-discord}"
+case "$platforms" in
+  ""|discord) platforms=discord ;;
+  telegram|both) ;;
+  *)
+    echo "Invalid BOT_PLATFORMS value; expected discord, telegram or both." >&2
+    exit 1
+    ;;
+esac
+
 echo "▶ Running Prisma migrations..."
 max_attempts=10
 attempt_num=1
 
-until bunx prisma migrate deploy; do
+until bun x prisma migrate deploy; do
   if [ $attempt_num -ge $max_attempts ]; then
     echo "Migration failed after $attempt_num attempts. Exiting."
     exit 1
@@ -15,8 +25,10 @@ until bunx prisma migrate deploy; do
   sleep 3
 done
 
-echo "▶ Deploying commands..."
-bun commands
+if [ "$platforms" = "discord" ] || [ "$platforms" = "both" ]; then
+  echo "▶ Deploying commands..."
+  bun commands
+fi
 
 echo "▶ Starting application..."
 if [ "$NODE_ENV" = "production" ]; then

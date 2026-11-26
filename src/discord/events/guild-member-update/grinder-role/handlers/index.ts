@@ -1,0 +1,47 @@
+import type { TextChannel } from 'discord.js'
+import { AURA_FARMING_CHANNEL, GRINDER_ROLE } from '@discord/config/discord'
+import { registerGuildMemberUpdateHandler } from '@discord/events/guild-member-update/registry'
+import { EVENT_PATH } from '@discord/events/index'
+import { getBot, getChannel, sendAsBot } from '@discord/utils/discord'
+import { DiscordBaseError } from '@discord/utils/discord/error'
+import { getModuleName } from '@discord/utils/io'
+import { GrinderRole } from '../validators'
+
+export class GrinderRoleError extends DiscordBaseError {
+    constructor(message: string, options?: { cause?: unknown }) {
+        super('GrinderRoleError', message, options)
+    }
+}
+
+const moduleName = getModuleName(EVENT_PATH, __filename)
+
+registerGuildMemberUpdateHandler({
+    desc: 'Watches grinder role assignment/removal for members on guild member update.',
+    errorTag: () => `${moduleName}: ${GrinderRole.ERR.UnexpectedGrinderRole}`,
+    async exec(_, oldMember, newMember) {
+        try {
+            if (!newMember.guild)
+                throw new GrinderRoleError(GrinderRole.ERR.NotGuild)
+
+            const newHasGrinderRole = GrinderRole.isMemberHasRole(newMember, GRINDER_ROLE)
+            const oldHasGrinderRole = GrinderRole.isMemberHasRole(oldMember, GRINDER_ROLE)
+            if (newHasGrinderRole && !oldHasGrinderRole) {
+                const channel = await getChannel(newMember.guild, AURA_FARMING_CHANNEL) as TextChannel
+                GrinderRole.assertTextChannel(channel)
+                const bot = await getBot(newMember.guild)
+                GrinderRole.assertMissPerms(bot, channel)
+                const button = GrinderRole.generateButton(newMember.guild.id)
+
+                await sendAsBot(
+                    null,
+                    channel,
+                    { content: GrinderRole.MSG.Greetings(newMember), components: [button], allowedMentions: { users: [newMember.id], roles: [] } },
+                )
+            }
+        }
+        catch (err: any) {
+            if (!(err instanceof DiscordBaseError))
+                throw err
+        }
+    },
+})

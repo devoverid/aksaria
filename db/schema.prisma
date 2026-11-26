@@ -63,3 +63,47 @@ model Attachment {
 
   @@index([module_id, module_type, created_at(sort: Desc)])
 }
+enum TelegramCheckinStatus {
+    WAITING
+    APPROVED
+    REJECTED
+}
+
+enum TelegramProofKind {
+    PHOTO
+    DOCUMENT
+}
+
+model TelegramParticipant {
+    chatId      String
+    userId      String
+    dmStartedAt DateTime?
+    lastLossDay DateTime? @db.Date
+
+    checkins TelegramCheckin[]
+
+    @@id([chatId, userId])
+}
+
+model TelegramCheckin {
+    chatId          String
+    sourceMessageId Int
+    userId          String
+    day             DateTime             @db.Date
+    description     String
+    status          TelegramCheckinStatus @default(WAITING)
+    createdAt       DateTime
+    reviewedBy      String?
+    reviewedAt      DateTime?
+    comment         String?
+    proofKind       TelegramProofKind?
+    proofFileId     String?
+    receiptMessageId Int?
+    threadId        Int?
+
+    participant TelegramParticipant @relation(fields: [chatId, userId], references: [chatId, userId])
+
+    @@id([chatId, sourceMessageId])
+    @@index([chatId, userId, day, status])
+    @@index([chatId, day, status])
+}
