@@ -322,11 +322,11 @@ test('submission stores proof metadata, welcomes the first check-in, not the sec
     expect(document!.proofFileId).toBe('document-42')
 })
 
-test('review callbacks authorize fresh moderators and mutate once', async () => {
+test('any member can review another member, never their own check-in', async () => {
     const harness = await createHarness({
         members: {
             '2201': member(2201, 'member'),
-            '2202': member(2202, 'administrator', { can_manage_tags: true }),
+            '2204': member(2204, 'member'),
         },
     })
 
@@ -335,45 +335,60 @@ test('review callbacks authorize fresh moderators and mutate once', async () => 
     const receipt = harness.sentMessages.find(message => message.text?.includes('WAITING'))!
 
     await harness.click(2201, `ci:a:${checkinReference(stored!.sourceMessageId)}`, receipt)
-    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.show_alert).toBe(true)
+    expect(harness.methodCalls('answerCallbackQuery').at(-1)?.payload.text).toBe('You cannot review your own check-in.')
 
     let row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2201' } })
     expect(row!.status).toBe('WAITING')
 
-    await harness.click(2202, `ci:a:${checkinReference(stored!.sourceMessageId)}`, receipt)
+    await harness.click(2204, `ci:a:${checkinReference(stored!.sourceMessageId)}`, receipt)
     row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2201' } })
     expect(row!.status).toBe('APPROVED')
     expect(harness.methodCalls('editMessageText').at(-1)?.payload.text).toContain('APPROVED')
 
     const edits = harness.methodCalls('editMessageText').length
-    await harness.click(2202, `ci:a:${checkinReference(stored!.sourceMessageId)}`, receipt)
+    await harness.click(2204, `ci:a:${checkinReference(stored!.sourceMessageId)}`, receipt)
     expect(harness.methodCalls('editMessageText').length).toBe(edits)
 
     await harness.sendGroup({ caption: '/checkin Second' }, 2203, { photo: photo('photo-second') })
     const second = await harness.prisma.telegramCheckin.findFirst({
         where: { chatId: harness.chatId, userId: '2203', status: 'WAITING' },
     })
-    const foreignReceipt = { ...receipt, from: { id: 2202, is_bot: false, first_name: 'Human' } }
-    await harness.click(2202, `ci:a:${checkinReference(second!.sourceMessageId)}`, foreignReceipt as Message)
+    const foreignReceipt = { ...receipt, from: { id: 2204, is_bot: false, first_name: 'Human' } }
+    await harness.click(2204, `ci:a:${checkinReference(second!.sourceMessageId)}`, foreignReceipt as Message)
     const stillWaiting = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, sourceMessageId: second!.sourceMessageId } })
     expect(stillWaiting!.status).toBe('WAITING')
 })
 
-test('private review keeps the comment out of the group', async () => {
-    const harness = await createHarness({
-        members: { '2301': member(2301, 'administrator', { can_manage_tags: true }) },
-    })
+test('private review is peer-only and keeps comments out of the group', async () => {
+    const harness = await createHarness()
 
     await harness.sendGroup({ caption: '/checkin Needs review' }, 2302, { photo: photo('photo-private') })
     const stored = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2302' } })
+    const reference = checkinReference(stored!.sourceMessageId)
 
-    await harness.sendPrivate(`/checkin_review ${checkinReference(stored!.sourceMessageId)} reject needs context`, 2301)
+    await harness.sendPrivate(`/checkin_review ${reference} approve self`, 2302)
+    expect(harness.methodCalls('sendMessage').at(-1)?.payload.text).toBe('You cannot review your own check-in.')
 
-    const row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2302' } })
+    let row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2302' } })
+    expect(row!.status).toBe('WAITING')
+    expect(row!.comment).toBeNull()
+
+    await harness.sendPrivate(`/checkin_review ${reference} reject needs context`, 2303)
+
+    row = await harness.prisma.telegramCheckin.findFirst({ where: { chatId: harness.chatId, userId: '2302' } })
     expect(row!.status).toBe('REJECTED')
     expect(row!.comment).toBe('needs context')
 
     expect(harness.groupSends().some(call => String(call.payload.text).includes('needs context'))).toBe(false)
+
+    const own = await harness.sendGroup({ caption: '/checkin Own waiting' }, 2303, { photo: photo('photo-own') })
+    const other = await harness.sendGroup({ caption: '/checkin Other waiting' }, 2304, { photo: photo('photo-other') })
+
+    await harness.sendPrivate('/checkin_review', 2303)
+    const queue = harness.methodCalls('sendMessage').at(-1)?.payload.text as string
+    expect(queue).toContain('Waiting check-ins from other members: 1')
+    expect(queue).toContain(checkinReference(other.message_id))
+    expect(queue).not.toContain(checkinReference(own.message_id))
 })
 
 test('details are author-or-moderator only and prove privately', async () => {

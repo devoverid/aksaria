@@ -27,7 +27,7 @@ We call those who walk this path Grinders.
 
 - **Telegram Group Check-Ins**
 
-    Optional Telegram adapter with group submissions, private status and details, moderator review and audits, reviewer reminders, streak-loss notices and a self-serve member tag.
+    Optional Telegram adapter with group submissions, private status and details, peer review and audits, reviewer reminders, streak-loss notices and a self-serve member tag.
 
 - **Comprehensive User Profiles**
 
@@ -154,8 +154,8 @@ Telegram command reference:
 | Private | `/start` | Opt in to private status and details |
 | Private | `/checkin_status` | Show today's state and current streak |
 | Private | `/checkin_details <ID>` | Show one of your check-ins and its proof |
-| Private | `/checkin_review [ID] [approve\|reject] [comment]` | Moderators: review today's queue or a check-in |
-| Private | `/checkin_audit <ID> approve [comment]` | Moderators: approve an older waiting check-in |
+| Private | `/checkin_review [ID] [approve\|reject] [comment]` | Group members: review another member's check-in; not your own |
+| Private | `/checkin_audit <ID> approve [comment]` | Group members: approve an older waiting check-in; not your own |
 
 5. Create the database and run migrations
 

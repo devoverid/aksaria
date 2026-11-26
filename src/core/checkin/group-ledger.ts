@@ -99,16 +99,28 @@ export async function getPriorAttempt(reader: Reader, checkin: TelegramCheckin):
     })
 }
 
-export async function getTodayWaiting(reader: Reader, chatId: string, day: Date, limit?: number): Promise<TelegramCheckin[]> {
+export async function getTodayWaiting(reader: Reader, chatId: string, day: Date, limit?: number, excludeUserId?: string): Promise<TelegramCheckin[]> {
     return reader.telegramCheckin.findMany({
-        where: { chatId, day, status: 'WAITING' },
+        where: {
+            chatId,
+            day,
+            status: 'WAITING',
+            ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+        },
         orderBy: [{ createdAt: 'asc' }, { sourceMessageId: 'asc' }],
         ...(limit === undefined ? {} : { take: limit }),
     })
 }
 
-export async function countTodayWaiting(reader: Reader, chatId: string, day: Date): Promise<number> {
-    return reader.telegramCheckin.count({ where: { chatId, day, status: 'WAITING' } })
+export async function countTodayWaiting(reader: Reader, chatId: string, day: Date, excludeUserId?: string): Promise<number> {
+    return reader.telegramCheckin.count({
+        where: {
+            chatId,
+            day,
+            status: 'WAITING',
+            ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+        },
+    })
 }
 
 export interface SubmitCheckinInput {

@@ -104,16 +104,15 @@ function groupHelpText(botUsername: string, moderator: boolean): string {
         '/checkin <description> and attach one photo or document, or reply to your own photo or document.',
         '',
         `Status and details are private. Open https://t.me/${botUsername} and /start.`,
+        '',
+        'Peer review other members\' check-ins privately:',
+        '/checkin_review [ID] [approve|reject] [comment]',
+        '/checkin_audit <ID> approve [comment]',
+        'You cannot review your own check-in.',
     ]
 
-    if (moderator) {
-        lines.push(
-            '',
-            'Moderator workflows (private):',
-            '/checkin_review [ID] [approve|reject] [comment]',
-            '/checkin_audit <ID> [comment]',
-        )
-    }
+    if (moderator)
+        lines.push('', 'Moderators: /post_grinder_tag posts the member tag button.')
 
     return lines.join('\n')
 }
@@ -123,14 +122,15 @@ function privateHelpText(moderator: boolean): string {
         'Private check-in commands:',
         '/checkin_status - current state and streak',
         '/checkin_details <ID> - one of your check-ins',
+        '',
+        'Peer review other members\' check-ins:',
+        '/checkin_review [ID] [approve|reject] [comment] - review today\'s queue',
+        '/checkin_audit <ID> approve [comment] - approve an older waiting check-in',
+        'You cannot review your own check-in.',
     ]
 
-    if (moderator) {
-        lines.push(
-            '/checkin_review [ID] [approve|reject] [comment] - review today\'s queue',
-            '/checkin_audit <ID> [comment] - approve an older waiting check-in',
-        )
-    }
+    if (moderator)
+        lines.push('', 'Moderator: /post_grinder_tag in the group posts the member tag button.')
 
     return lines.join('\n')
 }

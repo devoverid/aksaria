@@ -394,7 +394,7 @@ function reviewFailureMessage(result: ReviewCheckinResult, audit: boolean): stri
 async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: string, audit: boolean): Promise<void> {
     const from = ctx.from!
     const member = await fetchChatMember(ctx.api, deps.chatId, from.id)
-    if (!isModerator(member)) {
+    if (!isGroupMember(member)) {
         await ctx.reply('You are not allowed to review check-ins.')
         return
     }
@@ -402,16 +402,16 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
     const command = audit ? '/checkin_audit' : '/checkin_review'
     if (!args.trim() && !audit) {
         const today = wibDay(deps.now())
-        const waiting = await getTodayWaiting(deps.prisma, deps.chatId, today, 10)
-        const total = await countTodayWaiting(deps.prisma, deps.chatId, today)
+        const waiting = await getTodayWaiting(deps.prisma, deps.chatId, today, 10, String(from.id))
+        const total = await countTodayWaiting(deps.prisma, deps.chatId, today, String(from.id))
 
         if (!total) {
-            await ctx.reply('No check-ins are waiting for review.')
+            await ctx.reply('No check-ins from other members are waiting for review.')
             return
         }
 
         await ctx.reply([
-            `Waiting check-ins: ${total}`,
+            `Waiting check-ins from other members: ${total}`,
             ...waiting.map(checkin => checkinReference(checkin.sourceMessageId)),
         ].join('\n'))
         return
@@ -420,6 +420,12 @@ async function handleReviewCommand(ctx: Context, deps: TelegramDeps, args: strin
     const parsed = parseReviewArguments(args)
     if (!parsed || (audit && parsed.decision !== 'APPROVED')) {
         await ctx.reply(audit ? `Usage: ${command} <ID> approve [comment]` : `Usage: ${command} <ID> <approve|reject> [comment]`)
+        return
+    }
+
+    const target = await findCheckinByReference(deps.prisma, deps.chatId, parsed.reference)
+    if (target?.userId === String(from.id)) {
+        await ctx.reply('You cannot review your own check-in.')
         return
     }
 
@@ -485,8 +491,13 @@ export async function handleReviewCallback(ctx: Context, deps: TelegramDeps, dec
     }
 
     const member: ChatMember | null = await fetchChatMember(ctx.api, deps.chatId, from.id)
-    if (!isModerator(member)) {
+    if (!isGroupMember(member)) {
         await alert(ctx, 'You are not allowed to review check-ins.')
+        return
+    }
+
+    if (checkin.userId === String(from.id)) {
+        await alert(ctx, 'You cannot review your own check-in.')
         return
     }
 
