@@ -21,6 +21,12 @@ export function isModerator(member: ChatMember | null): boolean {
     return member?.status === 'creator' || member?.status === 'administrator'
 }
 
+export function hasRequiredAdminRights(member: ChatMember | null): boolean {
+    return member?.status === 'administrator'
+        && member.can_manage_tags === true
+        && member.can_delete_messages === true
+}
+
 export function isGroupMember(member: ChatMember | null): boolean {
     if (!member)
         return false

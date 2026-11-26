@@ -278,15 +278,24 @@ test('submission stores proof metadata, welcomes the first check-in, not the sec
     expect(harness.groupSends()[0].payload.text).toContain('Welcome!')
     expect(harness.groupSends()[0].payload.text).toContain('WAITING')
     expect(harness.groupSends()[0].payload.reply_markup.inline_keyboard).toHaveLength(1)
+    expect(harness.methodCalls('sendPhoto').some(call =>
+        Number(call.payload.chat_id) === Number(harness.chatId) && call.payload.photo === 'photo-big',
+    )).toBe(true)
+    expect(harness.methodCalls('deleteMessage').some(call =>
+        call.payload.message_id === firstMessage.message_id,
+    )).toBe(true)
 
     const sendsAfterFirst = harness.groupSends().length
     await harness.replay(firstMessage)
     expect(harness.groupSends().length).toBe(sendsAfterFirst)
 
-    await harness.sendGroup({ caption: '/checkin Duplicate source' }, userId, { photo: photo('photo-duplicate') })
+    const duplicateMessage = await harness.sendGroup({ caption: '/checkin Duplicate source' }, userId, { photo: photo('photo-duplicate') })
     expect(harness.groupSends().at(-1)?.payload.text).toContain(checkinReference(firstMessage.message_id))
     expect(harness.groupSends().at(-1)?.payload.text).toContain('already checked in today')
     expect(harness.groupSends().at(-1)?.payload.reply_markup).toBeUndefined()
+    expect(harness.methodCalls('deleteMessage').some(call =>
+        call.payload.message_id === duplicateMessage.message_id,
+    )).toBe(true)
 
     harness.setNow(addDays(BASE_DAY, 1))
     const secondMessage = await harness.sendGroup({ caption: '/checkin Day two' }, userId, { photo: photo('photo-second') })
@@ -306,7 +315,7 @@ test('submission stores proof metadata, welcomes the first check-in, not the sec
     expect(harness.groupSends().at(-1)?.payload.text).not.toContain('Welcome!')
     expect(harness.groupSends().at(-1)?.payload.text).toContain('WAITING')
 
-    await harness.sendGroup({ text: '/checkin Read the docs' }, 2102, {
+    const docMessage = await harness.sendGroup({ text: '/checkin Read the docs' }, 2102, {
         reply_to_message: {
             message_id: 7,
             date: Math.floor(BASE_DAY.getTime() / 1000),
@@ -320,6 +329,15 @@ test('submission stores proof metadata, welcomes the first check-in, not the sec
     })
     expect(document!.proofKind).toBe('DOCUMENT')
     expect(document!.proofFileId).toBe('document-42')
+    expect(harness.methodCalls('sendDocument').some(call =>
+        Number(call.payload.chat_id) === Number(harness.chatId) && call.payload.document === 'document-42',
+    )).toBe(true)
+    expect(harness.methodCalls('deleteMessage').some(call =>
+        call.payload.message_id === docMessage.message_id,
+    )).toBe(true)
+    expect(harness.methodCalls('deleteMessage').some(call =>
+        call.payload.message_id === 7,
+    )).toBe(true)
 })
 
 test('any member can review another member, never their own check-in', async () => {
@@ -476,7 +494,7 @@ test('a stale membership update does not fail while current rights are intact', 
     const harness = await createHarness({
         members: {
             '2751': member(2751, 'administrator', { can_manage_tags: true }),
-            [String(BOT_USER.id)]: member(BOT_USER.id, 'administrator', { can_manage_tags: true }),
+            [String(BOT_USER.id)]: member(BOT_USER.id, 'administrator', { can_manage_tags: true, can_delete_messages: true }),
         },
     })
 
@@ -511,7 +529,7 @@ test('losing administrator or Manage Tags is a fatal configuration change', asyn
     } as Update)
 
     expect(harness.fatal).toHaveLength(1)
-    expect(harness.fatal[0].message).toContain('lost administrator or Manage Tags')
+    expect(harness.fatal[0].message).toContain('lost administrator')
 })
 
 test('a group migration is fatal and reports the replacement chat id', async () => {

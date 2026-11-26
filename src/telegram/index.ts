@@ -13,7 +13,7 @@ import {
     handlePrivateStatus,
     handleReviewCallback,
 } from './checkin'
-import { fetchChatMember, isGroupMember, isModerator } from './auth'
+import { fetchChatMember, hasRequiredAdminRights, isGroupMember, isModerator } from './auth'
 import { panel } from './format'
 import { runLossNotices, startTelegramJobs, stopTelegramJobs } from './jobs'
 import { handlePostTag, handleTagClaim } from './member-tag'
@@ -144,17 +144,17 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
         const update = ctx.myChatMember
         if (String(update.chat.id) !== deps.chatId)
             return
-        if (update.new_chat_member.status === 'administrator' && update.new_chat_member.can_manage_tags)
+        if (hasRequiredAdminRights(update.new_chat_member))
             return
 
         // Pending updates may describe an older permission state. Recheck live
         // before treating the change as a fatal configuration failure.
         const current = await fetchChatMember(ctx.api, deps.chatId, deps.botId)
-        if (current?.status === 'administrator' && current.can_manage_tags)
+        if (hasRequiredAdminRights(current))
             return
 
-        log.error('Telegram bot lost administrator or Manage Tags permission in the configured group.')
-        onFatal(new Error('The Telegram bot lost administrator or Manage Tags permission in the configured group'))
+        log.error('Telegram bot lost administrator, Manage Tags, or Delete Messages rights in the configured group.')
+        onFatal(new Error('The Telegram bot lost administrator, Manage Tags, or Delete Messages rights in the configured group'))
     })
 
     bot.on('message', async (ctx) => {
@@ -332,8 +332,8 @@ export function createTelegramBot(prisma: PrismaClient, env: NodeJS.ProcessEnv):
             throw new Error('A Telegram webhook is configured; remove it before starting long polling')
 
         const botMember = await bot.api.getChatMember(config.chatId, botInfo.id)
-        if (botMember.status !== 'administrator' || !botMember.can_manage_tags)
-            throw new Error('The Telegram bot must be an administrator with Manage Tags in the configured group')
+        if (!hasRequiredAdminRights(botMember))
+            throw new Error('The Telegram bot must be an administrator with Manage Tags and Delete Messages in the configured group')
 
         await bot.api.setMyCommands([])
         await bot.api.setMyCommands(GROUP_COMMANDS, {

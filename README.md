@@ -131,7 +131,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/aksaria"
 
 - Create a bot with [BotFather](https://t.me/BotFather) and put its token in `TELEGRAM_BOT_TOKEN`.
 - Keep **privacy mode enabled** (BotFather `/setprivacy` → Enable). The bot only handles its commands and the configured group.
-- Add the bot to a group or supergroup, then promote it to **administrator** with the **Manage Tags** right. Startup fails if this right is missing. Using a supergroup avoids a chat-id change if the group is upgraded later.
+- Add the bot to a group or supergroup, then promote it to **administrator** with the **Manage Tags** and **Delete Messages** rights. Startup fails if either right is missing. Using a supergroup avoids a chat-id change if the group is upgraded later.
 - Make sure the bot has no webhook configured, because Aksaria uses long polling:
 
   ```sh
@@ -271,7 +271,7 @@ The container entrypoint applies Prisma migrations, deploys Discord commands whe
 
 - Copy `.env.example` to `.env` and configure it the same way as the Docker development setup. Use `DB_HOST=db` and a `DATABASE_URL` whose host is also `db`.
 
-- Set `BOT_PLATFORMS` to `discord`, `telegram`, or `both`. Only enable Telegram when `TELEGRAM_BOT_TOKEN`, `TELEGRAM_GROUP_ID`, and the bot's admin/Manage Tags setup are ready; startup fails otherwise.
+- Set `BOT_PLATFORMS` to `discord`, `telegram`, or `both`. Only enable Telegram when `TELEGRAM_BOT_TOKEN`, `TELEGRAM_GROUP_ID`, and the bot's administrator/Manage Tags/Delete Messages setup are ready; startup fails otherwise.
 
 - Deploy:
 

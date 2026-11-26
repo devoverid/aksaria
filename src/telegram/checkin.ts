@@ -106,8 +106,14 @@ function extractProof(message: Message): Proof | null {
     return replyProof
 }
 
-function receiptText(checkin: TelegramCheckin, isFirst: boolean, botUsername: string): string {
-    const lines = [`🔎 Status: ${checkin.status}`]
+function receiptText(checkin: TelegramCheckin, isFirst: boolean, botUsername: string, milestone: number | null = null): string {
+    const lines = [
+        `🔎 Status: ${checkin.status}`,
+        `📝 ${escapeHtml(checkin.description)}`,
+    ]
+
+    if (milestone)
+        lines.push(`🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!`)
 
     if (isFirst) {
         lines.push(
@@ -125,29 +131,71 @@ function reviewKeyboard(reference: string): InlineKeyboard {
         .text('❌ Reject', `ci:r:${reference}`)
 }
 
-async function sendWaitingReceipt(ctx: Context, deps: TelegramDeps, checkin: TelegramCheckin, isFirst: boolean): Promise<void> {
+async function sendWaitingReceipt(ctx: Context, deps: TelegramDeps, checkin: TelegramCheckin, isFirst: boolean): Promise<boolean> {
     const message = ctx.message!
     const keyboard = checkin.status === 'WAITING' ? reviewKeyboard(checkinReference(checkin.sourceMessageId)) : undefined
 
     const sent = await ctx.api.sendMessage(deps.chatId, receiptText(checkin, isFirst, deps.botUsername), {
         parse_mode: 'HTML',
         message_thread_id: message.message_thread_id,
-        reply_parameters: { message_id: message.message_id, allow_sending_without_reply: true },
         reply_markup: keyboard,
     })
 
     await recordReceipt(deps.prisma, deps.chatId, checkin.sourceMessageId, sent.message_id)
+
+    if (!checkin.proofKind || !checkin.proofFileId)
+        return true
+
+    try {
+        if (checkin.proofKind === 'PHOTO') {
+            await ctx.api.sendPhoto(deps.chatId, checkin.proofFileId, {
+                message_thread_id: message.message_thread_id,
+            })
+        }
+        else {
+            await ctx.api.sendDocument(deps.chatId, checkin.proofFileId, {
+                message_thread_id: message.message_thread_id,
+            })
+        }
+
+        return true
+    }
+    catch {
+        log.warn(`Telegram proof repost failed for ${checkinReference(checkin.sourceMessageId)}.`)
+        return false
+    }
 }
 
-async function deliverExistingReceipt(ctx: Context, deps: TelegramDeps, checkin: TelegramCheckin): Promise<void> {
+async function deliverExistingReceipt(ctx: Context, deps: TelegramDeps, checkin: TelegramCheckin): Promise<boolean> {
     if (checkin.receiptMessageId !== null)
-        return
+        return true
 
     const first = (await deps.prisma.telegramCheckin.count({
         where: { chatId: deps.chatId, userId: checkin.userId },
     })) === 1
 
-    await sendWaitingReceipt(ctx, deps, checkin, first)
+    return sendWaitingReceipt(ctx, deps, checkin, first)
+}
+
+async function deleteUserMessages(ctx: Context, deps: TelegramDeps, message: Message, includeProof: boolean): Promise<void> {
+    const ids = new Set<number>([message.message_id])
+    const reply = message.reply_to_message
+
+    if (includeProof && reply && reply.message_id !== message.message_id
+        && reply.from?.id === message.from?.id
+        && (reply.photo?.length || reply.document)
+        && (reply.message_thread_id ?? undefined) === (message.message_thread_id ?? undefined)) {
+        ids.add(reply.message_id)
+    }
+
+    for (const messageId of ids) {
+        try {
+            await ctx.api.deleteMessage(deps.chatId, messageId)
+        }
+        catch {
+            // The message may already be gone; check-ins must never fail on cleanup.
+        }
+    }
 }
 
 export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: string): Promise<void> {
@@ -158,19 +206,25 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
     if (!isGroupMember(member))
         return
 
+    const reply = async (text: string): Promise<void> => {
+        await ctx.reply(text)
+        await deleteUserMessages(ctx, deps, message, true)
+    }
+
     const existing = await getCheckinBySource(deps.prisma, deps.chatId, message.message_id)
     if (existing) {
-        await deliverExistingReceipt(ctx, deps, existing)
+        const delivered = await deliverExistingReceipt(ctx, deps, existing)
+        await deleteUserMessages(ctx, deps, message, delivered)
         return
     }
 
     const description = args.trim()
     if (!description) {
-        await ctx.reply('⚡ /checkin <your win today> + one photo/document (or reply to your own).')
+        await reply('⚡ /checkin <your win today> + one photo/document (or reply to your own).')
         return
     }
     if ([...description].length > MAX_DESCRIPTION_LENGTH) {
-        await ctx.reply(`✍️ Easy there, novelist! Keep it to 1–${MAX_DESCRIPTION_LENGTH} characters.`)
+        await reply(`✍️ Easy there, novelist! Keep it to 1–${MAX_DESCRIPTION_LENGTH} characters.`)
         return
     }
 
@@ -180,7 +234,7 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
     }
     catch (err) {
         if (err instanceof ProofError) {
-            await ctx.reply(err.message)
+            await reply(err.message)
             return
         }
         throw err
@@ -191,7 +245,7 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
     const submitDay = wibDay(createdAt)
 
     if (dayKey(submitDay) !== dayKey(wibDay(now))) {
-        await ctx.reply('🌙 Midnight got it! That one’s too old — fire off today’s check-in instead.')
+        await reply('🌙 Midnight got it! That one’s too old — fire off today’s check-in instead.')
         return
     }
 
@@ -210,22 +264,24 @@ export async function handleCheckin(ctx: Context, deps: TelegramDeps, args: stri
     }
     catch (err) {
         log.error(`Telegram check-in submission failed: ${err instanceof Error ? err.message : 'unknown error'}`)
-        await ctx.reply('💥 Oops, the check-in didn’t stick. Give it another shot!')
+        await reply('💥 Oops, the check-in didn’t stick. Give it another shot!')
         return
     }
 
     if (result.type === 'ALREADY_SUBMITTED') {
-        await ctx.reply(`✅ ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}. You already checked in today — one spark per day!`)
+        await reply(`✅ ${checkinReference(result.checkin.sourceMessageId)}: ${result.checkin.status}. You already checked in today — one spark per day!`)
         return
     }
 
     if (result.type === 'DUPLICATE') {
-        await deliverExistingReceipt(ctx, deps, result.checkin)
+        const delivered = await deliverExistingReceipt(ctx, deps, result.checkin)
+        await deleteUserMessages(ctx, deps, message, delivered)
         return
     }
 
     try {
-        await sendWaitingReceipt(ctx, deps, result.checkin, result.isFirst)
+        const delivered = await sendWaitingReceipt(ctx, deps, result.checkin, result.isFirst)
+        await deleteUserMessages(ctx, deps, message, delivered)
     }
     catch (err) {
         log.error(`Telegram check-in receipt failed: ${err instanceof Error ? err.message : 'unknown error'}`)
@@ -362,12 +418,13 @@ async function editReceipt(api: Api, deps: TelegramDeps, checkin: TelegramChecki
     if (checkin.receiptMessageId === null)
         return
 
-    const lines = [`🔎 Status: ${checkin.status}`]
-    if (milestone)
-        lines.push(`🏆 Streak milestone: ${milestone} day${milestone === 1 ? '' : 's'}!`)
-
     try {
-        await api.editMessageText(deps.chatId, checkin.receiptMessageId, panel(`⚡ Check-in ${checkinReference(checkin.sourceMessageId)}`, lines), { parse_mode: 'HTML' })
+        await api.editMessageText(
+            deps.chatId,
+            checkin.receiptMessageId,
+            receiptText(checkin, false, deps.botUsername, milestone),
+            { parse_mode: 'HTML' },
+        )
     }
     catch {
         // The public receipt may have been deleted; durable state stays private.
