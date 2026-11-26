@@ -455,6 +455,28 @@ test('a deleted receipt and a blocked DM do not undo a decision', async () => {
     expect(harness.methodCalls('sendMessage').at(-1)?.payload.text).toContain('Check-in: APPROVED')
 })
 
+test('a stale membership update does not fail while current rights are intact', async () => {
+    const harness = await createHarness({
+        members: {
+            '2751': member(2751, 'administrator', { can_manage_tags: true }),
+            [String(BOT_USER.id)]: member(BOT_USER.id, 'administrator', { can_manage_tags: true }),
+        },
+    })
+
+    await harness.bot.handleUpdate({
+        update_id: ++updateCounter,
+        my_chat_member: {
+            chat: { id: Number(harness.chatId), type: 'supergroup', title: 'Test group' },
+            from: { id: 2751, is_bot: false, first_name: 'Admin' },
+            date: Math.floor(BASE_DAY.getTime() / 1000),
+            old_chat_member: member(BOT_USER.id, 'administrator', { can_manage_tags: true }),
+            new_chat_member: member(BOT_USER.id, 'member'),
+        },
+    } as Update)
+
+    expect(harness.fatal).toHaveLength(0)
+})
+
 test('losing administrator or Manage Tags is a fatal configuration change', async () => {
     const harness = await createHarness({
         members: { '2701': member(2701, 'administrator', { can_manage_tags: true }) },

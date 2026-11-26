@@ -140,11 +140,17 @@ export function registerTelegramHandlers(bot: Bot, deps: TelegramDeps, onFatal: 
         log.error('Telegram update handler failed.')
     })
 
-    bot.on('my_chat_member', (ctx) => {
+    bot.on('my_chat_member', async (ctx) => {
         const update = ctx.myChatMember
         if (String(update.chat.id) !== deps.chatId)
             return
         if (update.new_chat_member.status === 'administrator' && update.new_chat_member.can_manage_tags)
+            return
+
+        // Pending updates may describe an older permission state. Recheck live
+        // before treating the change as a fatal configuration failure.
+        const current = await fetchChatMember(ctx.api, deps.chatId, deps.botId)
+        if (current?.status === 'administrator' && current.can_manage_tags)
             return
 
         log.error('Telegram bot lost administrator or Manage Tags permission in the configured group.')
