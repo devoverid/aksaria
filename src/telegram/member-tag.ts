@@ -1,11 +1,17 @@
 import type { TelegramDeps } from './deps'
 import type { Context } from 'grammy'
 import { fetchChatMember, currentMemberTag, isModerator } from './auth'
-import { escapeHtml, panel } from './format'
+import { escapeHtml, panel, plainPanel } from './format'
 import { InlineKeyboard } from 'grammy'
 
+const TAG_TITLE = '🎟️ Member tag'
+
 export function tagPostText(tag: string): string {
-    return panel('🎟️ Member tag', [`Claim your member tag: ${escapeHtml(tag)}`])
+    return panel(TAG_TITLE, [`Claim your member tag: ${escapeHtml(tag)}`])
+}
+
+function tagPostPlainText(tag: string): string {
+    return plainPanel(TAG_TITLE, [`Claim your member tag: ${tag}`])
 }
 
 function tagKeyboard(): InlineKeyboard {
@@ -36,7 +42,7 @@ function isCurrentTagPost(ctx: Context, deps: TelegramDeps): boolean {
     const message = ctx.callbackQuery?.message
     if (!message || message.chat.id !== Number(deps.chatId) || message.from?.id !== deps.botId)
         return false
-    if (message.text !== tagPostText(deps.memberTag))
+    if (message.text !== tagPostPlainText(deps.memberTag))
         return false
 
     return message.reply_markup?.inline_keyboard.some(row =>

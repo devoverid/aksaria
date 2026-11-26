@@ -66,6 +66,14 @@ async function createHarness(options: HarnessOptions = {}) {
         return members.get(String(userId)) ?? member(userId)
     }
 
+    function renderedText(text: string | undefined): string | undefined {
+        return text
+            ?.replace(/<[^>]+>/g, '')
+            .replaceAll('&lt;', '<')
+            .replaceAll('&gt;', '>')
+            .replaceAll('&amp;', '&')
+    }
+
     function returnedMessage(chatIdValue: number | string, text: string | undefined, replyMarkup: unknown): Message {
         const numeric = Number(chatIdValue)
         return {
@@ -75,7 +83,7 @@ async function createHarness(options: HarnessOptions = {}) {
                 ? { id: numeric, type: 'supergroup', title: 'Test group' }
                 : { id: numeric, type: 'private', first_name: 'Private' },
             from: BOT_USER,
-            text,
+            text: renderedText(text),
             reply_markup: replyMarkup,
         } as unknown as Message
     }
