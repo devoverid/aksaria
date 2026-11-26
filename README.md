@@ -117,7 +117,7 @@ DB_PASS=password
 DATABASE_URL="postgresql://postgres:password@localhost:5432/aksaria"
 ```
 
-> Set `DATABASE_URL` explicitly. The Prisma config file disables automatic `.env` loading for some CLI commands, so exporting `DATABASE_URL` also makes `make migrate-up` and `bunx prisma ...` work from a plain shell.
+> Set `DATABASE_URL` explicitly. The Prisma config file disables automatic `.env` loading for some CLI commands, so exporting `DATABASE_URL` also makes `make migrate-up` and `bun x prisma ...` work from a plain shell.
 
 3. Prepare Discord (skip when `BOT_PLATFORMS=telegram`)
 
@@ -162,7 +162,7 @@ Telegram command reference:
 ```sh
 createdb aksaria
 export DATABASE_URL="postgresql://postgres:password@localhost:5432/aksaria"
-bunx prisma migrate deploy
+bun x prisma migrate deploy
 # or: make migrate-up
 ```
 
@@ -233,7 +233,7 @@ The container entrypoint applies Prisma migrations, deploys Discord commands whe
 
 - Follow logs: `docker compose logs -f app`
 - Open a shell in the app container: `docker compose run --rm --entrypoint "" app sh`
-- Reset a disposable database: `docker compose run --rm --entrypoint "" app bunx prisma migrate reset`
+- Reset a disposable database: `docker compose run --rm --entrypoint "" app bun x prisma migrate reset`
 - PostgreSQL shell: `docker compose exec db psql -U postgres -d aksaria`
 
 <h2 id="production">🌐 Production</h2>

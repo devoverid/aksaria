@@ -5,13 +5,13 @@ IMAGE_TAG = $(REPO):$(TAG)
 LATEST_TAG = $(REPO):latest
 
 create-migration:
-	bunx prisma migrate dev --name $(name)
+	bun x prisma migrate dev --name $(name)
 
 migrate-up:
-	bunx prisma migrate deploy
+	bun x prisma migrate deploy
 
 migrate-reset:
-	bunx prisma migrate reset
+	bun x prisma migrate reset
 
 release:
 	docker build -t $(IMAGE_TAG) -f ./docker/Dockerfile .

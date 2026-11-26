@@ -21,7 +21,7 @@
         "prod": "bun src/index.ts",
         "start": "bun --watch src/index.ts",
         "commands": "bun src/discord/deploy-commands.ts",
-        "prisma": "bunx prisma generate --schema db/schema.prisma"
+        "prisma": "bun x prisma generate --schema db/schema.prisma"
     },
     "dependencies": {
         "@prisma/client": "6.13.0",
