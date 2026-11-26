@@ -117,7 +117,7 @@ DB_PASS=password
 DATABASE_URL="postgresql://postgres:password@localhost:5432/aksaria"
 ```
 
-> Set `DATABASE_URL` explicitly. The Prisma config file disables automatic `.env` loading for some CLI commands, so exporting `DATABASE_URL` also makes `make migrate-up` and `bun x prisma ...` work from a plain shell.
+> Keep `DATABASE_URL` in `.env`; `prisma.config.ts` loads that file for Prisma CLI commands such as `bun x prisma migrate deploy` and `make migrate-up`. You can also export it in the shell if you prefer.
 
 3. Prepare Discord (skip when `BOT_PLATFORMS=telegram`)
 
