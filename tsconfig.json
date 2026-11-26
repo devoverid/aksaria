@@ -4,15 +4,12 @@
         "module": "esnext",
         "moduleResolution": "Bundler",
         "paths": {
-            "@constants": ["./src/constants.ts"],
-            "@db/*": ["./src/db/*"],
+            "@core/*": ["./src/core/*"],
+            "@discord/*": ["./src/discord/*"],
             "@generatedDB/*": ["./db/generated/prisma/*"],
-            "@commands/*": ["./src/bot/commands/*"],
-            "@events/*": ["./src/bot/events/*"],
-            "@utils/*": ["./src/utils/*"],
-            "@type/*": ["./src/types/*"],
-            "@config/*": ["./src/config/*"]
+            "@telegram/*": ["./src/telegram/*"]
         },
+        "types": ["bun-types", "node"],
         "strict": true,
         "skipLibCheck": true
     },

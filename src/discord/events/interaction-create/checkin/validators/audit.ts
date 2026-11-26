@@ -1,0 +1,150 @@
+import type { PrismaClient } from '@generatedDB/client'
+import type { Checkin as CheckinType } from '@discord/types/checkin'
+import type { CheckinStreak } from '@discord/types/checkin-streak'
+import type { Interaction, Message, ThreadChannel } from 'discord.js'
+import { CheckinAuditError } from '@discord/commands/checkin/handlers/checkin-audit'
+import { CheckinStatus } from '@discord/commands/checkin/validators/checkin-status'
+import { decodeSnowflakes } from '@discord/utils/component'
+import { isDateToday } from '@core/date'
+import { DiscordAssert } from '@discord/utils/discord'
+import { PermissionsBitField } from 'discord.js'
+import { Checkin } from '.'
+import { CheckinAuditModalError } from '../handlers/audit-modal'
+import { CheckinAuditMessage } from '../messages/audit'
+
+export class CheckinAudit extends CheckinAuditMessage {
+    static override BASE_PERMS = [
+        ...DiscordAssert.BASE_PERMS,
+        PermissionsBitField.Flags.UseApplicationCommands,
+    ]
+
+    static getModalReviewId(interaction: Interaction, customId: string) {
+        const [prefix, guildId, checkinId, checkinTs] = decodeSnowflakes(customId)
+
+        if (!guildId)
+            throw new CheckinAuditModalError(this.ERR.GuildMissing)
+        if (interaction.guildId !== guildId)
+            throw new CheckinAuditModalError(this.ERR.NotGuild)
+        if (!checkinId)
+            throw new CheckinAuditModalError(this.ERR.CheckinIdMissing)
+        if (!checkinTs)
+            throw new CheckinAuditModalError(this.ERR.CheckinDateMissing)
+
+        const checkinCreatedAt = new Date(Number(checkinTs))
+        if (!checkinCreatedAt)
+            throw new CheckinAuditModalError(this.ERR.CheckinDateInvalid)
+
+        return { prefix, guildId, checkinId, checkinCreatedAt }
+    }
+
+    static assertClarificationThread(thread: ThreadChannel, checkinPublicId: string) {
+        const threadName = thread.name
+        const checkinThreadName = CheckinStatus.MSG.ThreadName(checkinPublicId)
+
+        if (threadName !== checkinThreadName) {
+            throw new CheckinAuditError(this.ERR.NotClarificationThread)
+        }
+    }
+
+    static assertCheckinNotToday(checkin: CheckinType) {
+        if (isDateToday(checkin.created_at)) {
+            throw new CheckinAuditError(CheckinAudit.ERR.CheckinShouldNotToday(checkin.link!))
+        }
+    }
+
+    static assertCheckinWithOldestWaiting(currCheckin: CheckinType, checkins: CheckinType[]) {
+        if (!checkins.length)
+            throw new CheckinAuditError(CheckinAudit.ERR.NoOldestCheckins)
+
+        const oldestWaitingCheckin = checkins[0]
+
+        const diffMs = Math.abs(currCheckin.created_at.getTime() - oldestWaitingCheckin.created_at.getTime())
+        const diffDays = diffMs / (1000 * 60 * 60 * 24)
+
+        if (diffDays > 0) {
+            let waitingCheckinList = ``
+            for (const [idx, checkin] of checkins.entries()) {
+                if (idx === 0) {
+                    waitingCheckinList += `
+[#1](${checkin.link}) *<- validate this check-in first*
+\`\`\`bash
+${checkin.public_id}
+\`\`\``
+                }
+                else {
+                    waitingCheckinList += `
+[#${idx + 1}](${checkin.link})
+\`\`\`bash
+${checkin.public_id}
+\`\`\``
+                }
+            }
+            throw new CheckinAuditError(CheckinAudit.ERR.CheckinNotDiffWithinDay(oldestWaitingCheckin, waitingCheckinList))
+        }
+    }
+
+    static assertCheckinIdFromThread(thread: ThreadChannel, threadMsg: Message): string {
+        const threadName = thread.name
+        const embeds = threadMsg.embeds
+        if (!embeds || !embeds.length)
+            throw new CheckinAuditError(this.ERR.ThreadMessageMissingEmbed)
+
+        const embedTitle = embeds[0].title
+        if (!embedTitle)
+            throw new CheckinAuditError(this.ERR.ThreadMessageMissingTitle)
+
+        const idRegex = Checkin.getCheckinIdRegex()
+        const nameMatch = threadName.match(idRegex)
+        const titleMatch = embedTitle.match(idRegex)
+        if (!nameMatch || !titleMatch)
+            throw new CheckinAuditError(this.ERR.ThreadOrEmbedMissingId)
+
+        const threadId = nameMatch[0]
+        const embedId = titleMatch[0]
+        if (threadId !== embedId)
+            throw new CheckinAuditError(this.ERR.ThreadIdEmbedIdMismatch)
+
+        return threadId
+    }
+
+    static async assertExistCheckinId(prisma: PrismaClient, checkinId: string) {
+        const checkin = await prisma.checkin.findUnique({
+            where: { public_id: checkinId },
+            include: { user: true, checkin_streak: true },
+        })
+        if (!checkin) {
+            throw new CheckinAuditError(this.ERR.CheckinIdInvalid)
+        }
+
+        await Checkin.setAttachments(prisma, checkin)
+
+        return checkin
+    }
+
+    static async getOldestWaitingCheckins(prisma: PrismaClient, checkinStreakId: number): Promise<CheckinType[]> {
+        const checkinStreak = await prisma.checkinStreak.findFirst({
+            where: {
+                id: checkinStreakId,
+            },
+            select: {
+                id: true,
+                updated_at: true,
+                checkins: {
+                    where: {
+                        status: 'WAITING',
+                        reviewed_by: null,
+                    },
+                    orderBy: { created_at: 'asc' },
+                },
+            },
+        }) as CheckinStreak
+
+        return checkinStreak.checkins!
+    }
+
+    static async closeClarificationThread(thread: ThreadChannel, threadMessage: Message) {
+        await threadMessage.react('🔥')
+        await thread.setLocked(true)
+        await thread.setArchived(true)
+    }
+}
